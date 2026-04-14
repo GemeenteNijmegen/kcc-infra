@@ -14,7 +14,7 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
         subdomain: 'hello-world',
         id: 'hello-world-service-1',
         priority: 10,
-      }
+      },
     ],
   },
 };

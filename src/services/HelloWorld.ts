@@ -65,8 +65,10 @@ export class HelloWorldService extends Construct implements IContainerService {
       healthCheck: {
         enabled: true,
         path: '/health',
+        port: HelloWorldService.CONTAINER_PORT.toString(),
       },
       priority: priority,
+      port: HelloWorldService.CONTAINER_PORT,
     });
 
 
@@ -89,7 +91,7 @@ export class HelloWorldService extends Construct implements IContainerService {
       portMappings: [
         {
           containerPort: HelloWorldService.CONTAINER_PORT,
-          hostPort: HelloWorldService.HOST_PORT,
+          hostPort: HelloWorldService.CONTAINER_PORT,
           protocol: Protocol.TCP,
         },
       ],
@@ -104,7 +106,7 @@ export class HelloWorldService extends Construct implements IContainerService {
       taskDefinition: task,
       cloudMapOptions: {
         cloudMapNamespace: platform.namespace,
-        containerPort: HelloWorldService.HOST_PORT,
+        containerPort: HelloWorldService.CONTAINER_PORT,
         dnsRecordType: DnsRecordType.SRV,
         dnsTtl: Duration.seconds(60),
       },
