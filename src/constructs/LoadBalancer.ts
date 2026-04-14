@@ -41,6 +41,7 @@ export class ServiceLoadBalancer extends Construct {
 
     // Add A record for resolving in our private dns hostedzone
     new ARecord(this, 'a-record', {
+      recordName: 'alb',
       target: RecordTarget.fromAlias(new LoadBalancerTarget(this.alb)),
       zone: privateHostedZone,
     });
