@@ -9,13 +9,13 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     deploymentEnvironment: Statics.gnSandbox01,
     criticality: new Criticality('low'),
     databaseSnapshotRetentionDays: 0,
-    // helloWorlServices: [
-    //   {
-    //     subdomain: 'hello-world',
-    //     id: 'hello-world-service-1',
-    //     priority: 10,
-    //   }
-    // ],
+    helloWorlServices: [
+      {
+        subdomain: 'hello-world',
+        id: 'hello-world-service-1',
+        priority: 10,
+      }
+    ],
   },
 };
 
