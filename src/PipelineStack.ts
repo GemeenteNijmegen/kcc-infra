@@ -6,6 +6,7 @@ import { PipelineType } from 'aws-cdk-lib/aws-codepipeline';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { Configurable } from './ConfigurationInterfaces';
+import { KccInfraStage } from './KccInfraStage';
 import { ParameterStage } from './ParameterStage';
 import { Statics } from './Statics';
 
@@ -45,11 +46,11 @@ export class PipelineStack extends Stack {
     pipeline.addStage(parameters);
 
     // Infra stage
-    // const api = new KccInfraStage(this, Statics.projectName, {
-    //   env: props.configuration.deploymentEnvironment,
-    //   configuration: props.configuration,
-    // });
-    // pipeline.addStage(api);
+    const api = new KccInfraStage(this, Statics.projectName, {
+      env: props.configuration.deploymentEnvironment,
+      configuration: props.configuration,
+    });
+    pipeline.addStage(api);
 
   }
 

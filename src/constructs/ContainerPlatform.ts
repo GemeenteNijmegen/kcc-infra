@@ -1,6 +1,4 @@
-import { RemoteParameters } from '@gemeentenijmegen/cross-region-parameters';
-import { Duration } from 'aws-cdk-lib';
-import { Certificate, ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { IVpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster } from 'aws-cdk-lib/aws-ecs';
 import { IHostedZone } from 'aws-cdk-lib/aws-route53';
@@ -18,6 +16,10 @@ export interface ContainerPlatformProps {
    * The hosted zone that this platform should use for DNS
    */
   hostedZone: IHostedZone;
+  /**
+   * Certificate (wildcard)
+   */
+  certificate: ICertificate;
 }
 
 /**
@@ -49,7 +51,7 @@ export class ContainerPlatform extends Construct {
   constructor(scope: Construct, id: string, private readonly props: ContainerPlatformProps) {
     super(scope, id);
 
-    this.certificate = this.importCertificate();
+    this.certificate = this.props.certificate;
 
     // In service discovery
     this.namespace = new PrivateDnsNamespace(this, 'cloudmap', {
@@ -79,20 +81,6 @@ export class ContainerPlatform extends Construct {
       hostedZone: this.props.hostedZone,
       wildcardCertificate: this.certificate,
     });
-  }
-
-  /**
-   * Get the certificate ARN from parameter store in us-east-1
-   * @returns Certificate
-   */
-  private importCertificate() {
-    const parameters = new RemoteParameters(this, 'params', {
-      path: `${Statics.ssmWildcardCertificatePath}/`,
-      region: 'us-east-1',
-      timeout: Duration.seconds(10),
-    });
-    const certificateArn = parameters.get(Statics.ssmWildcardCertificateArn);
-    return Certificate.fromCertificateArn(this, 'cert', certificateArn);
   }
 
 }

@@ -1,5 +1,6 @@
 import { GemeenteNijmegenVpc } from '@gemeentenijmegen/aws-constructs';
 import { Stack, StackProps } from 'aws-cdk-lib';
+import { CertificateValidation, DnsValidatedCertificate, ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './ConfigurationInterfaces';
 import { ContainerPlatform } from './constructs/ContainerPlatform';
@@ -18,6 +19,7 @@ export class MainStack extends Stack {
 
   private readonly vpc: GemeenteNijmegenVpc;
   private readonly hostedzone: ProjectHostezone;
+  private readonly certificate: ICertificate;
   private readonly containerPlatform: ContainerPlatform;
   private readonly configuration: Configuration;
 
@@ -32,6 +34,14 @@ export class MainStack extends Stack {
     });
     this.vpc = new GemeenteNijmegenVpc(this, 'vpc');
 
+    // Depricated but still the only way without deploying a custom stack.
+    this.certificate = new DnsValidatedCertificate(this, 'cert', {
+      region: 'us-east-1',
+      domainName: `*.${this.hostedzone.hostedZone.zoneName}`,
+      validation: CertificateValidation.fromDns(this.hostedzone.hostedZone),
+      hostedZone: this.hostedzone.hostedZone,
+    });
+
     // Add CNAME records for certificates
     new DnsRecords(this, 'dns', {
       hostedzone: this.hostedzone.hostedZone,
@@ -39,10 +49,11 @@ export class MainStack extends Stack {
     });
 
     // Create the container platform
-    this.containerPlatform = new ContainerPlatform(this, 'containers', {
-      vpc: this.vpc.vpc,
-      hostedZone: this.hostedzone.hostedZone,
-    });
+    // this.containerPlatform = new ContainerPlatform(this, 'containers', {
+    //   vpc: this.vpc.vpc,
+    //   hostedZone: this.hostedzone.hostedZone,
+    //   certificate: this.certificate,
+    // });
 
     this.helloWorldService();
   }
