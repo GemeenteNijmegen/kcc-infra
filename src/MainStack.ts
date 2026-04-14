@@ -49,11 +49,11 @@ export class MainStack extends Stack {
     });
 
     // Create the container platform
-    // this.containerPlatform = new ContainerPlatform(this, 'containers', {
-    //   vpc: this.vpc.vpc,
-    //   hostedZone: this.hostedzone.hostedZone,
-    //   certificate: this.certificate,
-    // });
+    this.containerPlatform = new ContainerPlatform(this, 'containers', {
+      vpc: this.vpc.vpc,
+      hostedZone: this.hostedzone.hostedZone,
+      certificate: this.certificate,
+    });
 
     this.helloWorldService();
   }
