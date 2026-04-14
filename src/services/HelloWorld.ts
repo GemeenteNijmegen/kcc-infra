@@ -20,8 +20,7 @@ export interface HelloWorldServiceProps {
 export class HelloWorldService extends Construct implements IContainerService {
 
   static readonly IMAGE = 'jmalloc/echo-server';
-  static readonly CONTAINER_PORT = 80;
-  static readonly HOST_PORT = 8080;
+  static readonly CONTAINER_PORT = 8080;
 
   readonly id: string;
 
