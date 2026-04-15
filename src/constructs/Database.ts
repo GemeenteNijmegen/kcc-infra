@@ -1,6 +1,8 @@
 import {
-  aws_rds as rds, aws_ec2 as ec2, aws_kms as kms, aws_backup as backup,
+  aws_backup as backup,
   Duration,
+  aws_ec2 as ec2, aws_kms as kms,
+  aws_rds as rds,
 } from 'aws-cdk-lib';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
@@ -37,7 +39,7 @@ export class Database extends Construct {
         password: props.databaseSecret.secretValueFromJson('password'),
       },
       vpc: props.vpc,
-      databaseName: Statics.defaultDatabaseName, // Note: the default database is not used. We have a lambda to create the DBs
+      databaseName: 'postgres', // Note: the default database is not used. We have a custom resource to create the DBs
       storageEncryptionKey: dbKmsKey,
       vpcSubnets: {
         subnetType: SubnetType.PRIVATE_ISOLATED,
