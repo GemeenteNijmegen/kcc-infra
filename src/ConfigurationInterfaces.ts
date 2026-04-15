@@ -61,6 +61,12 @@ export interface Configuration {
 
 
   /**
+   * The compute capacity provider for the container platform
+   * @default 'FARGATE'
+   */
+  computeProvider?: ComputeProvider;
+
+  /**
    * Provide configuration for a number of hello world services (usually just one)
    * @default - no hello world services are deployed
    */
@@ -100,3 +106,8 @@ export interface TaskSize {
   cpu: string;
   memory: string;
 }
+
+/**
+ * The compute capacity provider for the ECS cluster
+ */
+export type ComputeProvider = 'FARGATE' | 'EC2';

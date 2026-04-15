@@ -1,5 +1,5 @@
 import { Duration } from 'aws-cdk-lib';
-import { AwsLogDriver, Compatibility, ContainerImage, FargateService, Protocol, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
+import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
@@ -76,10 +76,12 @@ export class HelloWorldService extends Construct implements IContainerService {
 
   private setupService(logs: LogGroup, platform: ContainerServiceProps) {
 
+    const isEc2 = platform.computeProvider === 'EC2';
+
     const task = new TaskDefinition(this, 'main-task', {
       cpu: this.props.serviceConfiguration.taskSize?.cpu ?? '256',
       memoryMiB: this.props.serviceConfiguration.taskSize?.memory ?? '512',
-      compatibility: Compatibility.FARGATE,
+      compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
     });
 
     task.addContainer('helloworld', {
@@ -91,7 +93,7 @@ export class HelloWorldService extends Construct implements IContainerService {
       portMappings: [
         {
           containerPort: HelloWorldService.CONTAINER_PORT,
-          hostPort: HelloWorldService.CONTAINER_PORT,
+          hostPort: isEc2 ? 0 : HelloWorldService.CONTAINER_PORT, // TODO figure out and document why this is 0
           protocol: Protocol.TCP,
         },
       ],
@@ -99,20 +101,37 @@ export class HelloWorldService extends Construct implements IContainerService {
         LOG_HTTP_HEADERS: 'true',
         LOG_HTTP_BODY: 'true',
       },
+      memoryReservationMiB: isEc2 ? 256 : undefined,
     });
 
-    const service = new FargateService(this, 'service', {
-      cluster: platform.cluster,
-      taskDefinition: task,
-      cloudMapOptions: {
-        cloudMapNamespace: platform.namespace,
-        containerPort: HelloWorldService.CONTAINER_PORT,
-        dnsRecordType: DnsRecordType.SRV,
-        dnsTtl: Duration.seconds(60),
-      },
-      desiredCount: 1,
-      enableExecuteCommand: true,
-    });
+    let service: BaseService;
+    if (isEc2) {
+      service = new Ec2Service(this, 'service', {
+        cluster: platform.cluster,
+        taskDefinition: task,
+        cloudMapOptions: {
+          cloudMapNamespace: platform.namespace,
+          containerPort: HelloWorldService.CONTAINER_PORT,
+          dnsRecordType: DnsRecordType.SRV,
+          dnsTtl: Duration.seconds(60),
+        },
+        desiredCount: 1,
+        enableExecuteCommand: true,
+      });
+    } else {
+      service = new FargateService(this, 'service', {
+        cluster: platform.cluster,
+        taskDefinition: task,
+        cloudMapOptions: {
+          cloudMapNamespace: platform.namespace,
+          containerPort: HelloWorldService.CONTAINER_PORT,
+          dnsRecordType: DnsRecordType.SRV,
+          dnsTtl: Duration.seconds(60),
+        },
+        desiredCount: 1,
+        enableExecuteCommand: true,
+      });
+    }
 
     ContainerServiceUtils.allowExecutingCommands(task);
 

@@ -53,6 +53,7 @@ export class MainStack extends Stack {
       vpc: this.vpc.vpc,
       hostedZone: this.hostedzone.hostedZone,
       certificate: this.certificate,
+      computeProvider: this.configuration.computeProvider,
     });
 
     this.helloWorldService();

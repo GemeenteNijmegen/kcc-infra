@@ -9,6 +9,7 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     deploymentEnvironment: Statics.gnSandbox01,
     criticality: new Criticality('low'),
     databaseSnapshotRetentionDays: 0,
+    computeProvider: "EC2",
     helloWorlServices: [
       {
         subdomain: 'hello-world',
