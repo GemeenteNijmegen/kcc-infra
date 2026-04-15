@@ -2,8 +2,7 @@ import { StackProps } from 'aws-cdk-lib';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import { IVpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol, IListenerCertificate, ListenerAction } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { ARecord, IHostedZone, PrivateHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { IHostedZone, PrivateHostedZone } from 'aws-cdk-lib/aws-route53';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
@@ -21,7 +20,7 @@ export class ServiceLoadBalancer extends Construct {
     super(scope, id);
 
     // Private hosted zone for routing in the private subnet.
-    const privateHostedZone = new PrivateHostedZone(this, 'private-hostedzone', {
+    new PrivateHostedZone(this, 'private-hostedzone', {
       vpc: props.vpc,
       zoneName: props.hostedzone.zoneName,
       comment: 'Used for privat ALB dns name',
@@ -40,11 +39,11 @@ export class ServiceLoadBalancer extends Construct {
     });
 
     // Add A record for resolving in our private dns hostedzone
-    new ARecord(this, 'a-record', {
-      recordName: 'alb',
-      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.alb)),
-      zone: privateHostedZone,
-    });
+    // new ARecord(this, 'a-record', {
+    //   recordName: 'alb',
+    //   target: RecordTarget.fromAlias(new LoadBalancerTarget(this.alb)),
+    //   zone: privateHostedZone,
+    // });
 
     // Setup the https listener
     this.listener = this.createListener(certificate);
