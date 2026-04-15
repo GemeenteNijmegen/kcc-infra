@@ -83,6 +83,7 @@ export class ContainerPlatform extends Construct {
         machineImage: MachineImage.fromSsmParameter('/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id'),
         minCapacity: 1,
         maxCapacity: 3,
+        requireImdsv2: true, //this forces CDK to use a launch template (and is a security best practice anyway since it disables IMDSv1).
       });
       const capacityProvider = new AsgCapacityProvider(this, 'asg-capacity-provider', {
         autoScalingGroup: asg,
