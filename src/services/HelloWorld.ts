@@ -35,7 +35,7 @@ export class HelloWorldService extends Construct implements IContainerService {
    * Bind the service to the container platform
    * @param platform
    */
-  bind(platform: ContainerServiceProps): void {
+  bind(platform: ContainerServiceProps) {
 
 
     // Read props

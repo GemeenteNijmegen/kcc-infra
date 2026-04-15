@@ -41,7 +41,7 @@ export class ParameterStack extends Stack {
       generateSecretString: {
         excludePunctuation: true,
         secretStringTemplate: JSON.stringify({
-          username: 'kcc-dba',
+          username: 'kcc_dba', // should be [a-zA-Z_] (no hypen allowed at least)
         }),
         generateStringKey: 'password',
       },
