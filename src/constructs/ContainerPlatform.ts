@@ -1,7 +1,7 @@
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { InstanceClass, InstanceSize, InstanceType, IVpc, MachineImage } from 'aws-cdk-lib/aws-ec2';
-import { AsgCapacityProvider, Cluster } from 'aws-cdk-lib/aws-ecs';
+import { InstanceClass, InstanceSize, InstanceType, IVpc, LaunchTemplate } from 'aws-cdk-lib/aws-ec2';
+import { AsgCapacityProvider, Cluster, EcsOptimizedImage } from 'aws-cdk-lib/aws-ecs';
 import { IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { PrivateDnsNamespace } from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
@@ -75,20 +75,9 @@ export class ContainerPlatform extends Construct {
       vpc: props.vpc,
     });
 
-    // Add EC2 capacity when using EC2 compute provider
+    // Add EC2 capacity when using EC2 compute provider otherwise default to fargate
     if (this.computeProvider === 'EC2') {
-      const asg = new AutoScalingGroup(this, 'asg', {
-        vpc: props.vpc,
-        instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MEDIUM),
-        machineImage: MachineImage.fromSsmParameter('/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id'),
-        minCapacity: 1,
-        maxCapacity: 3,
-        requireImdsv2: true, //this forces CDK to use a launch template (and is a security best practice anyway since it disables IMDSv1).
-      });
-      const capacityProvider = new AsgCapacityProvider(this, 'asg-capacity-provider', {
-        autoScalingGroup: asg,
-      });
-      this.cluster.addAsgCapacityProvider(capacityProvider);
+      this.setupEc2CapacityProvider(props.vpc);
     }
 
     // A application loadbalancer (in a private subnet)
@@ -108,6 +97,25 @@ export class ContainerPlatform extends Construct {
       wildcardCertificate: this.certificate,
       computeProvider: this.computeProvider,
     });
+  }
+
+  private setupEc2CapacityProvider(vpc: IVpc) {
+    const launchTemplate = new LaunchTemplate(this, 'launch-template', {
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MEDIUM),
+      machineImage: EcsOptimizedImage.amazonLinux2023(),
+      requireImdsv2: true,
+    });
+    const asg = new AutoScalingGroup(this, 'asg', {
+      vpc: vpc,
+      launchTemplate,
+      minCapacity: 1,
+      maxCapacity: 3,
+      requireImdsv2: true,
+    });
+    const capacityProvider = new AsgCapacityProvider(this, 'asg-capacity-provider', {
+      autoScalingGroup: asg,
+    });
+    this.cluster.addAsgCapacityProvider(capacityProvider);
   }
 
 }
