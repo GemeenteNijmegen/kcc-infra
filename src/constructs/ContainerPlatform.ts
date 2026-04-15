@@ -1,6 +1,6 @@
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { InstanceClass, InstanceSize, InstanceType, IVpc, LaunchTemplate, Peer, Port, SecurityGroup, UserData } from 'aws-cdk-lib/aws-ec2';
+import { InstanceClass, InstanceSize, InstanceType, IVpc, LaunchTemplate, Port, SecurityGroup, UserData } from 'aws-cdk-lib/aws-ec2';
 import { AsgCapacityProvider, Cluster, EcsOptimizedImage } from 'aws-cdk-lib/aws-ecs';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { IHostedZone } from 'aws-cdk-lib/aws-route53';
@@ -50,7 +50,7 @@ export interface IContainerService {
   /**
    * This function is called by the platform on addService. It provides all
    * tools to deploy a service on the container platform.
-   * @param platform 
+   * @param platform
    */
   bind(platform: ContainerServiceProps): void;
 }
