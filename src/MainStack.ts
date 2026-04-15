@@ -7,6 +7,7 @@ import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
 import { ProjectHostezone } from './constructs/Hostedzone';
 import { HelloWorldService } from './services/HelloWorld';
+import { KissService } from './services/KissService';
 import { OidcService } from './services/OidcService';
 
 
@@ -59,6 +60,7 @@ export class MainStack extends Stack {
 
     this.helloWorldService();
     this.oidcService();
+    this.kissFrontendService();
   }
 
 
@@ -80,13 +82,27 @@ export class MainStack extends Stack {
   }
 
   private oidcService() {
-    if (!this.configuration.oidcService) {
+    if (!this.configuration.oidcServices) {
       return;
     }
-    const service = new OidcService(this, this.configuration.oidcService.id, {
-      serviceConfiguration: this.configuration.oidcService,
-    });
-    this.containerPlatform.addService(service);
+    for (const oidcService of this.configuration.oidcServices) {
+      const service = new OidcService(this, oidcService.id, {
+        serviceConfiguration: oidcService,
+      });
+      this.containerPlatform.addService(service);
+    }
+  }
+
+  private kissFrontendService() {
+    if (!this.configuration.kissServices) {
+      return;
+    }
+    for (const kissService of this.configuration.kissServices) {
+      const service = new KissService(this, kissService.id, {
+        serviceConfiguration: kissService,
+      });
+      this.containerPlatform.addService(service);
+    }
   }
 
 }

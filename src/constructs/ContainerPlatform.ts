@@ -114,6 +114,7 @@ export class ContainerPlatform extends Construct {
       ],
     });
 
+    // Allow the EC2
     const securityGroup = new SecurityGroup(this, 'ec2-instance-sg', {
       vpc,
       description: 'Security group for ECS EC2 instances',
@@ -123,6 +124,12 @@ export class ContainerPlatform extends Construct {
       Port.tcpRange(32768, 65535),
       'Allow ALB to reach ECS dynamic port range',
     );
+    this.loadBalancer.alb.connections.allowTo(
+      securityGroup,
+      Port.allTcp(),
+      'Allow ALB to reach ECS EC2 instances, ports are determined dynamically by ECS',
+    );
+
 
     const userData = UserData.forLinux();
     userData.addCommands(

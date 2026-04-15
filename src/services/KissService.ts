@@ -1,0 +1,115 @@
+import { Duration } from 'aws-cdk-lib';
+import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
+import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
+import { Construct } from 'constructs';
+import { KissServiceConfiguration } from '../ConfigurationInterfaces';
+import { ContainerServiceProps, IContainerService } from '../constructs/ContainerPlatform';
+import { ContainerServiceUtils } from '../constructs/ContainerUtils';
+import { SubdomainCloudfront } from '../constructs/SubdomainCloudfront';
+
+export interface KissServiceProps {
+  readonly serviceConfiguration: KissServiceConfiguration;
+}
+
+export class KissService extends Construct implements IContainerService {
+
+  static readonly IMAGE = 'ghcr.io/klantinteractie-servicesysteem/kiss-frontend:latest';
+  static readonly CONTAINER_PORT = 8080;
+
+  readonly id: string;
+
+  constructor(scope: Construct, id: string, private props: KissServiceProps) {
+    super(scope, id);
+    this.id = props.serviceConfiguration.id;
+  }
+
+  bind(platform: ContainerServiceProps): void {
+    const subdomain = this.props.serviceConfiguration.subdomain;
+    const priority = this.props.serviceConfiguration.priority;
+
+    const logs = new LogGroup(this, 'logs', {
+      retention: RetentionDays.ONE_MONTH,
+    });
+
+    const service = this.setupService(logs, platform);
+
+    new SubdomainCloudfront(this, 'subdomain-cloudfront', {
+      certificate: platform.wildcardCertificate,
+      hostedZone: platform.hostedZone,
+      loadbalancer: platform.loadbalancer.alb,
+      subdomain: subdomain,
+    });
+
+    const ruleMatchingDomain = `${subdomain}.${platform.hostedZone.zoneName}`;
+    platform.loadbalancer.getListerner().addTargets(`${this.id}-targets`, {
+      targets: [service],
+      conditions: [
+        ListenerCondition.hostHeaders([ruleMatchingDomain]),
+      ],
+      healthCheck: {
+        enabled: true,
+        path: '/',
+      },
+      priority: priority,
+      port: KissService.CONTAINER_PORT,
+    });
+  }
+
+  private setupService(logs: LogGroup, platform: ContainerServiceProps) {
+    const isEc2 = platform.computeProvider === 'EC2';
+    const config = this.props.serviceConfiguration;
+
+    const task = new TaskDefinition(this, 'main-task', {
+      cpu: config.taskSize?.cpu ?? '512',
+      memoryMiB: config.taskSize?.memory ?? '1024',
+      compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
+    });
+
+    task.addContainer('kiss-bff', {
+      image: ContainerImage.fromRegistry(KissService.IMAGE),
+      logging: new AwsLogDriver({
+        streamPrefix: 'logs',
+        logGroup: logs,
+      }),
+      portMappings: [{
+        containerPort: KissService.CONTAINER_PORT,
+        hostPort: isEc2 ? 0 : KissService.CONTAINER_PORT,
+        protocol: Protocol.TCP,
+      }],
+      environment: config.environment,
+      memoryReservationMiB: isEc2 ? 512 : undefined,
+    });
+
+    const cloudMapOptions = {
+      cloudMapNamespace: platform.namespace,
+      containerPort: KissService.CONTAINER_PORT,
+      dnsRecordType: DnsRecordType.SRV as DnsRecordType.SRV,
+      dnsTtl: Duration.seconds(60),
+    };
+
+    let service: BaseService;
+    if (isEc2) {
+      service = new Ec2Service(this, 'service', {
+        cluster: platform.cluster,
+        taskDefinition: task,
+        cloudMapOptions,
+        desiredCount: 1,
+        enableExecuteCommand: true,
+      });
+    } else {
+      service = new FargateService(this, 'service', {
+        cluster: platform.cluster,
+        taskDefinition: task,
+        cloudMapOptions,
+        desiredCount: 1,
+        enableExecuteCommand: true,
+      });
+    }
+
+    ContainerServiceUtils.allowExecutingCommands(task);
+    return service;
+  }
+
+}

@@ -76,13 +76,27 @@ export interface Configuration {
    * Provide configuration for the OIDC mock server service
    * @default - no OIDC service is deployed
    */
-  oidcService?: OidcServiceConfiguration;
+  oidcServices?: OidcServiceConfiguration[];
+
+  /**
+   * Provide configuration for the KISS frontend service
+   * @default - no KISS frontend service is deployed
+   */
+  kissServices?: KissServiceConfiguration[];
 
 
 }
 
 
 export interface HelloWorldServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration { }
+
+export interface KissServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
+  /**
+   * Environment variables for the KISS BFF application.
+   * These map to the .env.local configuration values.
+   */
+  environment: Record<string, string>;
+}
 
 export interface OidcServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
   /**
