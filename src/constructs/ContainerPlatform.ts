@@ -1,7 +1,8 @@
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { InstanceClass, InstanceSize, InstanceType, IVpc, LaunchTemplate } from 'aws-cdk-lib/aws-ec2';
+import { InstanceClass, InstanceSize, InstanceType, IVpc, LaunchTemplate, Peer, Port, SecurityGroup, UserData } from 'aws-cdk-lib/aws-ec2';
 import { AsgCapacityProvider, Cluster, EcsOptimizedImage } from 'aws-cdk-lib/aws-ecs';
+import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { PrivateDnsNamespace } from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
@@ -46,6 +47,11 @@ export interface ContainerServiceProps {
  */
 export interface IContainerService {
   readonly id: string;
+  /**
+   * This function is called by the platform on addService. It provides all
+   * tools to deploy a service on the container platform.
+   * @param platform 
+   */
   bind(platform: ContainerServiceProps): void;
 }
 
@@ -75,16 +81,16 @@ export class ContainerPlatform extends Construct {
       vpc: props.vpc,
     });
 
-    // Add EC2 capacity when using EC2 compute provider otherwise default to fargate
-    if (this.computeProvider === 'EC2') {
-      this.setupEc2CapacityProvider(props.vpc);
-    }
-
     // A application loadbalancer (in a private subnet)
     this.loadBalancer = new ServiceLoadBalancer(this, 'loadbalancer', {
       vpc: props.vpc,
       hostedzone: props.hostedZone,
     });
+
+    // Add EC2 capacity when using EC2 compute provider otherwise default to fargate
+    if (this.computeProvider === 'EC2') {
+      this.setupEc2CapacityProvider(props.vpc);
+    }
 
   }
 
@@ -100,18 +106,45 @@ export class ContainerPlatform extends Construct {
   }
 
   private setupEc2CapacityProvider(vpc: IVpc) {
+    const role = new Role(this, 'ec2-instance-role', {
+      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonEC2ContainerServiceforEC2Role'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+      ],
+    });
+
+    const securityGroup = new SecurityGroup(this, 'ec2-instance-sg', {
+      vpc,
+      description: 'Security group for ECS EC2 instances',
+    });
+    securityGroup.addIngressRule(
+      this.loadBalancer.alb.connections.securityGroups[0],
+      Port.tcpRange(32768, 65535),
+      'Allow ALB to reach ECS dynamic port range',
+    );
+
+    const userData = UserData.forLinux();
+    userData.addCommands(
+      `echo ECS_CLUSTER=${this.cluster.clusterName} >> /etc/ecs/ecs.config`,
+    );
+
     const launchTemplate = new LaunchTemplate(this, 'launch-template', {
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MEDIUM),
       machineImage: EcsOptimizedImage.amazonLinux2023(),
       requireImdsv2: true,
+      securityGroup,
+      userData,
+      role,
     });
+
     const asg = new AutoScalingGroup(this, 'asg', {
       vpc: vpc,
       launchTemplate,
       minCapacity: 1,
       maxCapacity: 3,
-      requireImdsv2: true,
     });
+
     const capacityProvider = new AsgCapacityProvider(this, 'asg-capacity-provider', {
       autoScalingGroup: asg,
     });
