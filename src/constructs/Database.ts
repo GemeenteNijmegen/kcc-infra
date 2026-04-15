@@ -1,8 +1,7 @@
 import {
-  aws_backup as backup,
   Duration,
   aws_ec2 as ec2, aws_kms as kms,
-  aws_rds as rds,
+  aws_rds as rds
 } from 'aws-cdk-lib';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
@@ -24,8 +23,8 @@ export class Database extends Construct {
     super(scope, id);
 
     const dbKmsKey = new kms.Key(this, 'db-kms-key', {
-      description: 'Mijn Services DB encryption key',
-      alias: 'mijn-services-db-key',
+      description: 'KCC Infra DB encryption key',
+      alias: 'kcc-infra-db-key',
     });
 
     this.db = new rds.DatabaseInstance(this, 'db-instance', {
@@ -49,19 +48,6 @@ export class Database extends Construct {
       },
       deletionProtection: true,
       backupRetention: Duration.days(props.databaseSnapshotRetentionDays),
-    });
-
-    // Create a backup plan for the database
-    const backupVaultArn = StringParameter.valueForStringParameter(
-      this,
-      Statics._ssmBackupVaultArn,
-    );
-    const backupVault = backup.BackupVault.fromBackupVaultArn(this, 'backup-vault', backupVaultArn);
-    const backupPlan = backup.BackupPlan.dailyMonthly1YearRetention(this, 'rds-backup-plan', backupVault);
-    backupPlan.addSelection('rds-backup-selection', {
-      resources: [
-        backup.BackupResource.fromRdsDatabaseInstance(this.db),
-      ],
     });
 
     new StringParameter(this, 'db-arn', {
