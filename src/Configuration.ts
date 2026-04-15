@@ -9,7 +9,7 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     deploymentEnvironment: Statics.gnSandbox01,
     criticality: new Criticality('low'),
     databaseSnapshotRetentionDays: 0,
-    computeProvider: "EC2",
+    computeProvider: 'EC2',
     helloWorlServices: [
       {
         subdomain: 'hello-world',
@@ -17,6 +17,34 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
         priority: 10,
       },
     ],
+    // oidcService: {
+    //   id: 'oidc-server-mock',
+    //   subdomain: 'oidc',
+    //   priority: 20,
+    //   clients: [
+    //     {
+    //       clientId: 'kcc-client',
+    //       clientSecrets: ['kcc-client-secret'],
+    //       allowedGrantTypes: ['authorization_code'],
+    //       redirectUris: ['http://localhost:3000/auth/callback'],
+    //       allowedScopes: ['openid', 'profile', 'email'],
+    //       requirePkce: false,
+    //       accessTokenLifetime: 3600,
+    //     },
+    //   ],
+    //   users: [
+    //     {
+    //       subjectId: '1',
+    //       username: 'testuser',
+    //       password: 'testpassword',
+    //       claims: [
+    //         { type: 'name', value: 'Test User' },
+    //         { type: 'email', value: 'test@example.com' },
+    //         { type: 'rights', value: 'admin' },
+    //       ],
+    //     },
+    //   ],
+    // },
   },
 };
 

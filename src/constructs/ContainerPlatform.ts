@@ -1,8 +1,7 @@
-import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { InstanceClass, InstanceSize, InstanceType, IVpc } from 'aws-cdk-lib/aws-ec2';
-import { AsgCapacityProvider, Cluster } from 'aws-cdk-lib/aws-ecs';
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
-import { MachineImage } from 'aws-cdk-lib/aws-ec2';
+import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { InstanceClass, InstanceSize, InstanceType, IVpc, MachineImage } from 'aws-cdk-lib/aws-ec2';
+import { AsgCapacityProvider, Cluster } from 'aws-cdk-lib/aws-ecs';
 import { IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { PrivateDnsNamespace } from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';

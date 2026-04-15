@@ -65,7 +65,6 @@ export class HelloWorldService extends Construct implements IContainerService {
       healthCheck: {
         enabled: true,
         path: '/health',
-        port: HelloWorldService.CONTAINER_PORT.toString(),
       },
       priority: priority,
       port: HelloWorldService.CONTAINER_PORT,

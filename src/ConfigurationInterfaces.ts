@@ -72,11 +72,51 @@ export interface Configuration {
    */
   helloWorlServices?: HelloWorldServiceConfiguration[];
 
+  /**
+   * Provide configuration for the OIDC mock server service
+   * @default - no OIDC service is deployed
+   */
+  oidcService?: OidcServiceConfiguration;
+
 
 }
 
 
 export interface HelloWorldServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration { }
+
+export interface OidcServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
+  /**
+   * OIDC client configurations
+   */
+  clients: OidcClient[];
+  /**
+   * OIDC user configurations
+   */
+  users: OidcUser[];
+}
+
+export interface OidcClient {
+  clientId: string;
+  clientSecrets?: string[];
+  allowedGrantTypes: string[];
+  redirectUris?: string[];
+  allowedScopes: string[];
+  requirePkce?: boolean;
+  accessTokenLifetime?: number;
+}
+
+export interface OidcUserClaim {
+  type: string;
+  value: string;
+  valueType?: string;
+}
+
+export interface OidcUser {
+  subjectId: string;
+  username: string;
+  password: string;
+  claims: OidcUserClaim[];
+}
 
 
 export interface ServiceConfiguration {

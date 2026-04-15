@@ -7,6 +7,7 @@ import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
 import { ProjectHostezone } from './constructs/Hostedzone';
 import { HelloWorldService } from './services/HelloWorld';
+import { OidcService } from './services/OidcService';
 
 
 interface MainStackProps extends StackProps, Configurable { }
@@ -57,6 +58,7 @@ export class MainStack extends Stack {
     });
 
     this.helloWorldService();
+    this.oidcService();
   }
 
 
@@ -77,6 +79,15 @@ export class MainStack extends Stack {
     }
   }
 
+  private oidcService() {
+    if (!this.configuration.oidcService) {
+      return;
+    }
+    const service = new OidcService(this, this.configuration.oidcService.id, {
+      serviceConfiguration: this.configuration.oidcService,
+    });
+    this.containerPlatform.addService(service);
+  }
 
 }
 
