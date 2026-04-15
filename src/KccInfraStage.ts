@@ -3,6 +3,7 @@ import { Aspects, Stage, StageProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './ConfigurationInterfaces';
 import { MainStack } from './MainStack';
+import { DatabaseStack } from './DatabaseStack';
 
 interface KccInfraStageProps extends StageProps, Configurable { }
 
@@ -17,10 +18,10 @@ export class KccInfraStage extends Stage {
     //   configuration: props.configuration,
     // });
 
-    // const databaseStack = new DatabaseStack(this, 'database-stack', {
-    //   env: props.configuration.deploymentEnvironment,
-    //   configuration: props.configuration,
-    // });
+    const databaseStack = new DatabaseStack(this, 'database-stack', {
+      env: props.configuration.deploymentEnvironment,
+      configuration: props.configuration,
+    });
 
     // const storageStack = new StorageStack(this, 'storage-stack', { configuration: props.configuration });
     // storageStack.addDependency(backupStack, 'Backup stack needs to be created first');
