@@ -1,7 +1,7 @@
 import { Criticality } from '@gemeentenijmegen/aws-constructs';
 import { Configuration } from './ConfigurationInterfaces';
-import { Statics } from './Statics';
 import { AppParameter } from './constructs/AppParameter';
+import { Statics } from './Statics';
 
 const EnvironmentConfigurations: { [key: string]: Configuration } = {
   sandbox: {
@@ -32,11 +32,11 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
         // Base settings
         ORGANISATIE_IDS: '001479179', // RSIN
         // OIDC
-        OIDC_CLIENT_ID: '',
-        OIDC_CLIENT_SECRET: '',
-        OIDC_AUTHORITY: '',
-        OIDC_MEDEWERKER_IDENTIFICATIE_CLAIM: '',
-        OIDC_MEDEWERKER_IDENTIFICATIE_TRUNCATE: '',
+        OIDC_CLIENT_ID: 'client1',
+        OIDC_CLIENT_SECRET: 'client1',
+        OIDC_AUTHORITY: 'https://oidc-mock.kcc.sandbox-01.csp-nijmegen.nl/.well-known/openid-configuration',
+        // OIDC_MEDEWERKER_IDENTIFICATIE_CLAIM: '',
+        // OIDC_MEDEWERKER_IDENTIFICATIE_TRUNCATE: '',
         // KVK
         KVK_BASE_URL: 'https://api.kvk.nl/test/api',
         KVK_API_KEY: '',
