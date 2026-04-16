@@ -43,7 +43,7 @@ export class KissService extends Construct implements IContainerService {
     });
 
     // Create an additional DB in our RDS instance
-    const db = this.dbCreate(this.props.serviceConfiguration.id, platform)
+    const db = this.dbCreate(this.props.serviceConfiguration.id, platform);
 
     const service = this.setupService(logs, platform, db);
 
@@ -88,12 +88,12 @@ export class KissService extends Construct implements IContainerService {
       POSTGRES_HOST: database.host,
       POSTGRES_PORT: database.port,
       POSTGRES_DB: database.name,
-    }
+    };
     secrets = {
       ...secrets,
       POSTGRES_USER: Secret.fromSecretsManager(database.credentials, 'username'),
       POSTGRES_PASSWORD: Secret.fromSecretsManager(database.credentials, 'password'),
-    }
+    };
 
     task.addContainer('kiss-bff', {
       image: ContainerImage.fromRegistry(KissService.IMAGE),
@@ -186,7 +186,7 @@ export class KissService extends Construct implements IContainerService {
 
     // Import the RDS instance security group
     const dbSecurityGroupId = StringParameter.valueForStringParameter(this, Statics._ssmDatabaseSecurityGroup);
-    const dbSecurityGroup = SecurityGroup.fromSecurityGroupId(this, `db-security-group`, dbSecurityGroupId);
+    const dbSecurityGroup = SecurityGroup.fromSecurityGroupId(this, 'db-security-group', dbSecurityGroupId);
 
     // Wrap in an RDS instance interface
     const dbInstance = DatabaseInstance.fromDatabaseInstanceAttributes(this, 'rds-instance', {
@@ -206,7 +206,7 @@ export class KissService extends Construct implements IContainerService {
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
-    return { credentials: credentials, host: hostname, port: port, securityGroup: dbSecurityGroup, name: dbName }
+    return { credentials: credentials, host: hostname, port: port, securityGroup: dbSecurityGroup, name: dbName };
   }
 
   private allowDbConnectivity(service: BaseService, dbSecurityGroup: ISecurityGroup, dbPort: string) {
@@ -220,6 +220,9 @@ export class KissService extends Construct implements IContainerService {
 
 
 interface KccInfraAdditionalDatabase {
-  credentials: SecretParameter; host: string; port: string; securityGroup: ISecurityGroup;
+  credentials: SecretParameter;
+  host: string;
+  port: string;
+  securityGroup: ISecurityGroup;
   name: string;
 }

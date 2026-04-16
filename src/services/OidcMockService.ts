@@ -1,6 +1,6 @@
 import { Duration } from 'aws-cdk-lib';
 import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
-import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { Protocol as ALBProtocol, ApplicationProtocol, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
@@ -53,9 +53,11 @@ export class OidcMockService extends Construct implements IContainerService {
         enabled: true,
         path: '/.well-known/openid-configuration',
         port: isEc2 ? undefined : OidcMockService.CONTAINER_PORT.toString(),
+        protocol: ALBProtocol.HTTP,
       },
       priority: priority,
       port: OidcMockService.CONTAINER_PORT,
+      protocol: ApplicationProtocol.HTTP,
     });
   }
 
