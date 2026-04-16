@@ -1,5 +1,6 @@
 import { Criticality } from '@gemeentenijmegen/aws-constructs';
 import { Environment } from 'aws-cdk-lib';
+import { AppParameter } from './constructs/AppParameter';
 
 /**
  * Adds a configuration field to another interface
@@ -94,8 +95,10 @@ export interface KissServiceConfiguration extends MainTaskSizeConfiguration, Ser
   /**
    * Environment variables for the KISS BFF application.
    * These map to the .env.local configuration values.
+   * Secrets can be included here and will be treated
+   * as such by ECS.
    */
-  environment: Record<string, string>;
+  environment: Record<string, string | AppParameter>;
 }
 
 export interface OidcServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {

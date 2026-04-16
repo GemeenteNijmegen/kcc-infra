@@ -1,10 +1,11 @@
 import { Duration } from 'aws-cdk-lib';
-import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
+import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, Secret, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
 import { KissServiceConfiguration } from '../ConfigurationInterfaces';
+import { AppParameter } from '../constructs/AppParameter';
 import { ContainerServiceProps, IContainerService } from '../constructs/ContainerPlatform';
 import { ContainerServiceUtils } from '../constructs/ContainerUtils';
 import { SubdomainCloudfront } from '../constructs/SubdomainCloudfront';
@@ -67,6 +68,8 @@ export class KissService extends Construct implements IContainerService {
       compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
     });
 
+    const { environment, secrets } = this.loadEnvironmentFromConfig(config);
+
     task.addContainer('kiss-bff', {
       image: ContainerImage.fromRegistry(KissService.IMAGE),
       logging: new AwsLogDriver({
@@ -78,7 +81,8 @@ export class KissService extends Construct implements IContainerService {
         hostPort: isEc2 ? 0 : KissService.CONTAINER_PORT,
         protocol: Protocol.TCP,
       }],
-      environment: config.environment,
+      environment: environment,
+      secrets: secrets,
       memoryReservationMiB: isEc2 ? 512 : undefined,
     });
 
@@ -110,6 +114,26 @@ export class KissService extends Construct implements IContainerService {
 
     ContainerServiceUtils.allowExecutingCommands(task);
     return service;
+  }
+
+
+  private loadEnvironmentFromConfig(config: KissServiceConfiguration) {
+    const environment: Record<string, string> = {};
+    const secrets: Record<string, Secret> = {};
+    for (const [key, value] of Object.entries(config.environment)) {
+      if (value instanceof AppParameter) {
+        const resolved = value.import(this, `env-${key}`);
+        if (resolved.asEnv) {
+          secrets[key] = Secret.fromSsmParameter(resolved.asEnv);
+        }
+        if (resolved.asSecret) {
+          secrets[key] = Secret.fromSecretsManager(resolved.asSecret);
+        }
+      } else {
+        environment[key] = value;
+      }
+    }
+    return { environment, secrets };
   }
 
 }

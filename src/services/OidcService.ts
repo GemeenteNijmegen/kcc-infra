@@ -26,6 +26,8 @@ export class OidcService extends Construct implements IContainerService {
   }
 
   bind(platform: ContainerServiceProps): void {
+    const isEc2 = platform.computeProvider === 'EC2';
+
     const subdomain = this.props.serviceConfiguration.subdomain;
     const priority = this.props.serviceConfiguration.priority;
 
@@ -51,7 +53,7 @@ export class OidcService extends Construct implements IContainerService {
       healthCheck: {
         enabled: true,
         path: '/.well-known/openid-configuration',
-        port: OidcService.CONTAINER_PORT.toString(),
+        port: isEc2 ? undefined : OidcService.CONTAINER_PORT.toString(),
       },
       priority: priority,
       port: OidcService.CONTAINER_PORT,

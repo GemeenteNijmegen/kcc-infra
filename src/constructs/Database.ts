@@ -1,7 +1,7 @@
 import {
   Duration,
   aws_ec2 as ec2, aws_kms as kms,
-  aws_rds as rds
+  aws_rds as rds,
 } from 'aws-cdk-lib';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';

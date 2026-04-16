@@ -36,6 +36,7 @@ export class HelloWorldService extends Construct implements IContainerService {
    * @param platform
    */
   bind(platform: ContainerServiceProps) {
+    const isEc2 = platform.computeProvider === 'EC2';
 
 
     // Read props
@@ -65,6 +66,7 @@ export class HelloWorldService extends Construct implements IContainerService {
       healthCheck: {
         enabled: true,
         path: '/health',
+        port: isEc2 ? undefined : HelloWorldService.CONTAINER_PORT.toString(),
       },
       priority: priority,
       port: HelloWorldService.CONTAINER_PORT,
