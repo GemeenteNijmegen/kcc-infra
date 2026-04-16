@@ -16,7 +16,7 @@ export interface OidcMockServiceProps {
 export class OidcMockService extends Construct implements IContainerService {
 
   static readonly IMAGE = 'ghcr.io/geigerzaehler/oidc-provider-mock:latest';
-  static readonly CONTAINER_PORT = 9090;
+  static readonly CONTAINER_PORT = 9400;
 
   readonly id: string;
 
