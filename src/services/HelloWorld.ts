@@ -41,7 +41,7 @@ export class HelloWorldService extends Construct implements IContainerService {
 
     // Read props
     const subdomain = this.props.serviceConfiguration.subdomain;
-    const priority = this.props.serviceConfiguration.priority;
+    const priority = this.props.serviceConfiguration.loadbalancerRulePriority;
 
     // Create the service
     const logs = this.logGroup();

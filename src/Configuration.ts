@@ -14,41 +14,18 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
       {
         subdomain: 'hello-world',
         id: 'hello-world-service-1',
-        priority: 10,
+        loadbalancerRulePriority: 10,
       },
     ],
-    oidcServices: [{
+    oidcMockServices: [{
       id: 'oidc-server-mock',
       subdomain: 'oidc-mock',
-      priority: 20,
-      clients: [
-        {
-          clientId: 'kcc-client',
-          clientSecrets: ['kcc-client-secret'],
-          allowedGrantTypes: ['authorization_code'],
-          redirectUris: ['http://localhost:3000/auth/callback'],
-          allowedScopes: ['openid', 'profile', 'email'],
-          requirePkce: false,
-          accessTokenLifetime: 3600,
-        },
-      ],
-      users: [
-        {
-          subjectId: '1',
-          username: 'testuser',
-          password: 'testpassword',
-          claims: [
-            { type: 'name', value: 'Test User' },
-            { type: 'email', value: 'test@example.com' },
-            { type: 'rights', value: 'admin' },
-          ],
-        },
-      ],
+      loadbalancerRulePriority: 20,
     }],
     kissServices: [{
       id: 'kiss-1',
       subdomain: 'kiss',
-      priority: 30,
+      loadbalancerRulePriority: 30,
       taskSize: { cpu: '512', memory: '1024' },
       environment: {
         // Base settings

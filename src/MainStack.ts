@@ -8,7 +8,7 @@ import { DnsRecords } from './constructs/DnsRecords';
 import { ProjectHostezone } from './constructs/Hostedzone';
 import { HelloWorldService } from './services/HelloWorld';
 import { KissService } from './services/KissService';
-import { OidcService } from './services/OidcService';
+import { OidcMockService } from './services/OidcMockService';
 
 
 interface MainStackProps extends StackProps, Configurable { }
@@ -59,7 +59,7 @@ export class MainStack extends Stack {
     });
 
     this.helloWorldService();
-    this.oidcService();
+    this.oidcMockService();
     this.kissFrontendService();
   }
 
@@ -81,13 +81,13 @@ export class MainStack extends Stack {
     }
   }
 
-  private oidcService() {
-    if (!this.configuration.oidcServices) {
+  private oidcMockService() {
+    if (!this.configuration.oidcMockServices) {
       return;
     }
-    for (const oidcService of this.configuration.oidcServices) {
-      const service = new OidcService(this, oidcService.id, {
-        serviceConfiguration: oidcService,
+    for (const oidcMockService of this.configuration.oidcMockServices) {
+      const service = new OidcMockService(this, oidcMockService.id, {
+        serviceConfiguration: oidcMockService,
       });
       this.containerPlatform.addService(service);
     }

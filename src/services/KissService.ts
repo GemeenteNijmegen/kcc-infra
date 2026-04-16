@@ -36,7 +36,7 @@ export class KissService extends Construct implements IContainerService {
     const isEc2 = platform.computeProvider === 'EC2';
 
     const subdomain = this.props.serviceConfiguration.subdomain;
-    const priority = this.props.serviceConfiguration.priority;
+    const priority = this.props.serviceConfiguration.loadbalancerRulePriority;
 
     const logs = new LogGroup(this, 'logs', {
       retention: RetentionDays.ONE_MONTH,
@@ -124,7 +124,7 @@ export class KissService extends Construct implements IContainerService {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 1,
+        desiredCount: 0,
         enableExecuteCommand: true,
       });
     } else {
@@ -132,7 +132,7 @@ export class KissService extends Construct implements IContainerService {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 1,
+        desiredCount: 0,
         enableExecuteCommand: true,
       });
     }

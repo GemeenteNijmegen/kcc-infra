@@ -75,9 +75,9 @@ export interface Configuration {
 
   /**
    * Provide configuration for the OIDC mock server service
-   * @default - no OIDC service is deployed
+   * @default - no OIDC mock service is deployed
    */
-  oidcServices?: OidcServiceConfiguration[];
+  oidcMockServices?: OidcMockServiceConfiguration[];
 
   /**
    * Provide configuration for the KISS frontend service
@@ -101,39 +101,7 @@ export interface KissServiceConfiguration extends MainTaskSizeConfiguration, Ser
   environment: Record<string, string | AppParameter>;
 }
 
-export interface OidcServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
-  /**
-   * OIDC client configurations
-   */
-  clients: OidcClient[];
-  /**
-   * OIDC user configurations
-   */
-  users: OidcUser[];
-}
-
-export interface OidcClient {
-  clientId: string;
-  clientSecrets?: string[];
-  allowedGrantTypes: string[];
-  redirectUris?: string[];
-  allowedScopes: string[];
-  requirePkce?: boolean;
-  accessTokenLifetime?: number;
-}
-
-export interface OidcUserClaim {
-  type: string;
-  value: string;
-  valueType?: string;
-}
-
-export interface OidcUser {
-  subjectId: string;
-  username: string;
-  password: string;
-  claims: OidcUserClaim[];
-}
+export interface OidcMockServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration { }
 
 
 export interface ServiceConfiguration {
@@ -146,9 +114,10 @@ export interface ServiceConfiguration {
    */
   subdomain: string;
   /**
-   * Priority
+   * Priority for the loadbalancer rule. Must be unique across all service
+   * configurations.
    */
-  priority: number;
+  loadbalancerRulePriority: number;
 }
 
 export interface MainTaskSizeConfiguration {
