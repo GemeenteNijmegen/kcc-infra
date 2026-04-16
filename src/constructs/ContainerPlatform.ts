@@ -1,6 +1,6 @@
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { InstanceClass, InstanceSize, InstanceType, IVpc, LaunchTemplate, Port, SecurityGroup, UserData } from 'aws-cdk-lib/aws-ec2';
+import { InstanceClass, InstanceSize, InstanceType, ISecurityGroup, IVpc, LaunchTemplate, Port, SecurityGroup, UserData } from 'aws-cdk-lib/aws-ec2';
 import { AsgCapacityProvider, Cluster, EcsOptimizedImage } from 'aws-cdk-lib/aws-ecs';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { IHostedZone } from 'aws-cdk-lib/aws-route53';
@@ -28,6 +28,11 @@ export interface ContainerPlatformProps {
    * @default 'FARGATE'
    */
   computeProvider?: ComputeProvider;
+  /**
+   * Securitygroups that the EC2 instances can communicate to
+   * Note: only applicable when using EC2 as a ComputePorvider.
+   */
+  ec2InstanceAllowedSecurityGroups?: { sg: ISecurityGroup; port: number }[];
 }
 
 /**
@@ -132,6 +137,14 @@ export class ContainerPlatform extends Construct {
       'Allow ALB to reach ECS EC2 instances, ports are determined dynamically by ECS',
     );
 
+    this.props.ec2InstanceAllowedSecurityGroups?.forEach(rule => {
+      rule.sg.addIngressRule(
+        securityGroup,
+        Port.tcp(rule.port),
+        `Allow ECS EC2 instances to reach ${rule.sg.securityGroupId}`,
+        true, // Remote rule
+      );
+    });
 
     const userData = UserData.forLinux();
     userData.addCommands(

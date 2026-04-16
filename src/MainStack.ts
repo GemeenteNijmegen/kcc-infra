@@ -1,6 +1,8 @@
 import { GemeenteNijmegenVpc } from '@gemeentenijmegen/aws-constructs';
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { CertificateValidation, DnsValidatedCertificate, ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { SecurityGroup } from 'aws-cdk-lib/aws-ec2';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './ConfigurationInterfaces';
 import { ContainerPlatform } from './constructs/ContainerPlatform';
@@ -9,6 +11,7 @@ import { ProjectHostezone } from './constructs/Hostedzone';
 import { HelloWorldService } from './services/HelloWorld';
 import { KissService } from './services/KissService';
 import { OidcMockService } from './services/OidcMockService';
+import { Statics } from './Statics';
 
 
 interface MainStackProps extends StackProps, Configurable { }
@@ -50,12 +53,18 @@ export class MainStack extends Stack {
       cnameRecords: this.configuration.cnameRecords,
     });
 
+    const dbSecurityGroupId = StringParameter.valueForStringParameter(this, Statics._ssmDatabaseSecurityGroup);
+    const dbSecurityGroup = SecurityGroup.fromSecurityGroupId(this, 'db-security-group', dbSecurityGroupId);
+
     // Create the container platform
     this.containerPlatform = new ContainerPlatform(this, 'containers', {
       vpc: this.vpc.vpc,
       hostedZone: this.hostedzone.hostedZone,
       certificate: this.certificate,
       computeProvider: this.configuration.computeProvider,
+      ec2InstanceAllowedSecurityGroups: [
+        { sg: dbSecurityGroup, port: 5432 },
+      ],
     });
 
     this.helloWorldService();

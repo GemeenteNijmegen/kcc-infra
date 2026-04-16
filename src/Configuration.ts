@@ -31,6 +31,8 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
       environment: {
         // Base settings
         ORGANISATIE_IDS: '001479179', // RSIN
+        // Database
+        // Note: database config parameters are injected in the service construct.
         // OIDC
         OIDC_CLIENT_ID: 'client1',
         OIDC_CLIENT_SECRET: 'client1',
