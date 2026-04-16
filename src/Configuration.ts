@@ -36,7 +36,7 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
         // OIDC
         OIDC_CLIENT_ID: 'client1',
         OIDC_CLIENT_SECRET: 'client1',
-        OIDC_AUTHORITY: 'https://oidc-mock.kcc.sandbox-01.csp-nijmegen.nl/.well-known/openid-configuration',
+        OIDC_AUTHORITY: 'https://oidc-mock.kcc.sandbox-01.csp-nijmegen.nl',
         // OIDC_MEDEWERKER_IDENTIFICATIE_CLAIM: '',
         // OIDC_MEDEWERKER_IDENTIFICATIE_TRUNCATE: '',
         // KVK
