@@ -1,6 +1,7 @@
 import { Criticality } from '@gemeentenijmegen/aws-constructs';
 import { Configuration } from './ConfigurationInterfaces';
 import { Statics } from './Statics';
+import { AppParameter } from './constructs/AppParameter';
 
 const EnvironmentConfigurations: { [key: string]: Configuration } = {
   sandbox: {
@@ -85,15 +86,21 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
         // GROEPEN_TOKEN: '',
         // GROEPEN_OBJECT_TYPE_URL: '',
         // // Registers
-        // REGISTERS__0__IS_DEFAULT: 'true',
-        // REGISTERS__0__KLANTINTERACTIE_BASE_URL: '',
-        // REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
-        // REGISTERS__0__KLANTINTERACTIE_TOKEN: '',
-        // REGISTERS__0__ZAAKSYSTEEM_BASE_URL: '',
-        // REGISTERS__0__ZAAKSYSTEEM_API_KEY: '',
-        // REGISTERS__0__ZAAKSYSTEEM_API_CLIENT_ID: '',
-        // REGISTERS__0__ZAAKSYSTEEM_DEEPLINK_URL: '',
-        // REGISTERS__0__ZAAKSYSTEEM_DEEPLINK_PROPERTY: 'identificatie',
+        REGISTERS__0__IS_DEFAULT: 'true',
+        REGISTERS__0__KLANTINTERACTIE_BASE_URL: new AppParameter({
+          type: 'ssm',
+          id: 'kiss-kcc-open-klant-url',
+          description: 'KISS config: URL for Open-Klant',
+          path: `/${Statics.projectName}/kiss/open-klant/base-url`,
+          defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-klant/klantineracties',
+        }),
+        REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
+        REGISTERS__0__KLANTINTERACTIE_TOKEN: new AppParameter({
+          type: 'secret',
+          id: 'kiss-kcc-open-klant-api-token',
+          description: 'KISS config: URL for Open-Klant API token',
+          path: `/${Statics.projectName}/kiss/open-klant/api-token`,
+        }),
       },
     }],
   },

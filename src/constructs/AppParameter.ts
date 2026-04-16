@@ -39,6 +39,11 @@ export class AppParameter {
 
   create(scope: Construct, id: string) {
     if (this.props.type === 'secret') {
+
+      if (this.props.defaultValue) {
+        throw Error('Setting default values for secrets is not supported as its malpractice');
+      }
+
       return new Secret(scope, id, {
         secretName: this.props.path,
         description: this.props.description,
