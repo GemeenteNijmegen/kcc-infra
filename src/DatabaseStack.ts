@@ -35,7 +35,6 @@ export class DatabaseStack extends Stack {
     this.setupDatabaseManagementSecurityGroup();
   }
 
-
   private setupDatabaseManagementSecurityGroup() {
     // Create a security group
     const databaseManagementSecurityGroup = new SecurityGroup(this, 'database-management-sg', {

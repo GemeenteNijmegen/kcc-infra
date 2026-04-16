@@ -40,6 +40,7 @@ export interface ContainerServiceProps {
   hostedZone: IHostedZone;
   wildcardCertificate: ICertificate; // resolved once by the platform
   computeProvider: ComputeProvider;
+  vpc: IVpc;
 }
 
 /**
@@ -102,6 +103,7 @@ export class ContainerPlatform extends Construct {
       hostedZone: this.props.hostedZone,
       wildcardCertificate: this.certificate,
       computeProvider: this.computeProvider,
+      vpc: this.props.vpc,
     });
   }
 
