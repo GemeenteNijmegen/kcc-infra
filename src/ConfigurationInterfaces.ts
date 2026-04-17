@@ -91,6 +91,24 @@ export interface Configuration {
    */
   itaServices?: ItaServiceConfiguration[];
 
+  /**
+   * Provide configuration for the Elasticsearch service
+   * @default - no Elasticsearch services are deployed
+   */
+  elasticsearchServices?: ElasticsearchServiceConfiguration[];
+
+  /**
+   * Provide configuration for the Enterprise Search service
+   * @default - no Enterprise Search services are deployed
+   */
+  enterpriseSearchServices?: EnterpriseSearchServiceConfiguration[];
+
+  /**
+   * Provide configuration for the Kibana service
+   * @default - no Kibana services are deployed
+   */
+  kibanaServices?: KibanaServiceConfiguration[];
+
 }
 
 
@@ -114,6 +132,22 @@ export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, Serv
    * Secrets can be included here and will be treated
    * as such by ECS.
    */
+  environment: Record<string, string | AppParameter>;
+}
+
+export interface ElasticsearchServiceConfiguration extends MainTaskSizeConfiguration {
+  /**
+   * A identifier for this particular service
+   */
+  id: string;
+  environment: Record<string, string | AppParameter>;
+}
+
+export interface EnterpriseSearchServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
+  environment: Record<string, string | AppParameter>;
+}
+
+export interface KibanaServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
   environment: Record<string, string | AppParameter>;
 }
 
