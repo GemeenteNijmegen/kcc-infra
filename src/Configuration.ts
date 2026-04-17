@@ -34,9 +34,24 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
         // Database
         // Note: database config parameters are injected in the service construct.
         // OIDC
-        OIDC_CLIENT_ID: 'client1',
-        OIDC_CLIENT_SECRET: 'client1',
-        OIDC_AUTHORITY: 'https://oidc-mock.kcc.sandbox-01.csp-nijmegen.nl',
+        OIDC_CLIENT_ID: new AppParameter({
+          description: 'KISS KCC: ODIC Client id',
+          type: 'ssm',
+          id: 'kiss-kcc-oidc-client-id',
+          path: `/${Statics.projectName}/kiss/oidc/client-id`,
+        }),
+        OIDC_CLIENT_SECRET: new AppParameter({
+          description: 'KISS KCC: ODIC Client secret',
+          type: 'secret',
+          id: 'kiss-kcc-oidc-client-secret',
+          path: `/${Statics.projectName}/kiss/oidc/client-secret`,
+        }),
+        OIDC_AUTHORITY: new AppParameter({
+          description: 'KISS KCC: ODIC auhtority (without /.well-kown/..',
+          type: 'ssm',
+          id: 'kiss-kcc-oidc-authority',
+          path: `/${Statics.projectName}/kiss/oidc/authority`,
+        }),
         // OIDC_MEDEWERKER_IDENTIFICATIE_CLAIM: '',
         // OIDC_MEDEWERKER_IDENTIFICATIE_TRUNCATE: '',
         // KVK
