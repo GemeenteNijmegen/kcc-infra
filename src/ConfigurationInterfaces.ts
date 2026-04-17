@@ -85,6 +85,11 @@ export interface Configuration {
    */
   kissServices?: KissServiceConfiguration[];
 
+  /**
+   * Provide configuration for the ITA service
+   * @default - no ITA services are deployed
+   */
+  itaServices?: ItaServiceConfiguration[];
 
 }
 
@@ -102,6 +107,15 @@ export interface KissServiceConfiguration extends MainTaskSizeConfiguration, Ser
 }
 
 export interface OidcMockServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration { }
+
+export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
+  /**
+   * Environment variables for the ITA application.
+   * Secrets can be included here and will be treated
+   * as such by ECS.
+   */
+  environment: Record<string, string | AppParameter>;
+}
 
 
 export interface ServiceConfiguration {

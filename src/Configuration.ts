@@ -56,7 +56,7 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
         // OIDC_MEDEWERKER_IDENTIFICATIE_TRUNCATE: '',
         // KVK
         KVK_BASE_URL: 'https://api.kvk.nl/test/api',
-        KVK_API_KEY: '',
+        KVK_API_KEY: 'l7xx1f2691f2520d487b902f4e0b57a0b197', // Public API key: https://developers.kvk.nl/nl/documentation/testing
         // // Haal Centraal
         // HAAL_CENTRAAL_BASE_URL: '',
         // HAAL_CENTRAAL_API_KEY: '',
@@ -120,6 +120,14 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
         }),
       },
     }],
+    //   itaServices: [{
+    //     id: 'ita-1',
+    //     subdomain: 'ita',
+    //     loadbalancerRulePriority: 40,
+    //     taskSize: { cpu: '512', memory: '1024' },
+    //     environment: {
+    //     },
+    //   }],
   },
 };
 

@@ -9,6 +9,7 @@ import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
 import { ProjectHostezone } from './constructs/Hostedzone';
 import { HelloWorldService } from './services/HelloWorld';
+import { ItaService } from './services/ItaService';
 import { KissService } from './services/KissService';
 import { OidcMockService } from './services/OidcMockService';
 import { Statics } from './Statics';
@@ -70,6 +71,7 @@ export class MainStack extends Stack {
     this.helloWorldService();
     this.oidcMockService();
     this.kissFrontendService();
+    this.itaService();
   }
 
 
@@ -109,6 +111,18 @@ export class MainStack extends Stack {
     for (const kissService of this.configuration.kissServices) {
       const service = new KissService(this, kissService.id, {
         serviceConfiguration: kissService,
+      });
+      this.containerPlatform.addService(service);
+    }
+  }
+
+  private itaService() {
+    if (!this.configuration.itaServices) {
+      return;
+    }
+    for (const itaServiceConfig of this.configuration.itaServices) {
+      const service = new ItaService(this, itaServiceConfig.id, {
+        serviceConfiguration: itaServiceConfig,
       });
       this.containerPlatform.addService(service);
     }
