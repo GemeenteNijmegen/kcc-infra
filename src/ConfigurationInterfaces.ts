@@ -143,7 +143,11 @@ export interface ElasticsearchServiceConfiguration extends MainTaskSizeConfigura
   environment: Record<string, string | AppParameter>;
 }
 
-export interface EnterpriseSearchServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
+export interface EnterpriseSearchServiceConfiguration extends MainTaskSizeConfiguration {
+  /**
+   * A identifier for this particular service
+   */
+  id: string;
   environment: Record<string, string | AppParameter>;
 }
 

@@ -1,6 +1,5 @@
 import { Duration } from 'aws-cdk-lib';
 import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, Secret, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
-import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
@@ -8,7 +7,6 @@ import { EnterpriseSearchServiceConfiguration } from '../ConfigurationInterfaces
 import { AppParameter } from '../constructs/AppParameter';
 import { ContainerServiceProps, IContainerService } from '../constructs/ContainerPlatform';
 import { ContainerServiceUtils } from '../constructs/ContainerUtils';
-import { SubdomainCloudfront } from '../constructs/SubdomainCloudfront';
 
 export interface EnterpriseSearchServiceProps {
   readonly serviceConfiguration: EnterpriseSearchServiceConfiguration;
@@ -26,38 +24,15 @@ export class EnterpriseSearchService extends Construct implements IContainerServ
     this.id = props.serviceConfiguration.id;
   }
 
+  /**
+   * Enterprise Search is internal-only: registered in CloudMap for
+   * service discovery but not exposed via ALB or CloudFront.
+   */
   bind(platform: ContainerServiceProps): void {
-    const isEc2 = platform.computeProvider === 'EC2';
-    const subdomain = this.props.serviceConfiguration.subdomain;
-    const priority = this.props.serviceConfiguration.loadbalancerRulePriority;
-
     const logs = new LogGroup(this, 'logs', {
       retention: RetentionDays.ONE_MONTH,
     });
-
-    const service = this.setupService(logs, platform);
-
-    new SubdomainCloudfront(this, 'subdomain-cloudfront', {
-      certificate: platform.wildcardCertificate,
-      hostedZone: platform.hostedZone,
-      loadbalancer: platform.loadbalancer.alb,
-      subdomain: subdomain,
-    });
-
-    const ruleMatchingDomain = `${subdomain}.${platform.hostedZone.zoneName}`;
-    platform.loadbalancer.getListerner().addTargets(`${this.id}-targets`, {
-      targets: [service],
-      conditions: [
-        ListenerCondition.hostHeaders([ruleMatchingDomain]),
-      ],
-      healthCheck: {
-        enabled: true,
-        path: '/',
-        port: isEc2 ? undefined : EnterpriseSearchService.CONTAINER_PORT.toString(),
-      },
-      priority: priority,
-      port: EnterpriseSearchService.CONTAINER_PORT,
-    });
+    this.setupService(logs, platform);
   }
 
   private setupService(logs: LogGroup, platform: ContainerServiceProps) {

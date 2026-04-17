@@ -1,6 +1,6 @@
 import { Duration } from 'aws-cdk-lib';
 import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, Secret, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
-import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ApplicationProtocol, Protocol as HealthCheckProtocol, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
@@ -47,10 +47,12 @@ export class KibanaService extends Construct implements IContainerService {
     const ruleMatchingDomain = `${subdomain}.${platform.hostedZone.zoneName}`;
     platform.loadbalancer.getListerner().addTargets(`${this.id}-targets`, {
       targets: [service],
+      protocol: ApplicationProtocol.HTTP,
       conditions: [
         ListenerCondition.hostHeaders([ruleMatchingDomain]),
       ],
       healthCheck: {
+        protocol: HealthCheckProtocol.HTTP,
         enabled: true,
         path: '/api/status',
         port: isEc2 ? undefined : KibanaService.CONTAINER_PORT.toString(),

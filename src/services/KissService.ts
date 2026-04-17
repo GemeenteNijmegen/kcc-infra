@@ -138,7 +138,6 @@ export class KissService extends Construct implements IContainerService {
     }
 
 
-
     ContainerServiceUtils.allowExecutingCommands(task);
     return service;
   }

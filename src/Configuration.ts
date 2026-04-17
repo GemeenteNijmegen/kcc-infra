@@ -138,13 +138,11 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     }],
     enterpriseSearchServices: [{
       id: 'enterprise-search-1',
-      subdomain: 'enterprise-search',
-      loadbalancerRulePriority: 60,
       taskSize: { cpu: '1024', memory: '2048' },
       environment: {
         'elasticsearch.host': 'http://elasticsearch-1.kcc-infra.local:9200',
         'allow_es_settings_modification': 'true',
-        'ent_search.external_url': 'https://enterprise-search.kcc.csp-nijmegen.nl',
+        'ent_search.external_url': 'http://enterprise-search-1.kcc-infra.local:3002',
         'kibana.host': 'https://kibana.kcc.csp-nijmegen.nl',
         'secret_management.encryption_keys': new AppParameter({
           description: 'Enterprise Search: encryption key',
