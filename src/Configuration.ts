@@ -128,6 +128,41 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     //     environment: {
     //     },
     //   }],
+    elasticsearchServices: [{
+      id: 'elasticsearch-1',
+      taskSize: { cpu: '1024', memory: '2048' },
+      environment: {
+        'discovery.type': 'single-node',
+        'xpack.security.enabled': 'false',
+      },
+    }],
+    enterpriseSearchServices: [{
+      id: 'enterprise-search-1',
+      subdomain: 'enterprise-search',
+      loadbalancerRulePriority: 60,
+      taskSize: { cpu: '1024', memory: '2048' },
+      environment: {
+        'elasticsearch.host': 'http://elasticsearch-1.kcc-infra.local:9200',
+        'allow_es_settings_modification': 'true',
+        'ent_search.external_url': 'https://enterprise-search.kcc.csp-nijmegen.nl',
+        'kibana.host': 'https://kibana.kcc.csp-nijmegen.nl',
+        'secret_management.encryption_keys': new AppParameter({
+          description: 'Enterprise Search: encryption key',
+          type: 'secret',
+          id: 'enterprise-search-encryption-key',
+          path: `/${Statics.projectName}/enterprise-search/encryption-key`,
+        }),
+      },
+    }],
+    kibanaServices: [{
+      id: 'kibana-1',
+      subdomain: 'kibana',
+      loadbalancerRulePriority: 70,
+      taskSize: { cpu: '512', memory: '1024' },
+      environment: {
+        ELASTICSEARCH_HOSTS: 'http://elasticsearch-1.kcc-infra.local:9200',
+      },
+    }],
   },
 };
 
