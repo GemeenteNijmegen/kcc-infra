@@ -44,7 +44,7 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
           description: 'KISS KCC: ODIC Client secret',
           type: 'secret',
           id: 'kiss-kcc-oidc-client-secret',
-          path: `/${Statics.projectName}/kiss/oidc/client-secret`,
+          path: `/${Statics.projectName}/kiss/oidc/clientsecret`,
         }),
         OIDC_AUTHORITY: new AppParameter({
           description: 'KISS KCC: ODIC auhtority (without /.well-kown/..',

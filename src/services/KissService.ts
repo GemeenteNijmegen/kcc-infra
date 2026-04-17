@@ -124,7 +124,7 @@ export class KissService extends Construct implements IContainerService {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 0,
+        desiredCount: 1,
         enableExecuteCommand: true,
       });
     } else {
@@ -132,7 +132,7 @@ export class KissService extends Construct implements IContainerService {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 0,
+        desiredCount: 1,
         enableExecuteCommand: true,
       });
     }
