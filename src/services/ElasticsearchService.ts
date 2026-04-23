@@ -76,7 +76,7 @@ export class ElasticsearchService extends Construct implements IContainerService
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 1,
+        desiredCount: 0,
         enableExecuteCommand: true,
       });
     } else {
@@ -84,7 +84,7 @@ export class ElasticsearchService extends Construct implements IContainerService
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 1,
+        desiredCount: 0,
         enableExecuteCommand: true,
       });
     }

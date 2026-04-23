@@ -103,7 +103,7 @@ export class KibanaService extends Construct implements IContainerService {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 1,
+        desiredCount: 0,
         enableExecuteCommand: true,
       });
     } else {
@@ -111,7 +111,7 @@ export class KibanaService extends Construct implements IContainerService {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 1,
+        desiredCount: 0,
         enableExecuteCommand: true,
       });
     }
