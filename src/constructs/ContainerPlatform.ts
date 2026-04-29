@@ -4,6 +4,7 @@ import { InstanceClass, InstanceSize, InstanceType, ISecurityGroup, IVpc, Launch
 import { AsgCapacityProvider, Cluster, EcsOptimizedImage } from 'aws-cdk-lib/aws-ecs';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { IHostedZone } from 'aws-cdk-lib/aws-route53';
+import { ISecret, Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { PrivateDnsNamespace } from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
 import { ComputeProvider } from '../ConfigurationInterfaces';
@@ -46,6 +47,7 @@ export interface ContainerServiceProps {
   wildcardCertificate: ICertificate; // resolved once by the platform
   computeProvider: ComputeProvider;
   vpc: IVpc;
+  dockerhubCredentials: ISecret;
 }
 
 /**
@@ -68,12 +70,15 @@ export class ContainerPlatform extends Construct {
   readonly loadBalancer: ServiceLoadBalancer;
   readonly certificate: ICertificate;
   readonly computeProvider: ComputeProvider;
+  readonly dockerhubCredentials: ISecret;
 
   constructor(scope: Construct, id: string, private readonly props: ContainerPlatformProps) {
     super(scope, id);
 
     this.certificate = this.props.certificate;
     this.computeProvider = this.props.computeProvider ?? 'FARGATE';
+
+    this.dockerhubCredentials = this.setupDockerHubCredentials();
 
     // In service discovery
     this.namespace = new PrivateDnsNamespace(this, 'cloudmap', {
@@ -100,6 +105,18 @@ export class ContainerPlatform extends Construct {
 
   }
 
+  private setupDockerHubCredentials() {
+    return new Secret(this, 'dockerhub-credentials', {
+      description: 'Container platform dockerhub credentials',
+      generateSecretString: {
+        generateStringKey: 'password',
+        secretStringTemplate: JSON.stringify({
+          username: 'gemeentenijmegen'
+        })
+      }
+    })
+  }
+
   addService(service: IContainerService) {
     service.bind({
       cluster: this.cluster,
@@ -109,6 +126,7 @@ export class ContainerPlatform extends Construct {
       wildcardCertificate: this.certificate,
       computeProvider: this.computeProvider,
       vpc: this.props.vpc,
+      dockerhubCredentials: this.dockerhubCredentials,
     });
   }
 

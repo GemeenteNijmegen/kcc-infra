@@ -73,11 +73,6 @@ export interface Configuration {
    */
   helloWorlServices?: HelloWorldServiceConfiguration[];
 
-  /**
-   * Provide configuration for the OIDC mock server service
-   * @default - no OIDC mock service is deployed
-   */
-  oidcMockServices?: OidcMockServiceConfiguration[];
 
   /**
    * Provide configuration for the KISS frontend service
@@ -90,24 +85,6 @@ export interface Configuration {
    * @default - no ITA services are deployed
    */
   itaServices?: ItaServiceConfiguration[];
-
-  /**
-   * Provide configuration for the Elasticsearch service
-   * @default - no Elasticsearch services are deployed
-   */
-  elasticsearchServices?: ElasticsearchServiceConfiguration[];
-
-  /**
-   * Provide configuration for the Enterprise Search service
-   * @default - no Enterprise Search services are deployed
-   */
-  enterpriseSearchServices?: EnterpriseSearchServiceConfiguration[];
-
-  /**
-   * Provide configuration for the Kibana service
-   * @default - no Kibana services are deployed
-   */
-  kibanaServices?: KibanaServiceConfiguration[];
 
 }
 
@@ -124,8 +101,6 @@ export interface KissServiceConfiguration extends MainTaskSizeConfiguration, Ser
   environment: Record<string, string | AppParameter>;
 }
 
-export interface OidcMockServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration { }
-
 export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
   /**
    * Environment variables for the ITA application.
@@ -134,27 +109,6 @@ export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, Serv
    */
   environment: Record<string, string | AppParameter>;
 }
-
-export interface ElasticsearchServiceConfiguration extends MainTaskSizeConfiguration {
-  /**
-   * A identifier for this particular service
-   */
-  id: string;
-  environment: Record<string, string | AppParameter>;
-}
-
-export interface EnterpriseSearchServiceConfiguration extends MainTaskSizeConfiguration {
-  /**
-   * A identifier for this particular service
-   */
-  id: string;
-  environment: Record<string, string | AppParameter>;
-}
-
-export interface KibanaServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
-  environment: Record<string, string | AppParameter>;
-}
-
 
 export interface ServiceConfiguration {
   /**
