@@ -111,10 +111,10 @@ export class ContainerPlatform extends Construct {
       generateSecretString: {
         generateStringKey: 'password',
         secretStringTemplate: JSON.stringify({
-          username: 'gemeentenijmegen'
-        })
-      }
-    })
+          username: 'gemeentenijmegen',
+        }),
+      },
+    });
   }
 
   addService(service: IContainerService) {

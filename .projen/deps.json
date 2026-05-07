@@ -61,7 +61,6 @@
     },
     {
       "name": "projen",
-      "version": "0.98.29",
       "type": "build"
     },
     {
@@ -102,12 +101,12 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.189.1",
+      "version": "^2.1.0",
       "type": "runtime"
     },
     {
       "name": "constructs",
-      "version": "^10.0.5",
+      "version": "^10.5.1",
       "type": "runtime"
     },
     {

@@ -44,6 +44,18 @@ export class Statics {
     account: '833119272131',
     region: 'eu-central-1',
   };
+  static readonly gnKccDev = {
+    account: '111035763707',
+    region: 'eu-central-1',
+  };
+  static readonly gnKccAccp = {
+    account: '', // nog aanmaken
+    region: 'eu-central-1',
+  };
+  static readonly gnKccProd = {
+    account: '',
+    region: 'eu-central-1', // nog aanmaken
+  };
 
   static databaseCredentialsName(dbName: string) {
     return `/${Statics.projectName}/internal/database/${dbName}/credentials`;

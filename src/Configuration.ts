@@ -124,6 +124,31 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     //     },
     //   }],
   },
+  development: {
+    branch: 'development',
+    buildEnvironment: Statics.gnBuildEnvironment,
+    deploymentEnvironment: Statics.gnKccDev,
+    criticality: new Criticality('low'),
+    databaseSnapshotRetentionDays: 0,
+    computeProvider: 'EC2',
+  },
+  acceptance: {
+    branch: 'development',
+    buildEnvironment: Statics.gnBuildEnvironment,
+    deploymentEnvironment: Statics.gnKccAccp,
+    criticality: new Criticality('medium'),
+    databaseSnapshotRetentionDays: 0,
+    computeProvider: 'EC2',
+  },
+  main: {
+    branch: 'development',
+    buildEnvironment: Statics.gnBuildEnvironment,
+    deploymentEnvironment: Statics.gnKccProd,
+    criticality: new Criticality('high'),
+    databaseSnapshotRetentionDays: 0,
+    computeProvider: 'EC2',
+  },
+
 };
 
 /**

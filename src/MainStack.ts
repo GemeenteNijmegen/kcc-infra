@@ -8,13 +8,9 @@ import { Configurable, Configuration } from './ConfigurationInterfaces';
 import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
 import { ProjectHostezone } from './constructs/Hostedzone';
-import { ElasticsearchService } from './services/ElasticsearchService';
-import { EnterpriseSearchService } from './services/EnterpriseSearchService';
 import { HelloWorldService } from './services/HelloWorld';
 import { ItaService } from './services/ItaService';
-import { KibanaService } from './services/KibanaService';
 import { KissService } from './services/KissService';
-import { OidcMockService } from './services/OidcMockService';
 import { Statics } from './Statics';
 
 
@@ -72,12 +68,12 @@ export class MainStack extends Stack {
     });
 
     this.helloWorldService();
-    this.oidcMockService();
+    // this.oidcMockService();
     this.kissFrontendService();
     this.itaService();
-    this.elasticsearchService();
-    this.enterpriseSearchService();
-    this.kibanaService();
+    // this.elasticsearchService();
+    // this.enterpriseSearchService();
+    // this.kibanaService();
   }
 
 
@@ -98,17 +94,17 @@ export class MainStack extends Stack {
     }
   }
 
-  private oidcMockService() {
-    if (!this.configuration.oidcMockServices) {
-      return;
-    }
-    for (const oidcMockService of this.configuration.oidcMockServices) {
-      const service = new OidcMockService(this, oidcMockService.id, {
-        serviceConfiguration: oidcMockService,
-      });
-      this.containerPlatform.addService(service);
-    }
-  }
+  // private oidcMockService() {
+  //   if (!this.configuration.oidcMockServices) {
+  //     return;
+  //   }
+  //   for (const oidcMockService of this.configuration.oidcMockServices) {
+  //     const service = new OidcMockService(this, oidcMockService.id, {
+  //       serviceConfiguration: oidcMockService,
+  //     });
+  //     this.containerPlatform.addService(service);
+  //   }
+  // }
 
   private kissFrontendService() {
     if (!this.configuration.kissServices) {
@@ -134,41 +130,41 @@ export class MainStack extends Stack {
     }
   }
 
-  private elasticsearchService() {
-    if (!this.configuration.elasticsearchServices) {
-      return;
-    }
-    for (const config of this.configuration.elasticsearchServices) {
-      const service = new ElasticsearchService(this, config.id, {
-        serviceConfiguration: config,
-      });
-      this.containerPlatform.addService(service);
-    }
-  }
+  // private elasticsearchService() {
+  //   if (!this.configuration.elasticsearchServices) {
+  //     return;
+  //   }
+  //   for (const config of this.configuration.elasticsearchServices) {
+  //     const service = new ElasticsearchService(this, config.id, {
+  //       serviceConfiguration: config,
+  //     });
+  //     this.containerPlatform.addService(service);
+  //   }
+  // }
 
-  private enterpriseSearchService() {
-    if (!this.configuration.enterpriseSearchServices) {
-      return;
-    }
-    for (const config of this.configuration.enterpriseSearchServices) {
-      const service = new EnterpriseSearchService(this, config.id, {
-        serviceConfiguration: config,
-      });
-      this.containerPlatform.addService(service);
-    }
-  }
+  // private enterpriseSearchService() {
+  //   if (!this.configuration.enterpriseSearchServices) {
+  //     return;
+  //   }
+  //   for (const config of this.configuration.enterpriseSearchServices) {
+  //     const service = new EnterpriseSearchService(this, config.id, {
+  //       serviceConfiguration: config,
+  //     });
+  //     this.containerPlatform.addService(service);
+  //   }
+  // }
 
-  private kibanaService() {
-    if (!this.configuration.kibanaServices) {
-      return;
-    }
-    for (const config of this.configuration.kibanaServices) {
-      const service = new KibanaService(this, config.id, {
-        serviceConfiguration: config,
-      });
-      this.containerPlatform.addService(service);
-    }
-  }
+  // private kibanaService() {
+  //   if (!this.configuration.kibanaServices) {
+  //     return;
+  //   }
+  //   for (const config of this.configuration.kibanaServices) {
+  //     const service = new KibanaService(this, config.id, {
+  //       serviceConfiguration: config,
+  //     });
+  //     this.containerPlatform.addService(service);
+  //   }
+  // }
 
 }
 
