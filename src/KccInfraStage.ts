@@ -4,6 +4,7 @@ import { Construct } from 'constructs';
 import { Configurable } from './ConfigurationInterfaces';
 import { DatabaseStack } from './DatabaseStack';
 import { MainStack } from './MainStack';
+import { UsEastCertificateStack } from './UsEastCertificateStack';
 
 interface KccInfraStageProps extends StageProps, Configurable { }
 
@@ -13,6 +14,15 @@ export class KccInfraStage extends Stage {
     super(scope, id, props);
     Aspects.of(this).add(new PermissionsBoundaryAspect());
 
+
+    const usEastCertificateStack = new UsEastCertificateStack(this, 'certificate', {
+      env: {
+        account: props.configuration.deploymentEnvironment.account,
+        region: 'us-east-1',
+      },
+      mainRegion: props.configuration.deploymentEnvironment.region ?? 'eu-central-1',
+      alternativeDomainNames: props.configuration.alternativeDomainNames,
+    });
     // const backupStack = new BackupStack(this, 'backup-stack', {
     //   env: props.configuration.deploymentEnvironment,
     //   configuration: props.configuration,
@@ -33,6 +43,6 @@ export class KccInfraStage extends Stage {
 
 
     mainStack.addDependency(databaseStack, 'KISS containers require database');
-
+    mainStack.addDependency(usEastCertificateStack, 'Certificate ARN must exist in SSM before main stack deploys');
   }
 }

@@ -1,13 +1,13 @@
 import { GemeenteNijmegenVpc } from '@gemeentenijmegen/aws-constructs';
 import { Stack, StackProps } from 'aws-cdk-lib';
-import { CertificateValidation, DnsValidatedCertificate, ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { Certificate, ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { SecurityGroup } from 'aws-cdk-lib/aws-ec2';
+import { HostedZone, IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './ConfigurationInterfaces';
 import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
-import { ProjectHostezone } from './constructs/Hostedzone';
 import { HelloWorldService } from './services/HelloWorld';
 import { ItaService } from './services/ItaService';
 import { KissService } from './services/KissService';
@@ -23,7 +23,7 @@ interface MainStackProps extends StackProps, Configurable { }
 export class MainStack extends Stack {
 
   private readonly vpc: GemeenteNijmegenVpc;
-  private readonly hostedzone: ProjectHostezone;
+  private readonly hostedzone: IHostedZone;
   private readonly certificate: ICertificate;
   private readonly containerPlatform: ContainerPlatform;
   private readonly configuration: Configuration;
@@ -34,22 +34,14 @@ export class MainStack extends Stack {
     this.configuration = props.configuration;
 
     // Do imports before setting up the platform.
-    this.hostedzone = new ProjectHostezone(this, 'hostedzone', {
-      subdomain: 'kcc',
-    });
+    this.hostedzone = this.importHostedzone();
+    this.certificate = this.importCertificate();
     this.vpc = new GemeenteNijmegenVpc(this, 'vpc');
 
-    // Depricated but still the only way without deploying a custom stack.
-    this.certificate = new DnsValidatedCertificate(this, 'cert', {
-      region: 'us-east-1',
-      domainName: `*.${this.hostedzone.hostedZone.zoneName}`,
-      validation: CertificateValidation.fromDns(this.hostedzone.hostedZone),
-      hostedZone: this.hostedzone.hostedZone,
-    });
 
     // Add CNAME records for certificates
     new DnsRecords(this, 'dns', {
-      hostedzone: this.hostedzone.hostedZone,
+      hostedzone: this.hostedzone,
       cnameRecords: this.configuration.cnameRecords,
     });
 
@@ -59,7 +51,7 @@ export class MainStack extends Stack {
     // Create the container platform
     this.containerPlatform = new ContainerPlatform(this, 'containers', {
       vpc: this.vpc.vpc,
-      hostedZone: this.hostedzone.hostedZone,
+      hostedZone: this.hostedzone,
       certificate: this.certificate,
       computeProvider: this.configuration.computeProvider,
       ec2InstanceAllowedSecurityGroups: [
@@ -76,6 +68,28 @@ export class MainStack extends Stack {
     // this.kibanaService();
   }
 
+
+  private importHostedzone() {
+    return HostedZone.fromHostedZoneAttributes(this, 'hostedzone', {
+      hostedZoneId: StringParameter.valueForStringParameter(
+        this,
+        Statics.ssmAccountRootHostedZoneId,
+      ),
+      zoneName: StringParameter.valueForStringParameter(
+        this,
+        Statics.ssmAccountRootHostedZoneName,
+      ),
+    });
+  }
+
+
+  private importCertificate(): ICertificate {
+    const certificateArn = StringParameter.valueForStringParameter(
+      this,
+      Statics.ssmWildcardCertificateArn,
+    );
+    return Certificate.fromCertificateArn(this, 'certificate', certificateArn);
+  }
 
   /**
    * For each hello world service configuration deploy a service.
