@@ -85,10 +85,7 @@ export class UsEastCertificateStack extends Stack {
         hostedZone.zoneName,
         ...cnames,
       ],
-      // Hostedzone expliciet meegeven zodat ACM validatie automatisch kan verlopen
-      // via Route53. Alleen aanpassen naar fromDns() (zonder argument) als er
-      // externe domeinen buiten de eigen hostedzone toegevoegd worden.
-      validation: CertificateValidation.fromDns(hostedZone),
+      validation: CertificateValidation.fromDns(),
     });
 
     new SSM.StringParameter(this, 'wildcard-cert-arn', {
