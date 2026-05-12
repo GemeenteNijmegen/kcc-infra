@@ -130,23 +130,23 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     deploymentEnvironment: Statics.gnKccDev,
     criticality: new Criticality('low'),
     databaseSnapshotRetentionDays: 0,
-    computeProvider: 'EC2',
+    computeProvider: 'FARGATE',
   },
   acceptance: {
-    branch: 'development',
+    branch: 'acceptance',
     buildEnvironment: Statics.gnBuildEnvironment,
     deploymentEnvironment: Statics.gnKccAccp,
     criticality: new Criticality('medium'),
     databaseSnapshotRetentionDays: 0,
-    computeProvider: 'EC2',
+    computeProvider: 'FARGATE',
   },
   main: {
-    branch: 'development',
+    branch: 'main',
     buildEnvironment: Statics.gnBuildEnvironment,
     deploymentEnvironment: Statics.gnKccProd,
     criticality: new Criticality('high'),
     databaseSnapshotRetentionDays: 0,
-    computeProvider: 'EC2',
+    computeProvider: 'FARGATE',
   },
 
 };
