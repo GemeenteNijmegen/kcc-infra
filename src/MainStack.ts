@@ -1,5 +1,6 @@
 import { GemeenteNijmegenVpc } from '@gemeentenijmegen/aws-constructs';
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { RemoteParameters } from '@gemeentenijmegen/cross-region-parameters';
+import { Duration, Stack, StackProps } from 'aws-cdk-lib';
 import { Certificate, ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { SecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { HostedZone, IHostedZone } from 'aws-cdk-lib/aws-route53';
@@ -84,10 +85,12 @@ export class MainStack extends Stack {
 
 
   private importCertificate(): ICertificate {
-    const certificateArn = StringParameter.valueForStringParameter(
-      this,
-      Statics.ssmWildcardCertificateArn,
-    );
+    const parameters = new RemoteParameters(this, 'params', {
+      path: `${Statics.ssmWildcardCertificatePath}/`,
+      region: 'us-east-1',
+      timeout: Duration.seconds(10),
+    });
+    const certificateArn = parameters.get(Statics.ssmWildcardCertificateArn);
     return Certificate.fromCertificateArn(this, 'certificate', certificateArn);
   }
 
