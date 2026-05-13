@@ -131,6 +131,13 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     criticality: new Criticality('low'),
     databaseSnapshotRetentionDays: 0,
     computeProvider: 'FARGATE',
+    helloWorlServices: [
+      {
+        subdomain: 'hello-world',
+        id: 'hello-world-service-1',
+        loadbalancerRulePriority: 10,
+      },
+    ],
   },
   acceptance: {
     branch: 'acceptance',
