@@ -3,6 +3,21 @@ import { Configuration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
 
+const openKlantBaseUrl = new AppParameter({
+  type: 'ssm',
+  id: 'kiss-kcc-open-klant-url',
+  description: 'KISS config: URL for Open-Klant',
+  path: `/${Statics.projectName}/kiss/open-klant/base-url`,
+  defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-klant/klantineracties',
+});
+
+const openKlantApiKey = new AppParameter({
+  type: 'secret',
+  id: 'kiss-kcc-open-klant-api-token',
+  description: 'KISS config: URL for Open-Klant API token',
+  path: `/${Statics.projectName}/kiss/open-klant/api-token`,
+});
+
 export const developmentConfiguration = {
   branch: 'development',
   buildEnvironment: Statics.gnBuildEnvironment,
@@ -51,9 +66,14 @@ export const developmentConfiguration = {
       // KVK
       KVK_BASE_URL: 'https://api.kvk.nl/test/api',
       KVK_API_KEY: 'l7xx1f2691f2520d487b902f4e0b57a0b197', // Public API key: https://developers.kvk.nl/nl/documentation/testing
-      // // Haal Centraal
-      // HAAL_CENTRAAL_BASE_URL: '',
-      // HAAL_CENTRAAL_API_KEY: '',
+      // Haal Centraal
+      HAAL_CENTRAAL_BASE_URL: 'https://tgbvzn1fbl.execute-api.eu-central-1.amazonaws.com/prod/personen', // Default endpoint van AWS Gateway (geen cert verplichting)
+      HAAL_CENTRAAL_API_KEY: new AppParameter({
+        description: 'KISS KCC: Haal Centraal BRP API key',
+        type: 'secret',
+        id: 'kiss-kcc-haal-centraal-api-key',
+        path: `/${Statics.projectName}/kiss/haal-centraal/api-key`,
+      }),
       // Enterprise Search / Elastic
       // ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
       // ENTERPRISE_SEARCH_BASE_URL: '',
@@ -62,20 +82,7 @@ export const developmentConfiguration = {
       // ELASTIC_USERNAME: '',
       // ELASTIC_PASSWORD: '',
       // ELASTIC_BASE_URL: '',
-      // // SDG
-      // SDG_BASE_URL: '',
-      // SDG_API_KEY: '',
-      // // Klanten
-      // KLANTEN_BASE_URL: '',
-      // KLANTEN_CLIENT_ID: '',
-      // KLANTEN_CLIENT_SECRET: '',
-      // // Klantinteracties
-      // KLANTINTERACTIES_BASE_URL: '',
-      // KLANTINTERACTIES_TOKEN: '',
-      // // Contactmomenten
-      // CONTACTMOMENTEN_BASE_URL: '',
-      // CONTACTMOMENTEN_API_KEY: '',
-      // CONTACTMOMENTEN_API_CLIENT_ID: '',
+
       // // Email
       // EMAIL_HOST: '',
       // EMAIL_PORT: '',
@@ -88,29 +95,90 @@ export const developmentConfiguration = {
       // INTERNE_TAAK_BASE_URL: '',
       // INTERNE_TAAK_TOKEN: '',
       // INTERNE_TAAK_OBJECT_TYPE_URL: '',
-      // // Afdelingen
-      // AFDELINGEN_BASE_URL: '',
-      // AFDELINGEN_TOKEN: '',
-      // AFDELINGEN_OBJECT_TYPE_URL: '',
-      // // Groepen
-      // GROEPEN_BASE_URL: '',
-      // GROEPEN_TOKEN: '',
-      // GROEPEN_OBJECT_TYPE_URL: '',
-      // // Registers
-      REGISTERS__0__IS_DEFAULT: 'true',
-      REGISTERS__0__KLANTINTERACTIE_BASE_URL: new AppParameter({
+
+      // Afdelingen
+      AFDELINGEN_BASE_URL: new AppParameter({
         type: 'ssm',
-        id: 'kiss-kcc-open-klant-url',
-        description: 'KISS config: URL for Open-Klant',
-        path: `/${Statics.projectName}/kiss/open-klant/base-url`,
-        defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-klant/klantineracties',
+        id: 'kiss-kcc-afdelingen-objecten',
+        description: 'KISS config: URL for objecten API - afdelingen',
+        path: `/${Statics.projectName}/kiss/afdelingen/objecten-url`,
       }),
-      REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
-      REGISTERS__0__KLANTINTERACTIE_TOKEN: new AppParameter({
+      AFDELINGEN_TOKEN: new AppParameter({
         type: 'secret',
-        id: 'kiss-kcc-open-klant-api-token',
-        description: 'KISS config: URL for Open-Klant API token',
-        path: `/${Statics.projectName}/kiss/open-klant/api-token`,
+        id: 'kiss-kcc-afdelingen-objecten-api-key',
+        description: 'KISS config: API KEY for objecten API afdelingen',
+        path: `/${Statics.projectName}/kiss/afdelingen/objecten-api-key`,
+      }),
+      AFDELINGEN_OBJECT_TYPE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-afdelingen-objecttype',
+        description: 'KISS config: URL for objecttype for afdelingen',
+        path: `/${Statics.projectName}/kiss/afdelingen/objecttypen`,
+      }),
+
+      // Groepen
+      GROEPEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-groepen-objecten',
+        description: 'KISS config: URL for objecten API - groepen',
+        path: `/${Statics.projectName}/kiss/groepen/objecten-url`,
+      }),
+      GROEPEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-groepen-objecten-api-key',
+        description: 'KISS config: API KEY for objecten API groepen',
+        path: `/${Statics.projectName}/kiss/groepen/objecten-api-key`,
+      }),
+      GROEPEN_OBJECT_TYPE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-groepen-objecttype',
+        description: 'KISS config: URL for objecttype for groepen',
+        path: `/${Statics.projectName}/kiss/groepen/objecttypen`,
+      }),
+
+      // Default connections (open-klant)
+      REGISTERS__0__IS_DEFAULT: 'true', // See https://kiss-klantinteractie-servicesysteem.readthedocs.io/nl/v2.1.0/decision-record/meerdere-registers.html
+      REGISTERS__0__KLANTINTERACTIE_BASE_URL: openKlantBaseUrl,
+      REGISTERS__0__KLANTINTERACTIE_TOKEN: openKlantApiKey,
+      REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
+
+      // Open-Zaak (formulieren)
+      REGISTERS__1__IS_DEFAULT: 'false',
+      REGISTERS__1__KLANTINTERACTIE_BASE_URL: openKlantBaseUrl,
+      REGISTERS__1__KLANTINTERACTIE_TOKEN: openKlantApiKey,
+      REGISTERS__1__REGISTRY_VERSION: 'OpenKlant2',
+      REGISTERS__1__ZAAKSYSTEEM_ZAKEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-open-zaak-zaken-url',
+        description: 'KISS config: URL for Open-Zaak Zaken (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/zaken-url`,
+        defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/zaken/api/v1',
+      }),
+      REGISTERS__1__ZAAKSYSTEEM_CATALOGI_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-open-zaak-catalogi-url',
+        description: 'KISS config: URL for Open-Zaak catalogi (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/catalogi-url`,
+        defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/catalogi/api/v1',
+      }),
+      REGISTERS__1__ZAAKSYSTEEM_DOCUMENTEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-open-zaak-documenten-url',
+        description: 'KISS config: URL for Open-Zaak documenten (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/documenten-url`,
+        defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/documenten/api/v1',
+      }),
+      REGISTERS__1__ZAAKSYSTEEM_API_CLIENT_ID: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-open-zaak-client-id',
+        description: 'KISS config: URL for Open-Zaak client id (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/client-id`,
+      }),
+      REGISTERS__1__ZAAKSYSTEEM_API_KEY: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-open-zaak-clientsecret',
+        description: 'KISS config: URL for Open-Zaak client secret (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/clientsecret`,
       }),
     },
   }],

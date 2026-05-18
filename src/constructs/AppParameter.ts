@@ -31,6 +31,12 @@ export class AppParameter {
   readonly type: 'ssm' | 'secret';
   readonly path: string;
 
+
+  private createdStringParameter?: StringParameter = undefined;;
+  private createdSecret?: Secret = undefined;
+  private importStringParameter?: IStringParameter = undefined;
+  private importSecret?: ISecret = undefined;
+
   constructor(readonly props: AppParameterProps) {
     this.id = props.id;
     this.type = props.type;
@@ -44,15 +50,18 @@ export class AppParameter {
         throw Error('Setting default values for secrets is not supported as its malpractice');
       }
 
-      return new Secret(scope, id, {
+      this.createdSecret = new Secret(scope, id, {
         secretName: this.props.path,
         description: this.props.description,
       });
+      return this.createdSecret
     }
-    return new StringParameter(scope, id, {
+
+    this.createdStringParameter = new StringParameter(scope, id, {
       parameterName: this.props.path,
       stringValue: this.props.defaultValue ?? '-',
     });
+    return this.createdStringParameter;
   }
 
   /**
@@ -60,8 +69,15 @@ export class AppParameter {
    */
   import(scope: Construct, id: string): { asEnv?: IStringParameter; asSecret?: ISecret } {
     if (this.props.type === 'ssm') {
-      return { asEnv: StringParameter.fromStringParameterName(scope, id, this.props.path) };
+      if (!this.importStringParameter) {
+        this.importStringParameter = StringParameter.fromStringParameterName(scope, id, this.props.path)
+      }
+      return { asEnv: this.importStringParameter };
     }
-    return { asSecret: Secret.fromSecretNameV2(scope, id, this.props.path) };
+
+    if (!this.importSecret) {
+      this.importSecret = Secret.fromSecretNameV2(scope, id, this.props.path);
+    }
+    return { asSecret: this.importSecret };
   }
 }
