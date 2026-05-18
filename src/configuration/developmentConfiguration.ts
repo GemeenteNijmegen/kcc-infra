@@ -190,6 +190,6 @@ export const developmentConfiguration = {
     image: '',
     redisIndexMain: 1,
     redisIndexCelery: 2,
-    environment: {}
+    environment: {},
   }],
 } as Configuration;
