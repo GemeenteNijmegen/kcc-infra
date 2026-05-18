@@ -182,13 +182,14 @@ export const developmentConfiguration = {
       }),
     },
   }],
-  // objectsServices: [{
-  //   id: 'objects',
-  //   subdomain: 'objects',
-  //   loadbalancerRulePriority: 40,
-  //   taskSize: { cpu: '512', memory: '1024' },
-  //   image: '',
-  //   environment: {}
-
-  // }],
+  openObjectServices: [{
+    id: 'objects-1',
+    subdomain: 'objects',
+    loadbalancerRulePriority: 40,
+    taskSize: { cpu: '512', memory: '1024' },
+    image: '',
+    redisIndexMain: 1,
+    redisIndexCelery: 2,
+    environment: {},
+  }],
 } as Configuration;
