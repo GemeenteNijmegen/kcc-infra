@@ -12,6 +12,7 @@ import { ObjectsServiceConfiguration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { ContainerServiceProps, IContainerService } from '../constructs/ContainerPlatform';
 import { ContainerServiceUtils } from '../constructs/ContainerUtils';
+import { RedisInstance } from '../constructs/Redis';
 import { SubdomainCloudfront } from '../constructs/SubdomainCloudfront';
 import { AdditionalDatabase } from '../custom-resources/additional-database/AdditionalDatabase';
 import { Statics } from '../Statics';
@@ -44,10 +45,16 @@ export class ObjectsService extends Construct implements IContainerService {
 
 
     // Redis setup
+
     const service = this.setupService(logs, platform, db);
-    // Celeryservice
+    const celeryService = this.setupCeleryService(logs, platform, db);
+
 
     this.allowDbConnectivity(service, db.securityGroup, db.port);
+    this.allowDbConnectivity(celeryService, db.securityGroup, db.port);
+
+    this.allowRedisConnectivity(service, platform.redis);
+    this.allowRedisConnectivity(celeryService, platform.redis);
 
     new SubdomainCloudfront(this, 'subdomain-cloudfront', {
       certificate: platform.wildcardCertificate,
@@ -57,7 +64,7 @@ export class ObjectsService extends Construct implements IContainerService {
     });
 
     const ruleMatchingDomain = `${subdomain}.${platform.hostedZone.zoneName}`;
-    platform.loadbalancer.getListerner().addTargets(`${this.id}-targets`, {
+    platform.loadbalancer.getListener().addTargets(`${this.id}-targets`, {
       targets: [service],
       conditions: [
         ListenerCondition.hostHeaders([ruleMatchingDomain]),
@@ -102,6 +109,80 @@ export class ObjectsService extends Construct implements IContainerService {
         streamPrefix: 'logs',
         logGroup: logs,
       }),
+      portMappings: [{
+        containerPort: ObjectsService.DEFAULT_BACKUP_CONTAINER_PORT,
+        hostPort: isEc2 ? 0 : ObjectsService.DEFAULT_BACKUP_CONTAINER_PORT,
+        protocol: Protocol.TCP,
+      }],
+      environment: environment,
+      secrets: secrets,
+      memoryReservationMiB: isEc2 ? 512 : undefined,
+    });
+
+    const cloudMapOptions = {
+      cloudMapNamespace: platform.namespace,
+      containerPort: ObjectsService.DEFAULT_BACKUP_CONTAINER_PORT,
+      dnsRecordType: DnsRecordType.SRV as DnsRecordType.SRV,
+      dnsTtl: Duration.seconds(60),
+    };
+
+    let service: BaseService;
+    if (isEc2) {
+      service = new Ec2Service(this, 'service', {
+        cluster: platform.cluster,
+        taskDefinition: task,
+        cloudMapOptions,
+        desiredCount: 1,
+        enableExecuteCommand: true,
+      });
+    } else {
+      service = new FargateService(this, 'service', {
+        cluster: platform.cluster,
+        taskDefinition: task,
+        cloudMapOptions,
+        desiredCount: 1,
+        enableExecuteCommand: true,
+      });
+    }
+
+
+    ContainerServiceUtils.allowExecutingCommands(task);
+    return service;
+  }
+
+
+  // Main service
+  private setupCeleryService(logs: LogGroup, platform: ContainerServiceProps, database: KccInfraAdditionalDatabase) {
+    const isEc2 = platform.computeProvider === 'EC2';
+    const config = this.props.serviceConfiguration;
+
+    const task = new TaskDefinition(this, 'celery-task', {
+      cpu: config.taskSize?.cpu ?? '512',
+      memoryMiB: config.taskSize?.memory ?? '1024',
+      compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
+    });
+
+    let { environment, secrets } = this.loadEnvironmentFromConfig(config);
+    // Heeft celery uberhaupt db nodig? Sowieso wel redis
+    environment = {
+      ...environment,
+      POSTGRES_HOST: database.host,
+      POSTGRES_PORT: database.port,
+      POSTGRES_DB: database.name,
+    };
+    secrets = {
+      ...secrets,
+      POSTGRES_USER: Secret.fromSecretsManager(database.credentials, 'username'),
+      POSTGRES_PASSWORD: Secret.fromSecretsManager(database.credentials, 'password'),
+    };
+
+    task.addContainer('objects-main', {
+      image: ContainerImage.fromRegistry(ObjectsService.DEFAULT_BACKUP_IMAGE),
+      logging: new AwsLogDriver({
+        streamPrefix: 'logs',
+        logGroup: logs,
+      }),
+      // Welke poorten heeft Celery nodig
       portMappings: [{
         containerPort: ObjectsService.DEFAULT_BACKUP_CONTAINER_PORT,
         hostPort: isEc2 ? 0 : ObjectsService.DEFAULT_BACKUP_CONTAINER_PORT,
@@ -214,6 +295,15 @@ export class ObjectsService extends Construct implements IContainerService {
   private allowDbConnectivity(service: BaseService, dbSecurityGroup: ISecurityGroup, dbPort: string) {
     service.connections.securityGroups.forEach(serviceSecurityGroup => {
       dbSecurityGroup.connections.allowFrom(serviceSecurityGroup, Port.tcp(Token.asNumber(dbPort)));
+    });
+  }
+
+  private allowRedisConnectivity(service: BaseService, redisInstance: RedisInstance) {
+    service.connections.securityGroups.forEach(serviceSecurityGroup => {
+      redisInstance.db.vpcSecurityGroupIds?.forEach((redisSecurityGroupId, index) => {
+        const redisSecurityGroup = SecurityGroup.fromSecurityGroupId(this, `redis-sg-${service.node.id}-${index}`, redisSecurityGroupId);
+        redisSecurityGroup.connections.allowFrom(serviceSecurityGroup, Port.tcp(Token.asNumber(redisInstance.db.attrRedisEndpointPort)));
+      });
     });
   }
 

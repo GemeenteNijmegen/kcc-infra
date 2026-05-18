@@ -10,6 +10,7 @@ import { Construct } from 'constructs';
 import { ComputeProvider } from '../ConfigurationInterfaces';
 import { Statics } from '../Statics';
 import { ServiceLoadBalancer } from './LoadBalancer';
+import { RedisInstance } from './Redis';
 
 export interface ContainerPlatformProps {
   /**
@@ -43,6 +44,7 @@ export interface ContainerServiceProps {
   cluster: Cluster;
   namespace: PrivateDnsNamespace;
   loadbalancer: ServiceLoadBalancer;
+  redis: RedisInstance;
   hostedZone: IHostedZone;
   wildcardCertificate: ICertificate; // resolved once by the platform
   computeProvider: ComputeProvider;
@@ -71,6 +73,7 @@ export class ContainerPlatform extends Construct {
   readonly certificate: ICertificate;
   readonly computeProvider: ComputeProvider;
   readonly dockerhubCredentials: ISecret;
+  readonly redisInstance: RedisInstance;
 
   constructor(scope: Construct, id: string, private readonly props: ContainerPlatformProps) {
     super(scope, id);
@@ -98,6 +101,11 @@ export class ContainerPlatform extends Construct {
       hostedzone: props.hostedZone,
     });
 
+    // Redis instance with queue and some light caching
+    this.redisInstance = new RedisInstance(this, 'redis-instance', {
+      vpc: props.vpc,
+    });
+
     // Add EC2 capacity when using EC2 compute provider otherwise default to fargate
     if (this.computeProvider === 'EC2') {
       this.setupEc2CapacityProvider(props.vpc);
@@ -122,6 +130,7 @@ export class ContainerPlatform extends Construct {
       cluster: this.cluster,
       namespace: this.namespace,
       loadbalancer: this.loadBalancer,
+      redis: this.redisInstance,
       hostedZone: this.props.hostedZone,
       wildcardCertificate: this.certificate,
       computeProvider: this.computeProvider,

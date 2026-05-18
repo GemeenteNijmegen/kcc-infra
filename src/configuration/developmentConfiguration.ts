@@ -188,6 +188,8 @@ export const developmentConfiguration = {
   //   loadbalancerRulePriority: 40,
   //   taskSize: { cpu: '512', memory: '1024' },
   //   image: '',
+  // redisIndexMain: 1,
+  // redisIndexCelery: 2,
   //   environment: {}
 
   // }],

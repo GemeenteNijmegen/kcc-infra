@@ -122,6 +122,11 @@ export interface ObjectsServiceConfiguration extends MainTaskSizeConfiguration, 
    * as such by ECS.
    */
   environment: Record<string, string | AppParameter>;
+  /**
+   * Redis indexes for main and celery
+   */
+  redisIndexMain: number;
+  redisIndexCelery: number;
 }
 
 export interface ServiceConfiguration {

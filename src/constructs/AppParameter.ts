@@ -54,7 +54,7 @@ export class AppParameter {
         secretName: this.props.path,
         description: this.props.description,
       });
-      return this.createdSecret
+      return this.createdSecret;
     }
 
     this.createdStringParameter = new StringParameter(scope, id, {
@@ -70,7 +70,7 @@ export class AppParameter {
   import(scope: Construct, id: string): { asEnv?: IStringParameter; asSecret?: ISecret } {
     if (this.props.type === 'ssm') {
       if (!this.importStringParameter) {
-        this.importStringParameter = StringParameter.fromStringParameterName(scope, id, this.props.path)
+        this.importStringParameter = StringParameter.fromStringParameterName(scope, id, this.props.path);
       }
       return { asEnv: this.importStringParameter };
     }

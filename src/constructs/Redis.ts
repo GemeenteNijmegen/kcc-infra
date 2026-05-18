@@ -2,7 +2,7 @@ import { IVpc, SecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { CfnCacheCluster, CfnSubnetGroup } from 'aws-cdk-lib/aws-elasticache';
 import { Construct } from 'constructs';
 
-export interface CacheDatabaseProps {
+export interface RedisInstanceProps {
   /**
    * The VPC to place the redis instance in.
    */
@@ -10,14 +10,14 @@ export interface CacheDatabaseProps {
   /**
    * cacheNodeType
    */
-  cacheNodeType?: string
+  cacheNodeType?: string;
 }
 
-export class CacheDatabase extends Construct {
+export class RedisInstance extends Construct {
 
   readonly db: CfnCacheCluster;
 
-  constructor(scope: Construct, id: string, props: CacheDatabaseProps) {
+  constructor(scope: Construct, id: string, props: RedisInstanceProps) {
     super(scope, id);
 
     const redisSecurityGroup = new SecurityGroup(this, 'redis-security-group', {
