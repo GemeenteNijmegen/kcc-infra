@@ -183,7 +183,7 @@ export const developmentConfiguration = {
     },
   }],
   openObjectServices: [{
-    id: 'objects',
+    id: 'objects-1',
     subdomain: 'objects',
     loadbalancerRulePriority: 40,
     taskSize: { cpu: '512', memory: '1024' },
