@@ -78,15 +78,15 @@ export class OpenObjectService extends Construct implements IContainerService {
     });
   }
 
-
   private getEnvironmentConfiguration(platform: ContainerServiceProps, database: KccInfraAdditionalDatabase): Record<string, string> {
 
     const config = this.props.serviceConfiguration;
 
     let { environment } = this.loadEnvironmentFromConfig(config);
     const redisHost = platform.redis.db.attrRedisEndpointAddress + ':' + platform.redis.db.attrRedisEndpointPort + '/';
+    const siteDomain = `${config.subdomain}.${platform.hostedZone.zoneName}`;
     const trustedDomains = []; // Later toevoegen
-    trustedDomains.push(`${config.subdomain}.${platform.hostedZone.zoneName}`);
+    trustedDomains.push(siteDomain);
 
     const env: Record<string, string> = {
 
@@ -124,10 +124,10 @@ export class OpenObjectService extends Construct implements IContainerService {
 
       // Disable OpenTelemetry (not used by this platform)
       OTEL_SDK_DISABLED: 'True',
+      SITE_DOMAIN: siteDomain,
     };
     return env;
   }
-
   /**
    * Returns all secrets for main and celery service in objects
    */
