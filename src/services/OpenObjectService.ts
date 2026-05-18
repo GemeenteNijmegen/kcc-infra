@@ -186,7 +186,7 @@ export class OpenObjectService extends Construct implements IContainerService {
 
     let service: BaseService;
     if (isEc2) {
-      service = new Ec2Service(this, 'service', {
+      service = new Ec2Service(this, 'service-main', {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
@@ -194,7 +194,7 @@ export class OpenObjectService extends Construct implements IContainerService {
         enableExecuteCommand: true,
       });
     } else {
-      service = new FargateService(this, 'service', {
+      service = new FargateService(this, 'service-main', {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
@@ -236,27 +236,18 @@ export class OpenObjectService extends Construct implements IContainerService {
       command: ['/celery_worker.sh'],
     });
 
-    const cloudMapOptions = {
-      cloudMapNamespace: platform.namespace,
-      containerPort: OpenObjectService.MAIN_CONTAINER_PORT,
-      dnsRecordType: DnsRecordType.SRV as DnsRecordType.SRV,
-      dnsTtl: Duration.seconds(60),
-    };
-
     let service: BaseService;
     if (isEc2) {
-      service = new Ec2Service(this, 'service', {
+      service = new Ec2Service(this, 'service-celery', {
         cluster: platform.cluster,
         taskDefinition: task,
-        cloudMapOptions,
         desiredCount: 1,
         enableExecuteCommand: true,
       });
     } else {
-      service = new FargateService(this, 'service', {
+      service = new FargateService(this, 'service-celery', {
         cluster: platform.cluster,
         taskDefinition: task,
-        cloudMapOptions,
         desiredCount: 1,
         enableExecuteCommand: true,
       });
