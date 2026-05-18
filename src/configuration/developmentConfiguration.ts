@@ -3,6 +3,21 @@ import { Configuration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
 
+const openKlantBaseUrl = new AppParameter({
+  type: 'ssm',
+  id: 'kiss-kcc-open-klant-url',
+  description: 'KISS config: URL for Open-Klant',
+  path: `/${Statics.projectName}/kiss/open-klant/base-url`,
+  defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-klant/klantineracties',
+});
+
+const openKlantApiKey = new AppParameter({
+  type: 'secret',
+  id: 'kiss-kcc-open-klant-api-token',
+  description: 'KISS config: URL for Open-Klant API token',
+  path: `/${Statics.projectName}/kiss/open-klant/api-token`,
+});
+
 export const developmentConfiguration = {
   branch: 'development',
   buildEnvironment: Statics.gnBuildEnvironment,
@@ -123,23 +138,15 @@ export const developmentConfiguration = {
 
       // Default connections (open-klant)
       REGISTERS__0__IS_DEFAULT: 'true', // See https://kiss-klantinteractie-servicesysteem.readthedocs.io/nl/v2.1.0/decision-record/meerdere-registers.html
-      REGISTERS__0__KLANTINTERACTIE_BASE_URL: new AppParameter({
-        type: 'ssm',
-        id: 'kiss-kcc-open-klant-url',
-        description: 'KISS config: URL for Open-Klant',
-        path: `/${Statics.projectName}/kiss/open-klant/base-url`,
-        defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-klant/klantineracties',
-      }),
+      REGISTERS__0__KLANTINTERACTIE_BASE_URL: openKlantBaseUrl,
+      REGISTERS__0__KLANTINTERACTIE_TOKEN: openKlantApiKey,
       REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
-      REGISTERS__0__KLANTINTERACTIE_TOKEN: new AppParameter({
-        type: 'secret',
-        id: 'kiss-kcc-open-klant-api-token',
-        description: 'KISS config: URL for Open-Klant API token',
-        path: `/${Statics.projectName}/kiss/open-klant/api-token`,
-      }),
 
       // Open-Zaak (formulieren)
       REGISTERS__1__IS_DEFAULT: 'false',
+      REGISTERS__1__KLANTINTERACTIE_BASE_URL: openKlantBaseUrl,
+      REGISTERS__1__KLANTINTERACTIE_TOKEN: openKlantApiKey,
+      REGISTERS__1__REGISTRY_VERSION: 'OpenKlant2',
       REGISTERS__1__ZAAKSYSTEEM_ZAKEN_BASE_URL: new AppParameter({
         type: 'ssm',
         id: 'kiss-kcc-open-zaak-zaken-url',
