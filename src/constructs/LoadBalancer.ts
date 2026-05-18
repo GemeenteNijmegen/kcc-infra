@@ -83,7 +83,7 @@ export class ServiceLoadBalancer extends Construct {
   }
 
 
-  getListerner() {
+  getListener() {
     return this.listener;
   }
 

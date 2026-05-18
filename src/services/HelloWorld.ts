@@ -58,7 +58,7 @@ export class HelloWorldService extends Construct implements IContainerService {
 
     // Make the loadbalancer exposes a healthy service
     const ruleMatchingDomain = `${subdomain}.${platform.hostedZone.zoneName}`;
-    platform.loadbalancer.getListerner().addTargets(`${this.id}-targets`, {
+    platform.loadbalancer.getListener().addTargets(`${this.id}-targets`, {
       targets: [service],
       conditions: [
         ListenerCondition.hostHeaders([ruleMatchingDomain]),
