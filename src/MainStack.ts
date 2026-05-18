@@ -64,7 +64,7 @@ export class MainStack extends Stack {
     this.helloWorldService();
     // this.oidcMockService();
     this.kissFrontendService();
-    this.itaService();
+    // this.itaService();
     this.openObjectService();
     // this.elasticsearchService();
     // this.enterpriseSearchService();
