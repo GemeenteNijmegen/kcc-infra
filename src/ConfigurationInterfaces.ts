@@ -113,6 +113,8 @@ export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, Serv
    * as such by ECS.
    */
   environment: Record<string, string | AppParameter>;
+  imageWebserver: string;
+  imagePoller: string;
 }
 
 export interface OpenObjectServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {

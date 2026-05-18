@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy, Token } from 'aws-cdk-lib';
+import { Duration, Fn, RemovalPolicy, SecretValue, Token } from 'aws-cdk-lib';
 import { ISecurityGroup, Port, SecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, Secret, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
@@ -22,8 +22,7 @@ export interface ItaServiceProps {
 
 export class ItaService extends Construct implements IContainerService {
 
-  static readonly IMAGE = 'ghcr.io/interne-taak-afhandeling/ita:latest';
-  static readonly CONTAINER_PORT = 8000;
+  static readonly WEB_CONTAINER_PORT = 8080;
 
   readonly id: string;
 
@@ -44,9 +43,11 @@ export class ItaService extends Construct implements IContainerService {
 
     const db = this.dbCreate(this.props.serviceConfiguration.id, platform);
 
-    const service = this.setupService(logs, platform, db);
+    const webService = this.setupWebService(logs, platform, db);
+    const pollerService = this.setupPollerService(logs, platform, db);
 
-    this.allowDbConnectivity(service, db.securityGroup, db.port);
+    this.allowDbConnectivity(webService, db.securityGroup, db.port);
+    this.allowDbConnectivity(pollerService, db.securityGroup, db.port);
 
     new SubdomainCloudfront(this, 'subdomain-cloudfront', {
       certificate: platform.wildcardCertificate,
@@ -57,21 +58,22 @@ export class ItaService extends Construct implements IContainerService {
 
     const ruleMatchingDomain = `${subdomain}.${platform.hostedZone.zoneName}`;
     platform.loadbalancer.getListener().addTargets(`${this.id}-targets`, {
-      targets: [service],
+      targets: [webService],
       conditions: [
         ListenerCondition.hostHeaders([ruleMatchingDomain]),
       ],
       healthCheck: {
         enabled: true,
         path: '/',
-        port: isEc2 ? undefined : ItaService.CONTAINER_PORT.toString(),
+        port: isEc2 ? undefined : ItaService.WEB_CONTAINER_PORT.toString(),
       },
       priority: priority,
-      port: ItaService.CONTAINER_PORT,
+      port: ItaService.WEB_CONTAINER_PORT,
     });
   }
 
-  private setupService(logs: LogGroup, platform: ContainerServiceProps, database: ItaAdditionalDatabase) {
+
+  private setupWebService(logs: LogGroup, platform: ContainerServiceProps, database: ItaAdditionalDatabase) {
     const isEc2 = platform.computeProvider === 'EC2';
     const config = this.props.serviceConfiguration;
 
@@ -80,29 +82,18 @@ export class ItaService extends Construct implements IContainerService {
       memoryMiB: config.taskSize?.memory ?? '1024',
       compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
     });
-
-    let { environment, secrets } = this.loadEnvironmentFromConfig(config);
-    environment = {
-      ...environment,
-      DB_HOST: database.host,
-      DB_PORT: database.port,
-      DB_NAME: database.name,
-    };
-    secrets = {
-      ...secrets,
-      DB_USER: Secret.fromSecretsManager(database.credentials, 'username'),
-      DB_PASSWORD: Secret.fromSecretsManager(database.credentials, 'password'),
-    };
+    const environment = this.getEnvironmentConfig();
+    const secrets = this.getSecretConfig(database);
 
     task.addContainer('ita', {
-      image: ContainerImage.fromRegistry(ItaService.IMAGE),
+      image: ContainerImage.fromRegistry(this.props.serviceConfiguration.imageWebserver),
       logging: new AwsLogDriver({
         streamPrefix: 'logs',
         logGroup: logs,
       }),
       portMappings: [{
-        containerPort: ItaService.CONTAINER_PORT,
-        hostPort: isEc2 ? 0 : ItaService.CONTAINER_PORT,
+        containerPort: ItaService.WEB_CONTAINER_PORT,
+        hostPort: isEc2 ? 0 : ItaService.WEB_CONTAINER_PORT,
         protocol: Protocol.TCP,
       }],
       environment: environment,
@@ -112,14 +103,14 @@ export class ItaService extends Construct implements IContainerService {
 
     const cloudMapOptions = {
       cloudMapNamespace: platform.namespace,
-      containerPort: ItaService.CONTAINER_PORT,
+      containerPort: ItaService.WEB_CONTAINER_PORT,
       dnsRecordType: DnsRecordType.SRV as DnsRecordType.SRV,
       dnsTtl: Duration.seconds(60),
     };
 
     let service: BaseService;
     if (isEc2) {
-      service = new Ec2Service(this, 'service', {
+      service = new Ec2Service(this, 'webservice', {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
@@ -127,11 +118,11 @@ export class ItaService extends Construct implements IContainerService {
         enableExecuteCommand: true,
       });
     } else {
-      service = new FargateService(this, 'service', {
+      service = new FargateService(this, 'webservice', {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 1,
+        desiredCount: 0, // TODO: voor nu even uitgezet omdat de config nog niet goed ingevuld is
         enableExecuteCommand: true,
       });
     }
@@ -139,6 +130,58 @@ export class ItaService extends Construct implements IContainerService {
     ContainerServiceUtils.allowExecutingCommands(task);
     return service;
   }
+
+  // Nog uitzoeken hoe en of die poller nog aangeroepen moet worden. Eventbridge?
+  private setupPollerService(logs: LogGroup, platform: ContainerServiceProps, database: ItaAdditionalDatabase) {
+    const isEc2 = platform.computeProvider === 'EC2';
+    const config = this.props.serviceConfiguration;
+
+    const task = new TaskDefinition(this, 'poller-task', {
+      cpu: config.taskSize?.cpu ?? '512',
+      memoryMiB: config.taskSize?.memory ?? '1024',
+      compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
+    });
+    const environment = this.getEnvironmentConfig();
+    const secrets = this.getSecretConfig(database);
+
+    task.addContainer('ita', {
+      image: ContainerImage.fromRegistry(this.props.serviceConfiguration.imagePoller),
+      logging: new AwsLogDriver({
+        streamPrefix: 'logs',
+        logGroup: logs,
+      }),
+      portMappings: [{
+        containerPort: ItaService.WEB_CONTAINER_PORT,
+        hostPort: isEc2 ? 0 : ItaService.WEB_CONTAINER_PORT,
+        protocol: Protocol.TCP,
+      }],
+      environment: environment,
+      secrets: secrets,
+      memoryReservationMiB: isEc2 ? 512 : undefined,
+    });
+
+
+    let service: BaseService;
+    if (isEc2) {
+      service = new Ec2Service(this, 'pollerservice', {
+        cluster: platform.cluster,
+        taskDefinition: task,
+        desiredCount: 1,
+        enableExecuteCommand: true,
+      });
+    } else {
+      service = new FargateService(this, 'pollerservice', {
+        cluster: platform.cluster,
+        taskDefinition: task,
+        desiredCount: 0, // TODO: voor nu even uit tot duidelijk is hoe deze het beste
+        enableExecuteCommand: true,
+      });
+    }
+
+    ContainerServiceUtils.allowExecutingCommands(task);
+    return service;
+  }
+
 
   private loadEnvironmentFromConfig(config: ItaServiceConfiguration) {
     const environment: Record<string, string> = {};
@@ -158,7 +201,18 @@ export class ItaService extends Construct implements IContainerService {
     }
     return { environment, secrets };
   }
-
+  private getEnvironmentConfig(): Record<string, string> {
+    let { environment } = this.loadEnvironmentFromConfig(this.props.serviceConfiguration);
+    return environment;
+  }
+  private getSecretConfig(database: ItaAdditionalDatabase): Record<string, Secret> {
+    let { secrets } = this.loadEnvironmentFromConfig(this.props.serviceConfiguration);
+    secrets = {
+      ...secrets,
+      ConnectionStrings__DefaultConnection: Secret.fromSecretsManager(database.credentials, 'username'),
+    };
+    return secrets;
+  }
   private dbCreate(dbName: string, platform: ContainerServiceProps): ItaAdditionalDatabase {
     const credentials = new SecretParameter(this, 'db-credentials', {
       description: `Database credentials for the ITA service (${dbName})`,
@@ -175,6 +229,22 @@ export class ItaService extends Construct implements IContainerService {
     const adminCredentials = SecretParameter.fromSecretNameV2(this, 'db-admin-credentials', Statics._ssmDatabaseCredentials);
     const hostname = StringParameter.valueForStringParameter(this, Statics._ssmDatabaseHostname);
     const port = StringParameter.valueForStringParameter(this, Statics._ssmDatabasePort);
+
+    // ITA requires a database connectionstring
+    const connectionString = new SecretParameter(this, 'db-connection-string', {
+      description: `Database connection string for the ITA service (${dbName})`,
+      secretName: Statics.databaseConnectionStringName(dbName),
+      secretStringValue: SecretValue.unsafePlainText(Fn.join('', [
+        'Host=', hostname,
+        ';Port=', port,
+        ';Database=', dbName,
+        ';Username=',
+        `{{resolve:secretsmanager:${Statics.databaseCredentialsName(dbName)}:SecretString:username}}`,
+        ';Password=',
+        `{{resolve:secretsmanager:${Statics.databaseCredentialsName(dbName)}:SecretString:password}}`,
+        ';',
+      ])),
+    });
     const dbSecurityGroupId = StringParameter.valueForStringParameter(this, Statics._ssmDatabaseSecurityGroup);
     const dbSecurityGroup = SecurityGroup.fromSecurityGroupId(this, 'db-security-group', dbSecurityGroupId);
 
@@ -194,7 +264,7 @@ export class ItaService extends Construct implements IContainerService {
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
-    return { credentials, host: hostname, port, securityGroup: dbSecurityGroup, name: dbName };
+    return { credentials, host: hostname, port, securityGroup: dbSecurityGroup, name: dbName, connectionString };
   }
 
   private allowDbConnectivity(service: BaseService, dbSecurityGroup: ISecurityGroup, dbPort: string) {
@@ -210,4 +280,5 @@ interface ItaAdditionalDatabase {
   port: string;
   securityGroup: ISecurityGroup;
   name: string;
+  connectionString: SecretParameter;
 }

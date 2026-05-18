@@ -60,5 +60,8 @@ export class Statics {
   static databaseCredentialsName(dbName: string) {
     return `/${Statics.projectName}/internal/database/${dbName}/credentials`;
   }
+  static databaseConnectionStringName(dbName: string) {
+    return `/${Statics.projectName}/internal/database/${dbName}/connectionstring`;
+  }
 
 }

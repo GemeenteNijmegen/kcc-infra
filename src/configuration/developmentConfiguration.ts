@@ -2,6 +2,7 @@ import { Criticality } from '@gemeentenijmegen/aws-constructs';
 import { Configuration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
+import { ItaSharedEnvironmentConfiguration } from './services/ItaSharedEnvConfiguration';
 
 const openKlantBaseUrl = new AppParameter({
   type: 'ssm',
@@ -191,5 +192,21 @@ export const developmentConfiguration = {
     redisIndexMain: 1,
     redisIndexCelery: 2,
     environment: {},
+  }],
+  itaServices: [{
+    id: 'ita-1',
+    subdomain: 'taken',
+    loadbalancerRulePriority: 40,
+    taskSize: { cpu: '512', memory: '1024' },
+    imageWebserver: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.web:3.1',
+    imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.1',
+    environment: {
+      ...ItaSharedEnvironmentConfiguration,
+      // ASPNETCORE_FORWARDEDHEADERS_ENABLED: 'true',
+      // Objecttype versions
+      LogBoekOptions__TypeVersion: '1',
+      AfdelingOptions__TypeVersion: '1',
+      GroepOptions__TypeVersion: '1',
+    },
   }],
 } as Configuration;
