@@ -42,7 +42,10 @@ export class ObjectsService extends Construct implements IContainerService {
     // Create an additional DB in our RDS instance
     const db = this.dbCreate(this.props.serviceConfiguration.id, platform);
 
+
+    // Redis setup
     const service = this.setupService(logs, platform, db);
+    // Celeryservice
 
     this.allowDbConnectivity(service, db.securityGroup, db.port);
 
