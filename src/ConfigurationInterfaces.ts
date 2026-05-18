@@ -86,6 +86,11 @@ export interface Configuration {
    */
   itaServices?: ItaServiceConfiguration[];
 
+  /**
+   * Provide configuration for objects service
+   * @default - no Objects deployed
+   */
+  objectsServices?: ObjectsServiceConfiguration[];
 }
 
 
@@ -104,6 +109,15 @@ export interface KissServiceConfiguration extends MainTaskSizeConfiguration, Ser
 export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
   /**
    * Environment variables for the ITA application.
+   * Secrets can be included here and will be treated
+   * as such by ECS.
+   */
+  environment: Record<string, string | AppParameter>;
+}
+
+export interface ObjectsServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {
+  /**
+   * Environment variables for the Objects application.
    * Secrets can be included here and will be treated
    * as such by ECS.
    */
@@ -132,6 +146,14 @@ export interface MainTaskSizeConfiguration {
    * @default - cdk defaults
    */
   taskSize?: TaskSize;
+}
+
+export interface ContainerImageConfiguration {
+  /**
+   * Configure the container image used in the service
+   * @default - cdk defaults
+   */
+  image?: string;
 }
 
 export interface TaskSize {
