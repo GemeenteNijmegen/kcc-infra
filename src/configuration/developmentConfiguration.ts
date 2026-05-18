@@ -96,8 +96,9 @@ export const developmentConfiguration = {
       // GROEPEN_BASE_URL: '',
       // GROEPEN_TOKEN: '',
       // GROEPEN_OBJECT_TYPE_URL: '',
-      // // Registers
-      REGISTERS__0__IS_DEFAULT: 'true',
+
+      // Default connections (open-klant)
+      REGISTERS__0__IS_DEFAULT: 'true', // See https://kiss-klantinteractie-servicesysteem.readthedocs.io/nl/v2.1.0/decision-record/meerdere-registers.html
       REGISTERS__0__KLANTINTERACTIE_BASE_URL: new AppParameter({
         type: 'ssm',
         id: 'kiss-kcc-open-klant-url',
@@ -111,6 +112,42 @@ export const developmentConfiguration = {
         id: 'kiss-kcc-open-klant-api-token',
         description: 'KISS config: URL for Open-Klant API token',
         path: `/${Statics.projectName}/kiss/open-klant/api-token`,
+      }),
+
+      // Open-Zaak (formulieren)
+      REGISTERS__1__IS_DEFAULT: 'false',
+      REGISTERS__1__ZAAKSYSTEEM_ZAKEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-open-zaak-zaken-url',
+        description: 'KISS config: URL for Open-Zaak Zaken (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/zaken-url`,
+        defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/zaken/api/v1',
+      }),
+      REGISTERS__1__ZAAKSYSTEEM_CATALOGI_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-open-zaak-catalogi-url',
+        description: 'KISS config: URL for Open-Zaak catalogi (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/catalogi-url`,
+        defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/catalogi/api/v1',
+      }),
+      REGISTERS__1__ZAAKSYSTEEM_DOCUMENTEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-open-zaak-documenten-url',
+        description: 'KISS config: URL for Open-Zaak documenten (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/documenten-url`,
+        defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/documenten/api/v1',
+      }),
+      REGISTERS__1__ZAAKSYSTEEM_API_CLIENT_ID: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-open-zaak-client-id',
+        description: 'KISS config: URL for Open-Zaak client id (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/client-id`,
+      }),
+      REGISTERS__1__ZAAKSYSTEEM_API_KEY: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-open-zaak-client-secret',
+        description: 'KISS config: URL for Open-Zaak client secret (formulieren)',
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/client-secret`,
       }),
     },
   }],
