@@ -12,6 +12,7 @@ import { DnsRecords } from './constructs/DnsRecords';
 import { HelloWorldService } from './services/HelloWorld';
 import { ItaService } from './services/ItaService';
 import { KissService } from './services/KissService';
+import { OpenObjectService } from './services/OpenObjectService';
 import { Statics } from './Statics';
 
 
@@ -64,6 +65,7 @@ export class MainStack extends Stack {
     // this.oidcMockService();
     this.kissFrontendService();
     this.itaService();
+    this.openObjectService();
     // this.elasticsearchService();
     // this.enterpriseSearchService();
     // this.kibanaService();
@@ -142,6 +144,18 @@ export class MainStack extends Stack {
     for (const itaServiceConfig of this.configuration.itaServices) {
       const service = new ItaService(this, itaServiceConfig.id, {
         serviceConfiguration: itaServiceConfig,
+      });
+      this.containerPlatform.addService(service);
+    }
+  }
+
+  private openObjectService() {
+    if (!this.configuration.openObjectServices) {
+      return;
+    }
+    for (const openObjectServiceConfig of this.configuration.openObjectServices) {
+      const service = new OpenObjectService(this, openObjectServiceConfig.id, {
+        serviceConfiguration: openObjectServiceConfig,
       });
       this.containerPlatform.addService(service);
     }
