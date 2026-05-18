@@ -23,7 +23,6 @@ const EnvironmentConfigurations: { [key: string]: Configuration } = {
     databaseSnapshotRetentionDays: 0,
     computeProvider: 'FARGATE',
   },
-
 };
 
 /**

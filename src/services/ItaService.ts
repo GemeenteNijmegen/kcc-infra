@@ -56,7 +56,7 @@ export class ItaService extends Construct implements IContainerService {
     });
 
     const ruleMatchingDomain = `${subdomain}.${platform.hostedZone.zoneName}`;
-    platform.loadbalancer.getListerner().addTargets(`${this.id}-targets`, {
+    platform.loadbalancer.getListener().addTargets(`${this.id}-targets`, {
       targets: [service],
       conditions: [
         ListenerCondition.hostHeaders([ruleMatchingDomain]),
