@@ -90,7 +90,7 @@ export interface Configuration {
    * Provide configuration for objects service
    * @default - no Objects deployed
    */
-  objectsServices?: ObjectsServiceConfiguration[];
+  openObjectServices?: OpenObjectServiceConfiguration[];
 }
 
 
@@ -115,7 +115,7 @@ export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, Serv
   environment: Record<string, string | AppParameter>;
 }
 
-export interface ObjectsServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {
+export interface OpenObjectServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {
   /**
    * Environment variables for the Objects application.
    * Secrets can be included here and will be treated
