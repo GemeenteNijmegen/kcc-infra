@@ -62,20 +62,7 @@ export const developmentConfiguration = {
       // ELASTIC_USERNAME: '',
       // ELASTIC_PASSWORD: '',
       // ELASTIC_BASE_URL: '',
-      // // SDG
-      // SDG_BASE_URL: '',
-      // SDG_API_KEY: '',
-      // // Klanten
-      // KLANTEN_BASE_URL: '',
-      // KLANTEN_CLIENT_ID: '',
-      // KLANTEN_CLIENT_SECRET: '',
-      // // Klantinteracties
-      // KLANTINTERACTIES_BASE_URL: '',
-      // KLANTINTERACTIES_TOKEN: '',
-      // // Contactmomenten
-      // CONTACTMOMENTEN_BASE_URL: '',
-      // CONTACTMOMENTEN_API_KEY: '',
-      // CONTACTMOMENTEN_API_CLIENT_ID: '',
+
       // // Email
       // EMAIL_HOST: '',
       // EMAIL_PORT: '',
@@ -88,14 +75,46 @@ export const developmentConfiguration = {
       // INTERNE_TAAK_BASE_URL: '',
       // INTERNE_TAAK_TOKEN: '',
       // INTERNE_TAAK_OBJECT_TYPE_URL: '',
-      // // Afdelingen
-      // AFDELINGEN_BASE_URL: '',
-      // AFDELINGEN_TOKEN: '',
-      // AFDELINGEN_OBJECT_TYPE_URL: '',
-      // // Groepen
-      // GROEPEN_BASE_URL: '',
-      // GROEPEN_TOKEN: '',
-      // GROEPEN_OBJECT_TYPE_URL: '',
+
+      // Afdelingen
+      AFDELINGEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-afdelingen-objecten',
+        description: 'KISS config: URL for objecten API - afdelingen',
+        path: `/${Statics.projectName}/kiss/afdelingen/objecten-url`,
+      }),
+      AFDELINGEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-afdelingen-objecten-api-key',
+        description: 'KISS config: API KEY for objecten API afdelingen',
+        path: `/${Statics.projectName}/kiss/afdelingen/objecten-api-key`,
+      }),
+      AFDELINGEN_OBJECT_TYPE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-afdelingen-objecttype',
+        description: 'KISS config: URL for objecttype for afdelingen',
+        path: `/${Statics.projectName}/kiss/afdelingen/objecttypen`,
+      }),
+
+      // Groepen
+      GROEPEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-groepen-objecten',
+        description: 'KISS config: URL for objecten API - groepen',
+        path: `/${Statics.projectName}/kiss/groepen/objecten-url`,
+      }),
+      GROEPEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-groepen-objecten-api-key',
+        description: 'KISS config: API KEY for objecten API groepen',
+        path: `/${Statics.projectName}/kiss/groepen/objecten-api-key`,
+      }),
+      GROEPEN_OBJECT_TYPE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-groepen-objecttype',
+        description: 'KISS config: URL for objecttype for groepen',
+        path: `/${Statics.projectName}/kiss/groepen/objecttypen`,
+      }),
 
       // Default connections (open-klant)
       REGISTERS__0__IS_DEFAULT: 'true', // See https://kiss-klantinteractie-servicesysteem.readthedocs.io/nl/v2.1.0/decision-record/meerdere-registers.html
