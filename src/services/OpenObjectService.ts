@@ -318,6 +318,7 @@ export class OpenObjectService extends Construct implements IContainerService {
       dbUserCredentialsSecret: credentials,
       instance: dbInstance,
       vpc: platform.vpc,
+      postgisExtension: true,
       removalPolicy: RemovalPolicy.RETAIN,
     });
 

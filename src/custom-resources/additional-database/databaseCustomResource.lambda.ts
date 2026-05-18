@@ -10,11 +10,15 @@ import * as postgres from 'pg';
  * - DB_PORT: RDS instance port
  * - DB_ADMIN_DATABASE: existing database to connect to (e.g. 'postgres')
  * - DB_NAME: name of the database to create
+ *
+ * Optional:
+ * - POSTGIS_EXTENSION: true or false, installs postgis extension if absent
  */
 export async function handler(event: CdkCustomResourceEvent): Promise<CdkCustomResourceResponse> {
   console.log(JSON.stringify(event));
 
   const dbName = process.env.DB_NAME!;
+  const addPostgis = process.env.POSTGIS_EXTENSION! == 'true';
 
   if (event.RequestType === 'Delete') {
     const removalPolicy = (event.ResourceProperties.RemovalPolicy ?? 'retain').toLowerCase();
@@ -26,7 +30,7 @@ export async function handler(event: CdkCustomResourceEvent): Promise<CdkCustomR
     }
 
     console.info('Removal policy is DESTROY. Proceeding with deletion...');
-    const adminClient = await buildAdminClient();
+    const adminClient = await buildClient();
     try {
       await adminClient.connect();
       const dbUserCredentials = await fetchCredentials(process.env.DB_USER_CREDENTIALS_ARN!);
@@ -45,7 +49,7 @@ export async function handler(event: CdkCustomResourceEvent): Promise<CdkCustomR
     }
   }
 
-  const adminClient = await buildAdminClient();
+  const adminClient = await buildClient();
 
   try {
     await adminClient.connect();
@@ -67,6 +71,11 @@ export async function handler(event: CdkCustomResourceEvent): Promise<CdkCustomR
       console.info(`Database '${dbName}' already exists. Skipping creation.`);
     }
 
+    if (addPostgis) {
+      console.info(`Add postgis extension to ${dbName} if it does not exist`);
+      await ensurePostgisExtension(dbName);
+    }
+
     const adminCredentials = await fetchCredentials(process.env.ADMIN_CREDENTIALS_ARN!);
     await setupDatabasePermissions(adminCredentials, dbName, dbUsername);
 
@@ -83,7 +92,7 @@ export async function handler(event: CdkCustomResourceEvent): Promise<CdkCustomR
 
 // --- Connection setup ---
 
-async function buildAdminClient(): Promise<postgres.Client> {
+async function buildClient(dbname?: string): Promise<postgres.Client> {
   const credentials = await fetchCredentials(process.env.ADMIN_CREDENTIALS_ARN!);
   return new postgres.Client({
     user: credentials.username,
@@ -91,7 +100,7 @@ async function buildAdminClient(): Promise<postgres.Client> {
     host: process.env.DB_HOST!,
     port: parseInt(process.env.DB_PORT!),
     // Connect to the default admin database, not the one we're creating
-    database: process.env.DB_ADMIN_DATABASE ?? 'postgres',
+    database: dbname ?? process.env.DB_ADMIN_DATABASE ?? 'postgres',
     ssl: { rejectUnauthorized: false }, // in internal VPC, control both services.
   });
 }
@@ -113,6 +122,44 @@ async function databaseExists(client: postgres.Client, name: string): Promise<bo
     [name],
   );
   return (result.rowCount ?? 0) > 0;
+}
+
+/**
+ * Check if the specific postgress database has the postgis extension.
+ * If it does not, it will always install it.
+ * @param dbName
+ */
+async function ensurePostgisExtension(dbName: string): Promise<void> {
+  const newDbClient = await buildClient(dbName);
+  let connected = false;
+  console.info('Try Postgis extension install.');
+  try {
+    try {
+      await newDbClient.connect();
+      connected = true;
+    } catch (err) {
+      console.error(`Connecting to database ${dbName} failed`, err);
+      throw new Error(`Connecting to database ${dbName} failed`, {
+        cause: err,
+      });
+    }
+
+    try {
+      await newDbClient.query(`
+        CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+      `);
+    } catch (err) {
+      console.error(`Installing PostGIS extension in ${dbName} failed`, { cause: err });
+      throw new Error(`Installing PostGIS extension in ${dbName} failed`, { cause: err });
+    }
+  } finally {
+    if (connected) {
+      await newDbClient.end().catch((err: any) => {
+        console.warn(`Closing database connection for ${dbName} failed`, err);
+      });
+    }
+  }
+  console.info('Postgis extension install executed.');
 }
 
 async function createDatabase(client: postgres.Client, name: string, owner: string): Promise<void> {
@@ -164,7 +211,6 @@ async function ensureUser(client: postgres.Client, username: string, password: s
 }
 
 async function setupDatabasePermissions(
-  adminCredentials: { username: string; password: string },
   dbName: string,
   dbUsername: string,
 ): Promise<void> {
@@ -172,14 +218,7 @@ async function setupDatabasePermissions(
   const safeUsername = sanitizeIdentifier(dbUsername);
 
   // Connect to the new database specifically
-  const dbClient = new postgres.Client({
-    user: adminCredentials.username,
-    password: adminCredentials.password,
-    host: process.env.DB_HOST!,
-    port: parseInt(process.env.DB_PORT!),
-    database: safeDbName,
-    ssl: { rejectUnauthorized: false },
-  });
+  const dbClient = await buildClient(safeDbName);
 
   await dbClient.connect();
   try {

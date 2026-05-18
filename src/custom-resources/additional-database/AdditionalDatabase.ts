@@ -58,6 +58,11 @@ export interface AdditionalDatabaseProps {
    */
   readonly removalPolicy?: RemovalPolicy;
 
+  /**
+   * Postgis extension in database
+   * When true, install extension
+   */
+  readonly postgisExtension?: boolean;
 }
 
 export class AdditionalDatabase extends Construct {
@@ -85,6 +90,7 @@ export class AdditionalDatabase extends Construct {
         DB_PORT: props.instance.instanceEndpoint.port.toString(),
         DB_ADMIN_DATABASE: props.adminDatabase ?? 'postgres',
         DB_NAME: props.databaseName,
+        POSTGIS_EXTENSION: props.postgisExtension ? 'true' : 'false',
       },
     });
 
