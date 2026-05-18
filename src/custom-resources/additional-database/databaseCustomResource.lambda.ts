@@ -76,8 +76,7 @@ export async function handler(event: CdkCustomResourceEvent): Promise<CdkCustomR
       await ensurePostgisExtension(dbName);
     }
 
-    const adminCredentials = await fetchCredentials(process.env.ADMIN_CREDENTIALS_ARN!);
-    await setupDatabasePermissions(adminCredentials, dbName, dbUsername);
+    await setupDatabasePermissions(dbName, dbUsername);
 
     return response('SUCCESS', event, dbName, `Database '${dbName}' is ready.`);
 
@@ -94,13 +93,15 @@ export async function handler(event: CdkCustomResourceEvent): Promise<CdkCustomR
 
 async function buildClient(dbname?: string): Promise<postgres.Client> {
   const credentials = await fetchCredentials(process.env.ADMIN_CREDENTIALS_ARN!);
+  const database = dbname ?? process.env.DB_ADMIN_DATABASE ?? 'postgres';
+  console.info(`Build postgres client with dbname ${database}, or `);
   return new postgres.Client({
     user: credentials.username,
     password: credentials.password,
     host: process.env.DB_HOST!,
     port: parseInt(process.env.DB_PORT!),
     // Connect to the default admin database, not the one we're creating
-    database: dbname ?? process.env.DB_ADMIN_DATABASE ?? 'postgres',
+    database: database,
     ssl: { rejectUnauthorized: false }, // in internal VPC, control both services.
   });
 }
@@ -130,7 +131,8 @@ async function databaseExists(client: postgres.Client, name: string): Promise<bo
  * @param dbName
  */
 async function ensurePostgisExtension(dbName: string): Promise<void> {
-  const newDbClient = await buildClient(dbName);
+  const safeDbName = sanitizeIdentifier(dbName);
+  const newDbClient = await buildClient(safeDbName);
   let connected = false;
   console.info('Try Postgis extension install.');
   try {
