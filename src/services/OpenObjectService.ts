@@ -85,8 +85,9 @@ export class OpenObjectService extends Construct implements IContainerService {
 
     let { environment } = this.loadEnvironmentFromConfig(config);
     const redisHost = platform.redis.db.attrRedisEndpointAddress + ':' + platform.redis.db.attrRedisEndpointPort + '/';
+    const siteDomain = `${config.subdomain}.${platform.hostedZone.zoneName}`;
     const trustedDomains = []; // Later toevoegen
-    trustedDomains.push(`${config.subdomain}.${platform.hostedZone.zoneName}`);
+    trustedDomains.push(siteDomain);
 
     const env: Record<string, string> = {
 
@@ -124,6 +125,7 @@ export class OpenObjectService extends Construct implements IContainerService {
 
       // Disable OpenTelemetry (not used by this platform)
       OTEL_SDK_DISABLED: 'True',
+      SITE_DOMAIN: siteDomain,
     };
     return env;
   }
