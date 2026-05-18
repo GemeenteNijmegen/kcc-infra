@@ -145,9 +145,9 @@ export const developmentConfiguration = {
       }),
       REGISTERS__1__ZAAKSYSTEEM_API_KEY: new AppParameter({
         type: 'secret',
-        id: 'kiss-kcc-open-zaak-client-secret',
+        id: 'kiss-kcc-open-zaak-clientsecret',
         description: 'KISS config: URL for Open-Zaak client secret (formulieren)',
-        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/client-secret`,
+        path: `/${Statics.projectName}/kiss/open-zaak-formulieren/clientsecret`,
       }),
     },
   }],
