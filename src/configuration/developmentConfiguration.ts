@@ -144,10 +144,6 @@ export const developmentConfiguration = {
       REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
 
       // Open-Zaak (formulieren)
-      REGISTERS__0__IS_DEFAULT: 'false',
-      REGISTERS__0__KLANTINTERACTIE_BASE_URL: openKlantBaseUrl,
-      REGISTERS__0__KLANTINTERACTIE_TOKEN: openKlantApiKey,
-      REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
       REGISTERS__0__ZAAKSYSTEEM_ZAKEN_BASE_URL: new AppParameter({
         type: 'ssm',
         id: 'kiss-kcc-open-zaak-zaken-url',
