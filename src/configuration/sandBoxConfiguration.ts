@@ -91,13 +91,23 @@ export const sandBoxConfiguration = {
       // INTERNE_TAAK_TOKEN: '',
       // INTERNE_TAAK_OBJECT_TYPE_URL: '',
       // // Afdelingen
-      // AFDELINGEN_BASE_URL: '',
-      // AFDELINGEN_TOKEN: '',
-      // AFDELINGEN_OBJECT_TYPE_URL: '',
+      AFDELINGEN_BASE_URL: 'https://objects.kcc-dev.csp-nijmegen.nl/api/v2',
+      AFDELINGEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-objects-api-token',
+        description: 'KISS config: Objects API token',
+        path: `/${Statics.projectName}/kiss/objects/api-token`,
+      }),
+      AFDELINGEN_OBJECT_TYPE_URL: 'https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objecttype/7ca30976-aab6-4bce-9ce2-77387d36848a',
       // // Groepen
-      // GROEPEN_BASE_URL: '',
-      // GROEPEN_TOKEN: '',
-      // GROEPEN_OBJECT_TYPE_URL: '',
+      GROEPEN_BASE_URL: 'https://objects.kcc-dev.csp-nijmegen.nl/api/v2',
+      GROEPEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-objects-api-token',
+        description: 'KISS config: Objects API token',
+        path: `/${Statics.projectName}/kiss/objects/api-token`,
+      }),
+      GROEPEN_OBJECT_TYPE_URL: 'https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objecttype/cc592529-ec78-4d30-846a-f73b39a1d978',
       // // Registers
       REGISTERS__0__IS_DEFAULT: 'true',
       REGISTERS__0__KLANTINTERACTIE_BASE_URL: new AppParameter({

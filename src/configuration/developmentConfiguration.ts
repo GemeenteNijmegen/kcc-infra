@@ -68,7 +68,7 @@ export const developmentConfiguration = {
       KVK_BASE_URL: 'https://api.kvk.nl/test/api',
       KVK_API_KEY: 'l7xx1f2691f2520d487b902f4e0b57a0b197', // Public API key: https://developers.kvk.nl/nl/documentation/testing
       // Haal Centraal
-      HAAL_CENTRAAL_BASE_URL: 'https://tgbvzn1fbl.execute-api.eu-central-1.amazonaws.com/prod/personen', // Default endpoint van AWS Gateway (geen cert verplichting)
+      HAAL_CENTRAAL_BASE_URL: 'https://thisrelbni.execute-api.eu-central-1.amazonaws.com/prod/personen', // Default endpoint van AWS Gateway (geen cert verplichting)
       HAAL_CENTRAAL_API_KEY: new AppParameter({
         description: 'KISS KCC: Haal Centraal BRP API key',
         type: 'secret',
@@ -144,38 +144,38 @@ export const developmentConfiguration = {
       REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
 
       // Open-Zaak (formulieren)
-      REGISTERS__1__IS_DEFAULT: 'false',
-      REGISTERS__1__KLANTINTERACTIE_BASE_URL: openKlantBaseUrl,
-      REGISTERS__1__KLANTINTERACTIE_TOKEN: openKlantApiKey,
-      REGISTERS__1__REGISTRY_VERSION: 'OpenKlant2',
-      REGISTERS__1__ZAAKSYSTEEM_ZAKEN_BASE_URL: new AppParameter({
+      REGISTERS__0__IS_DEFAULT: 'false',
+      REGISTERS__0__KLANTINTERACTIE_BASE_URL: openKlantBaseUrl,
+      REGISTERS__0__KLANTINTERACTIE_TOKEN: openKlantApiKey,
+      REGISTERS__0__REGISTRY_VERSION: 'OpenKlant2',
+      REGISTERS__0__ZAAKSYSTEEM_ZAKEN_BASE_URL: new AppParameter({
         type: 'ssm',
         id: 'kiss-kcc-open-zaak-zaken-url',
         description: 'KISS config: URL for Open-Zaak Zaken (formulieren)',
         path: `/${Statics.projectName}/kiss/open-zaak-formulieren/zaken-url`,
         defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/zaken/api/v1',
       }),
-      REGISTERS__1__ZAAKSYSTEEM_CATALOGI_BASE_URL: new AppParameter({
+      REGISTERS__0__ZAAKSYSTEEM_CATALOGI_BASE_URL: new AppParameter({
         type: 'ssm',
         id: 'kiss-kcc-open-zaak-catalogi-url',
         description: 'KISS config: URL for Open-Zaak catalogi (formulieren)',
         path: `/${Statics.projectName}/kiss/open-zaak-formulieren/catalogi-url`,
         defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/catalogi/api/v1',
       }),
-      REGISTERS__1__ZAAKSYSTEEM_DOCUMENTEN_BASE_URL: new AppParameter({
+      REGISTERS__0__ZAAKSYSTEEM_DOCUMENTEN_BASE_URL: new AppParameter({
         type: 'ssm',
         id: 'kiss-kcc-open-zaak-documenten-url',
         description: 'KISS config: URL for Open-Zaak documenten (formulieren)',
         path: `/${Statics.projectName}/kiss/open-zaak-formulieren/documenten-url`,
         defaultValue: 'https://mijn-services-dev.csp-nijmegen.nl/open-zaak/documenten/api/v1',
       }),
-      REGISTERS__1__ZAAKSYSTEEM_API_CLIENT_ID: new AppParameter({
+      REGISTERS__0__ZAAKSYSTEEM_API_CLIENT_ID: new AppParameter({
         type: 'ssm',
         id: 'kiss-kcc-open-zaak-client-id',
         description: 'KISS config: URL for Open-Zaak client id (formulieren)',
         path: `/${Statics.projectName}/kiss/open-zaak-formulieren/client-id`,
       }),
-      REGISTERS__1__ZAAKSYSTEEM_API_KEY: new AppParameter({
+      REGISTERS__0__ZAAKSYSTEEM_API_KEY: new AppParameter({
         type: 'secret',
         id: 'kiss-kcc-open-zaak-clientsecret',
         description: 'KISS config: URL for Open-Zaak client secret (formulieren)',

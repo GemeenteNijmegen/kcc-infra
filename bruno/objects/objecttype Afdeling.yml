@@ -1,0 +1,15 @@
+info:
+  name: "objecttype Afdeling "
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objecttypes/7ca30976-aab6-4bce-9ce2-77387d36848a
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
