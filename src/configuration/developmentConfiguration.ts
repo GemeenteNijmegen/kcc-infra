@@ -202,8 +202,8 @@ export const developmentConfiguration = {
       VAC_OBJECTEN_TOKEN: new AppParameter({
         type: 'secret',
         id: 'kiss-kcc-vac-objecten-api-key',
-        description: 'KISS config: API KEY for objecten API groepen',
-        path: `/${Statics.projectName}/kiss/groepen/objecten-api-key`,
+        description: 'KISS config: API KEY for objecten API vac',
+        path: `/${Statics.projectName}/kiss/vac/objecten-api-key`,
       }),
     },
   }],
