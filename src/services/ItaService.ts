@@ -230,20 +230,10 @@ export class ItaService extends Construct implements IContainerService {
     const hostname = StringParameter.valueForStringParameter(this, Statics._ssmDatabaseHostname);
     const port = StringParameter.valueForStringParameter(this, Statics._ssmDatabasePort);
 
-    // ITA requires a database connectionstring
+    // ITA requires a database connectionstring - voor nu handmatig vullen
     const connectionString = new SecretParameter(this, 'db-connection-string', {
       description: `Database connection string for the ITA service (${dbName})`,
       secretName: Statics.databaseConnectionStringName(dbName),
-      secretStringValue: SecretValue.unsafePlainText(Fn.join('', [
-        'Host=', hostname,
-        ';Port=', port,
-        ';Database=', dbName,
-        ';Username=',
-        `{{resolve:secretsmanager:${Statics.databaseCredentialsName(dbName)}:SecretString:username}}`,
-        ';Password=',
-        `{{resolve:secretsmanager:${Statics.databaseCredentialsName(dbName)}:SecretString:password}}`,
-        ';',
-      ])),
     });
     const dbSecurityGroupId = StringParameter.valueForStringParameter(this, Statics._ssmDatabaseSecurityGroup);
     const dbSecurityGroup = SecurityGroup.fromSecurityGroupId(this, 'db-security-group', dbSecurityGroupId);

@@ -63,7 +63,7 @@ export class MainStack extends Stack {
 
     this.helloWorldService();
     this.kissFrontendService();
-    // this.itaService();
+    this.itaService();
     this.openObjectService();
 
   }
