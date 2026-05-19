@@ -1,0 +1,4 @@
+name: kcs - development
+variables:
+  - secret: true
+    name: objectsToken
