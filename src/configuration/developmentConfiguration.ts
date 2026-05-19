@@ -228,7 +228,7 @@ export const developmentConfiguration = {
     imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.1',
     environment: {
       ...ItaSharedEnvironmentConfiguration,
-      // ASPNETCORE_FORWARDEDHEADERS_ENABLED: 'true',
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: 'true',
       // Objecttype versions
       LogBoekOptions__TypeVersion: '1',
       AfdelingOptions__TypeVersion: '1',
