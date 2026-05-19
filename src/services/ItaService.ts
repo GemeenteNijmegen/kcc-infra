@@ -67,7 +67,7 @@ export class ItaService extends Construct implements IContainerService {
       ],
       healthCheck: {
         enabled: true,
-        path: '/',
+        path: '/healthz',
         port: isEc2 ? undefined : ItaService.WEB_CONTAINER_PORT.toString(),
       },
       priority: priority,
