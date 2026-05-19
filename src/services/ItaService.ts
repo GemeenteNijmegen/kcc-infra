@@ -122,7 +122,7 @@ export class ItaService extends Construct implements IContainerService {
         cluster: platform.cluster,
         taskDefinition: task,
         cloudMapOptions,
-        desiredCount: 0, // TODO: voor nu even uitgezet omdat de config nog niet goed ingevuld is
+        desiredCount: 1,
         enableExecuteCommand: true,
       });
     }
@@ -209,7 +209,7 @@ export class ItaService extends Construct implements IContainerService {
     let { secrets } = this.loadEnvironmentFromConfig(this.props.serviceConfiguration);
     secrets = {
       ...secrets,
-      ConnectionStrings__DefaultConnection: Secret.fromSecretsManager(database.credentials, 'username'),
+      ConnectionStrings__DefaultConnection: Secret.fromSecretsManager(database.connectionString),
     };
     return secrets;
   }
