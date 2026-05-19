@@ -42,9 +42,12 @@ export class ItaService extends Construct implements IContainerService {
     });
 
     const db = this.dbCreate(this.props.serviceConfiguration.id, platform);
+    const secrets = this.getSecretConfig(db);
+    const environment = this.getEnvironmentConfig();
 
-    const webService = this.setupWebService(logs, platform, db);
-    const pollerService = this.setupPollerService(logs, platform, db);
+    const webService = this.setupWebService(logs, platform, environment, secrets);
+    const pollerService = this.setupPollerService(logs, platform, environment, secrets);
+
 
     this.allowDbConnectivity(webService, db.securityGroup, db.port);
     this.allowDbConnectivity(pollerService, db.securityGroup, db.port);
@@ -73,7 +76,7 @@ export class ItaService extends Construct implements IContainerService {
   }
 
 
-  private setupWebService(logs: LogGroup, platform: ContainerServiceProps, database: ItaAdditionalDatabase) {
+  private setupWebService(logs: LogGroup, platform: ContainerServiceProps, environment: Record<string, string>, secrets: Record<string, Secret>) {
     const isEc2 = platform.computeProvider === 'EC2';
     const config = this.props.serviceConfiguration;
 
@@ -82,8 +85,6 @@ export class ItaService extends Construct implements IContainerService {
       memoryMiB: config.taskSize?.memory ?? '1024',
       compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
     });
-    const environment = this.getEnvironmentConfig();
-    const secrets = this.getSecretConfig(database);
 
     task.addContainer('ita', {
       image: ContainerImage.fromRegistry(this.props.serviceConfiguration.imageWebserver),
@@ -132,7 +133,7 @@ export class ItaService extends Construct implements IContainerService {
   }
 
   // Nog uitzoeken hoe en of die poller nog aangeroepen moet worden. Eventbridge?
-  private setupPollerService(logs: LogGroup, platform: ContainerServiceProps, database: ItaAdditionalDatabase) {
+  private setupPollerService(logs: LogGroup, platform: ContainerServiceProps, environment: Record<string, string>, secrets: Record<string, Secret>) {
     const isEc2 = platform.computeProvider === 'EC2';
     const config = this.props.serviceConfiguration;
 
@@ -141,8 +142,6 @@ export class ItaService extends Construct implements IContainerService {
       memoryMiB: config.taskSize?.memory ?? '1024',
       compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
     });
-    const environment = this.getEnvironmentConfig();
-    const secrets = this.getSecretConfig(database);
 
     task.addContainer('ita', {
       image: ContainerImage.fromRegistry(this.props.serviceConfiguration.imagePoller),
