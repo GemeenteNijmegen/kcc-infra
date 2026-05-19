@@ -62,13 +62,10 @@ export class MainStack extends Stack {
     });
 
     this.helloWorldService();
-    // this.oidcMockService();
     this.kissFrontendService();
     // this.itaService();
     this.openObjectService();
-    // this.elasticsearchService();
-    // this.enterpriseSearchService();
-    // this.kibanaService();
+
   }
 
 
@@ -113,18 +110,6 @@ export class MainStack extends Stack {
     }
   }
 
-  // private oidcMockService() {
-  //   if (!this.configuration.oidcMockServices) {
-  //     return;
-  //   }
-  //   for (const oidcMockService of this.configuration.oidcMockServices) {
-  //     const service = new OidcMockService(this, oidcMockService.id, {
-  //       serviceConfiguration: oidcMockService,
-  //     });
-  //     this.containerPlatform.addService(service);
-  //   }
-  // }
-
   private kissFrontendService() {
     if (!this.configuration.kissServices) {
       return;
@@ -160,42 +145,6 @@ export class MainStack extends Stack {
       this.containerPlatform.addService(service);
     }
   }
-
-  // private elasticsearchService() {
-  //   if (!this.configuration.elasticsearchServices) {
-  //     return;
-  //   }
-  //   for (const config of this.configuration.elasticsearchServices) {
-  //     const service = new ElasticsearchService(this, config.id, {
-  //       serviceConfiguration: config,
-  //     });
-  //     this.containerPlatform.addService(service);
-  //   }
-  // }
-
-  // private enterpriseSearchService() {
-  //   if (!this.configuration.enterpriseSearchServices) {
-  //     return;
-  //   }
-  //   for (const config of this.configuration.enterpriseSearchServices) {
-  //     const service = new EnterpriseSearchService(this, config.id, {
-  //       serviceConfiguration: config,
-  //     });
-  //     this.containerPlatform.addService(service);
-  //   }
-  // }
-
-  // private kibanaService() {
-  //   if (!this.configuration.kibanaServices) {
-  //     return;
-  //   }
-  //   for (const config of this.configuration.kibanaServices) {
-  //     const service = new KibanaService(this, config.id, {
-  //       serviceConfiguration: config,
-  //     });
-  //     this.containerPlatform.addService(service);
-  //   }
-  // }
 
 }
 
