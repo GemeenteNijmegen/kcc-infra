@@ -178,6 +178,33 @@ export const developmentConfiguration = {
         path: `/${Statics.projectName}/kiss/open-zaak-formulieren/clientsecret`,
       }),
       USE_VACS: 'true',
+      VAC_OBJECTEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-vac-objecten-base-url',
+        description: 'KISS config: Base URL for VAC objecten',
+        path: `/${Statics.projectName}/kiss/vac/objecten/base-url`,
+        defaultValue: 'https://https://objects.kcc-dev.csp-nijmegen.nl',
+      }),
+      VAC_OBJECT_TYPE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-vac-objecten-objecttype-url',
+        description: 'KISS config: VAC objecttype-url',
+        path: `/${Statics.projectName}/kiss/vac/objecten/objecttype-url`,
+        defaultValue: 'https://https://objects.kcc-dev.csp-nijmegen.nl',
+      }),
+      VAC_OBJECT_TYPE_VERSION: new AppParameter({
+        type: 'ssm',
+        id: 'kiss-kcc-vac-objecttype-version',
+        description: 'KISS config: KISS config: VAC objecttype-version',
+        path: `/${Statics.projectName}/kiss/vac/objecten/objecttype-version`,
+        defaultValue: '1',
+      }),
+      VAC_OBJECTEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-vac-objecten-api-key',
+        description: 'KISS config: API KEY for objecten API groepen',
+        path: `/${Statics.projectName}/kiss/groepen/objecten-api-key`,
+      }),
     },
   }],
   openObjectServices: [{
