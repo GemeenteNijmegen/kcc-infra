@@ -177,6 +177,7 @@ export const developmentConfiguration = {
         description: 'KISS config: URL for Open-Zaak client secret (formulieren)',
         path: `/${Statics.projectName}/kiss/open-zaak-formulieren/clientsecret`,
       }),
+      USE_VACS: 'true',
     },
   }],
   openObjectServices: [{
@@ -187,7 +188,9 @@ export const developmentConfiguration = {
     image: '',
     redisIndexMain: 1,
     redisIndexCelery: 2,
-    environment: {},
+    environment: {
+      NOTIFICATIONS_DISABLED: 'True',
+    },
   }],
   itaServices: [{
     id: 'ita-1',
