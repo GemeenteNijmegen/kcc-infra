@@ -196,7 +196,7 @@ export const developmentConfiguration = {
   itaServices: [{
     id: 'ita-1',
     subdomain: 'taken',
-    loadbalancerRulePriority: 40,
+    loadbalancerRulePriority: 50,
     taskSize: { cpu: '512', memory: '1024' },
     imageWebserver: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.web:3.1',
     imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.1',
