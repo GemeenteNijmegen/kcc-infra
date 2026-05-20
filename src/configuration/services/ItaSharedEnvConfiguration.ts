@@ -21,8 +21,8 @@ export const ItaSharedEnvironmentConfiguration =
 
    OIDC_CLIENT_SECRET: new AppParameter({
      type: 'secret',
-     id: 'ita-oidc-client-secret',
-     path: `/${Statics.projectName}/ita/oidc/client-secret`,
+     id: 'ita-oidc-clientsecret',
+     path: `/${Statics.projectName}/ita/oidc/clientsecret`,
      description: 'ITA: OIDC client secret',
    }),
 
