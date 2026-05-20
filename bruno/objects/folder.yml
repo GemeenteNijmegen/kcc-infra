@@ -1,0 +1,11 @@
+info:
+  name: objects
+  type: folder
+  seq: 2
+
+request:
+  auth:
+    type: apikey
+    key: Authorization
+    value: token {{objectsToken}}
+    placement: header

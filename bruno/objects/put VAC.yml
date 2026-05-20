@@ -1,0 +1,45 @@
+info:
+  name: put VAC
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objects/9be85dd4-7cfd-4a05-9b17-daab2f3f6247
+  headers:
+    - name: Content-Crs
+      value: EPSG:4326
+  body:
+    type: json
+    data: |-
+      {
+        "url": "https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objects/9be85dd4-7cfd-4a05-9b17-daab2f3f6247",
+        "uuid": "9be85dd4-7cfd-4a05-9b17-daab2f3f6247",
+        "type": "https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objecttypes/c8dda48e-6ab3-4e16-9631-815435f7f3fa",
+        "record": {
+          "typeVersion": 1,
+          "data": {
+            "vraag": "Wat is KISS?",
+            "status": "actief",
+            "antwoord": "<p>KISS is dus eigenlijk heel simpel, st...</p>",
+            "doelgroep": "eu-burger",
+            "afdelingen": [],
+            "toelichting": "",
+            "trefwoorden": []
+          },
+          "geometry": null,
+          "references": [],
+          "startAt": "2026-05-19",
+          "endAt": null,
+          "registrationAt": "2026-05-19",
+          "correctionFor": 1,
+          "correctedBy": null
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

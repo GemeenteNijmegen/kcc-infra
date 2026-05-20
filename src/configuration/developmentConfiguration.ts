@@ -137,6 +137,13 @@ export const developmentConfiguration = {
         path: `/${Statics.projectName}/kiss/groepen/objecttypen`,
       }),
 
+      MEDEWERKER_OBJECTEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'kiss-kcc-groepen-objecten-api-key',
+        description: 'KISS config: API KEY for objecten API groepen',
+        path: `/${Statics.projectName}/kiss/groepen/objecten-api-key`,
+      }),
+
       // Default connections (open-klant)
       REGISTERS__0__IS_DEFAULT: 'true', // See https://kiss-klantinteractie-servicesysteem.readthedocs.io/nl/v2.1.0/decision-record/meerdere-registers.html
       REGISTERS__0__KLANTINTERACTIE_BASE_URL: openKlantBaseUrl,
