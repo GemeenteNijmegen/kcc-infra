@@ -68,7 +68,7 @@ export const developmentConfiguration = {
       KVK_BASE_URL: 'https://api.kvk.nl/test/api',
       KVK_API_KEY: 'l7xx1f2691f2520d487b902f4e0b57a0b197', // Public API key: https://developers.kvk.nl/nl/documentation/testing
       // Haal Centraal
-      HAAL_CENTRAAL_BASE_URL: 'https://thisrelbni.execute-api.eu-central-1.amazonaws.com/', // Default endpoint van AWS Gateway (geen cert verplichting)
+      HAAL_CENTRAAL_BASE_URL: 'https://thisrelbni.execute-api.eu-central-1.amazonaws.com/prod', // Default endpoint van AWS Gateway (geen cert verplichting)
       HAAL_CENTRAAL_API_KEY: new AppParameter({
         description: 'KISS KCC: Haal Centraal BRP API key',
         type: 'secret',
