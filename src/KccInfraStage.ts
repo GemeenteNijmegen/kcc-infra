@@ -3,7 +3,6 @@ import { Aspects, Stage, StageProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './ConfigurationInterfaces';
 import { DatabaseStack } from './DatabaseStack';
-import { ElasticsearchStack } from './ElasticsearchStack';
 import { MainStack } from './MainStack';
 import { UsEastCertificateStack } from './UsEastCertificateStack';
 
@@ -45,14 +44,5 @@ export class KccInfraStage extends Stage {
 
     mainStack.addDependency(databaseStack, 'KISS containers require database');
     mainStack.addDependency(usEastCertificateStack, 'Certificate ARN must exist in SSM before main stack deploys');
-
-    // Elasticsearch (optional, for test/development)
-    if (props.configuration.elasticsearch) {
-      const elasticsearchStack = new ElasticsearchStack(this, 'elasticsearch-stack', {
-        env: props.configuration.deploymentEnvironment,
-        configuration: props.configuration,
-      });
-      mainStack.addDependency(elasticsearchStack, 'Elasticsearch endpoint must exist in SSM before KISS deploys');
-    }
   }
 }

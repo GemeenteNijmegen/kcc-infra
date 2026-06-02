@@ -1,7 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { GemeenteNijmegenVpc } from '@gemeentenijmegen/aws-constructs';
-import { Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { Duration, Stack } from 'aws-cdk-lib';
 import {
   BlockDeviceVolume,
   CloudFormationInit,
@@ -10,6 +9,7 @@ import {
   InitConfig,
   Instance,
   InstanceType,
+  IVpc,
   MachineImage,
   Peer,
   Port,
@@ -21,35 +21,34 @@ import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
-import { Configurable, ElasticsearchConfiguration } from './ConfigurationInterfaces';
-import { Statics } from './Statics';
+import { ElasticsearchConfiguration } from '../ConfigurationInterfaces';
+import { Statics } from '../Statics';
 
-interface ElasticsearchStackProps extends StackProps, Configurable {}
+export interface ElasticsearchProps {
+  vpc: IVpc;
+  config: ElasticsearchConfiguration;
+}
 
 /**
- * Creates an EC2 instance running Elasticsearch 8.x
+ * EC2 instance running Elasticsearch 8.x
  * Intended for temporary test/development use.
  */
-export class ElasticsearchStack extends Stack {
+export class Elasticsearch extends Construct {
 
-  constructor(scope: Construct, id: string, props: ElasticsearchStackProps) {
-    super(scope, id, props);
+  constructor(scope: Construct, id: string, props: ElasticsearchProps) {
+    super(scope, id);
 
-    const config: ElasticsearchConfiguration = props.configuration.elasticsearch ?? {};
-    const esVersion = config.version ?? '8.17.0';
-    const volumeSizeGb = config.volumeSizeGb ?? 30;
-
-    const vpc = new GemeenteNijmegenVpc(this, 'vpc');
+    const esVersion = props.config.version ?? '8.17.0';
+    const volumeSizeGb = props.config.volumeSizeGb ?? 30;
 
     // Security group for the Elasticsearch instance
     const securityGroup = new SecurityGroup(this, 'elasticsearch-sg', {
-      vpc: vpc.vpc,
+      vpc: props.vpc,
       description: 'Security group for Elasticsearch EC2 instance',
       allowAllOutbound: true,
     });
 
     // Allow access on port 9200 (Elasticsearch HTTP) from within the VPC
-    // Using 10.0.0.0/8 as a broad private range; the VPC is imported and CIDR is not available
     securityGroup.addIngressRule(
       Peer.ipv4('10.0.0.0/8'),
       Port.tcp(9200),
@@ -79,19 +78,20 @@ export class ElasticsearchStack extends Stack {
 
     // UserData: load install script and inject variables
     const userData = UserData.forLinux();
-    const installScript = readFileSync(join(__dirname, 'elasticsearch', 'install.sh'), 'utf-8');
+    const installScript = readFileSync(join(__dirname, '..', 'elasticsearch', 'install.sh'), 'utf-8');
+    const region = Stack.of(this).region;
     userData.addCommands(
       `export ES_VERSION="${esVersion}"`,
       `export SECRET_ID="${elasticPasswordSecret.secretName}"`,
-      `export AWS_REGION="${this.region}"`,
+      `export AWS_REGION="${region}"`,
       installScript,
     );
 
     // Create the EC2 instance
     const instance = new Instance(this, 'elasticsearch-instance', {
-      vpc: vpc.vpc,
+      vpc: props.vpc,
       vpcSubnets: { subnetType: SubnetType.PRIVATE_ISOLATED },
-      instanceType: new InstanceType(config.instanceType ?? 't3.medium'),
+      instanceType: new InstanceType(props.config.instanceType ?? 't3.medium'),
       machineImage: MachineImage.latestAmazonLinux2023(),
       securityGroup,
       role,
@@ -110,7 +110,7 @@ export class ElasticsearchStack extends Stack {
             InitCommand.shellCommand(
               'curl -sf -u "elastic:$(aws secretsmanager get-secret-value '
               + `--secret-id "${elasticPasswordSecret.secretName}" `
-              + `--region ${this.region} `
+              + `--region ${region} `
               + '--query SecretString --output text)" '
               + 'http://localhost:9200/_cluster/health',
               { key: 'verify-elasticsearch' },
