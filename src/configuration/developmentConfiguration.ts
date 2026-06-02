@@ -76,39 +76,39 @@ export const developmentConfiguration = {
         path: `/${Statics.projectName}/kiss/haal-centraal/api-key`,
       }),
       // Enterprise Search / Elastic
-      ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
-      ENTERPRISE_SEARCH_BASE_URL: new AppParameter({
-        type: 'ssm',
-        id: 'kiss-kcc-enterprise-search-base-url',
-        description: 'KISS config: Enterprise Search base URL',
-        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-base-url`,
-        defaultValue: '-',
-      }),
-      ENTERPRISE_SEARCH_PUBLIC_API_KEY: new AppParameter({
-        type: 'secret',
-        id: 'kiss-kcc-enterprise-search-public-api-key',
-        description: 'KISS config: Enterprise Search public API key',
-        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-public-api-key`,
-      }),
-      ENTERPRISE_SEARCH_PRIVATE_API_KEY: new AppParameter({
-        type: 'secret',
-        id: 'kiss-kcc-enterprise-search-private-api-key',
-        description: 'KISS config: Enterprise Search private API key',
-        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
-      }),
-      ELASTIC_USERNAME: 'elastic',
-      ELASTIC_PASSWORD: new AppParameter({
-        type: 'secret',
-        id: 'kiss-kcc-elastic-password',
-        description: 'KISS config: Elasticsearch password for elastic user',
-        path: `/${Statics.projectName}/kiss/elastic/password`,
-      }),
-      ELASTIC_BASE_URL: new AppParameter({
-        type: 'ssm',
-        id: 'kiss-kcc-elastic-base-url',
-        description: 'KISS config: Elasticsearch base URL (http://<ip>:9200)',
-        path: `/${Statics.projectName}/internal/elasticsearch/endpoint`,
-      }),
+      // ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
+      // ENTERPRISE_SEARCH_BASE_URL: new AppParameter({
+      //   type: 'ssm',
+      //   id: 'kiss-kcc-enterprise-search-base-url',
+      //   description: 'KISS config: Enterprise Search base URL',
+      //   path: `/${Statics.projectName}/kiss/elastic/enterprise-search-base-url`,
+      //   defaultValue: '-',
+      // }),
+      // ENTERPRISE_SEARCH_PUBLIC_API_KEY: new AppParameter({
+      //   type: 'secret',
+      //   id: 'kiss-kcc-enterprise-search-public-api-key',
+      //   description: 'KISS config: Enterprise Search public API key',
+      //   path: `/${Statics.projectName}/kiss/elastic/enterprise-search-public-api-key`,
+      // }),
+      // ENTERPRISE_SEARCH_PRIVATE_API_KEY: new AppParameter({
+      //   type: 'secret',
+      //   id: 'kiss-kcc-enterprise-search-private-api-key',
+      //   description: 'KISS config: Enterprise Search private API key',
+      //   path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
+      // }),
+      // ELASTIC_USERNAME: 'elastic',
+      // ELASTIC_PASSWORD: new AppParameter({
+      //   type: 'secret',
+      //   id: 'kiss-kcc-elastic-password',
+      //   description: 'KISS config: Elasticsearch password for elastic user',
+      //   path: `/${Statics.projectName}/kiss/elastic/password`,
+      // }),
+      // ELASTIC_BASE_URL: new AppParameter({
+      //   type: 'ssm',
+      //   id: 'kiss-kcc-elastic-base-url',
+      //   description: 'KISS config: Elasticsearch base URL (http://<ip>:9200)',
+      //   path: `/${Statics.projectName}/internal/elasticsearch/endpoint`,
+      // }),
 
       // // Email
       // EMAIL_HOST: '',
@@ -268,10 +268,10 @@ export const developmentConfiguration = {
       GroepOptions__TypeVersion: '1',
     },
   }],
-  elasticsearch: {
-    instanceType: 't3.medium',
-    volumeSizeGb: 30,
-    version: '8.17.0',
-    amiId: 'ami-0f1834be8d049e69f', // AL2023 eu-central-1, update via: aws ssm get-parameter --name "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64" --region eu-central-1
-  },
+  // elasticsearch: {
+  //   instanceType: 't3.medium',
+  //   volumeSizeGb: 30,
+  //   version: '8.17.0',
+  //   amiId: 'ami-0f1834be8d049e69f', // AL2023 eu-central-1, update via: aws ssm get-parameter --name "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64" --region eu-central-1
+  // },
 } as Configuration;
