@@ -91,6 +91,12 @@ export interface Configuration {
    * @default - no Objects deployed
    */
   openObjectServices?: OpenObjectServiceConfiguration[];
+
+  /**
+   * Provide configuration for an Elasticsearch 8.x EC2 instance
+   * @default - no Elasticsearch instance is deployed
+   */
+  elasticsearch?: ElasticsearchConfiguration;
 }
 
 
@@ -166,6 +172,32 @@ export interface ContainerImageConfiguration {
 export interface TaskSize {
   cpu: string;
   memory: string;
+}
+
+/**
+ * Configuration for an Elasticsearch 8.x EC2 instance
+ */
+export interface ElasticsearchConfiguration {
+  /**
+   * EC2 instance type for the Elasticsearch node
+   * @default t3.medium
+   */
+  instanceType?: string;
+  /**
+   * EBS volume size in GB
+   * @default 30
+   */
+  volumeSizeGb?: number;
+  /**
+   * Elasticsearch version to install
+   * @default 8.17.0
+   */
+  version?: string;
+  /**
+   * Subdomain to expose Elasticsearch on (internal only)
+   * @default elasticsearch
+   */
+  subdomain?: string;
 }
 
 /**
