@@ -5,6 +5,7 @@ import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { Configurable } from './ConfigurationInterfaces';
 import { Database } from './constructs/Database';
+import { Elasticsearch } from './constructs/Elasticsearch';
 import { Statics } from './Statics';
 
 interface DatabaseStackProps extends StackProps, Configurable { }
@@ -33,6 +34,14 @@ export class DatabaseStack extends Stack {
     });
 
     this.setupDatabaseManagementSecurityGroup();
+
+    // Elasticsearch (optional, for test/development)
+    if (props.configuration.elasticsearch) {
+      new Elasticsearch(this, 'elasticsearch', {
+        vpc: this.vpc.vpc,
+        config: props.configuration.elasticsearch,
+      });
+    }
   }
 
   private setupDatabaseManagementSecurityGroup() {
