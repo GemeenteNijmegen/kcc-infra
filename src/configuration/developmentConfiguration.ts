@@ -272,5 +272,6 @@ export const developmentConfiguration = {
     instanceType: 't3.medium',
     volumeSizeGb: 30,
     version: '8.17.0',
+    amiId: 'ami-0f1834be8d049e69f', // AL2023 eu-central-1, update via: aws ssm get-parameter --name "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64" --region eu-central-1
   },
 } as Configuration;

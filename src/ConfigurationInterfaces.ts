@@ -194,6 +194,11 @@ export interface ElasticsearchConfiguration {
    */
   version?: string;
   /**
+   * AMI ID for the EC2 instance (AL2023).
+   * Find the latest with: aws ssm get-parameter --name "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64" --region eu-central-1
+   */
+  amiId: string;
+  /**
    * Subdomain to expose Elasticsearch on (internal only)
    * @default elasticsearch
    */

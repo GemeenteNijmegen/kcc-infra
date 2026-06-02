@@ -92,7 +92,9 @@ export class Elasticsearch extends Construct {
       vpc: props.vpc,
       vpcSubnets: { subnetType: SubnetType.PRIVATE_ISOLATED },
       instanceType: new InstanceType(props.config.instanceType ?? 't3.medium'),
-      machineImage: MachineImage.latestAmazonLinux2023(),
+      machineImage: MachineImage.genericLinux({
+        'eu-central-1': props.config.amiId!,
+      }),
       securityGroup,
       role,
       userData,
