@@ -23,13 +23,13 @@ autorefresh=1
 type=rpm-md
 REPO
 
-# Install Elasticsearch (--nostart prevents auto-start so we can configure first)
-ES_JAVA_OPTS="" dnf install -y "elasticsearch-${ES_VERSION}"
+# Install Elasticsearch
+dnf install -y "elasticsearch-${ES_VERSION}"
 
-# Stop elasticsearch if it was auto-started
+# Stop elasticsearch if it was auto-started during install
 systemctl stop elasticsearch 2>/dev/null || true
 
-# Configure Elasticsearch for single-node (test) usage BEFORE first start
+# Configure Elasticsearch for single-node (test) usage
 cat > /etc/elasticsearch/elasticsearch.yml << 'ESCONFIG'
 cluster.name: kcc-elasticsearch
 node.name: es-node-1
@@ -44,47 +44,45 @@ xpack.security.http.ssl.enabled: false
 xpack.security.transport.ssl.enabled: false
 ESCONFIG
 
-# Remove auto-generated security config from installation
+# Remove auto-generated security artifacts and data from install
 rm -rf /etc/elasticsearch/certs
+rm -rf /var/lib/elasticsearch/*
 rm -f /etc/elasticsearch/elasticsearch.keystore
+
+# Create fresh keystore and set bootstrap password BEFORE first start
 /usr/share/elasticsearch/bin/elasticsearch-keystore create
+# Fetch password from Secrets Manager and set as bootstrap password
+ES_PASSWORD=$(aws secretsmanager get-secret-value \
+  --secret-id "${SECRET_ID}" \
+  --region "${AWS_REGION}" \
+  --query SecretString \
+  --output text)
+echo "${ES_PASSWORD}" | /usr/share/elasticsearch/bin/elasticsearch-keystore add -xf "bootstrap.password"
 
 # Set JVM heap
 echo "-Xms2g" > /etc/elasticsearch/jvm.options.d/heap.options
 echo "-Xmx2g" >> /etc/elasticsearch/jvm.options.d/heap.options
 
-# Ensure data directory is clean for fresh start
-rm -rf /var/lib/elasticsearch/*
+# Ensure correct ownership
+chown -R elasticsearch:elasticsearch /etc/elasticsearch
+chown -R elasticsearch:elasticsearch /var/lib/elasticsearch
 
 # Start Elasticsearch
 systemctl daemon-reload
 systemctl enable elasticsearch
 systemctl start elasticsearch
 
-# Wait for Elasticsearch to become available
+# Wait for Elasticsearch to become available with our password
 echo "Waiting for Elasticsearch to start..."
 for i in $(seq 1 90); do
-  if curl -sf http://localhost:9200 -u "elastic:" > /dev/null 2>&1 || \
-     curl -sf http://localhost:9200 > /dev/null 2>&1; then
+  if curl -sf -u "elastic:${ES_PASSWORD}" http://localhost:9200 > /dev/null 2>&1; then
     echo "Elasticsearch is up after ${i} seconds"
     break
   fi
   sleep 1
 done
 
-# Fetch password from Secrets Manager
-ES_PASSWORD=$(aws secretsmanager get-secret-value \
-  --secret-id "${SECRET_ID}" \
-  --region "${AWS_REGION}" \
-  --query SecretString \
-  --output text)
-
-# Set the elastic user password using the reset-password tool in batch mode
-# With a fresh keystore and no SSL, this should work non-interactively
-yes | /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i -b <<< "${ES_PASSWORD}"
-
 # Activate trial license for Enterprise features
-sleep 5
 curl -sf -X POST "http://localhost:9200/_license/start_trial?acknowledge=true" \
   -u "elastic:${ES_PASSWORD}" \
   -H "Content-Type: application/json"
