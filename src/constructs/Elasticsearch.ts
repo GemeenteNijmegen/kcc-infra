@@ -93,7 +93,7 @@ export class Elasticsearch extends Construct {
     );
 
     // Create the EC2 instance
-    const instance = new Instance(this, 'elasticsearch-instance', {
+    new Instance(this, 'elasticsearch-instance', {
       vpc: props.vpc,
       vpcSubnets: { subnetType: SubnetType.PRIVATE_ISOLATED },
       instanceType: new InstanceType(props.config.instanceType ?? 't3.medium'),
