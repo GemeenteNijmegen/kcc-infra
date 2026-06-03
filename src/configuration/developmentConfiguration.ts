@@ -108,6 +108,7 @@ export const developmentConfiguration = {
         id: 'kiss-kcc-elastic-base-url',
         description: 'KISS config: Elasticsearch base URL (http://<ip>:9200)',
         path: `/${Statics.projectName}/internal/elasticsearch/endpoint`,
+        defaultValue: '-',
       }),
 
       // // Email

@@ -16,10 +16,9 @@ import {
   SubnetType,
   UserData,
 } from 'aws-cdk-lib/aws-ec2';
-import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { ManagedPolicy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import { ElasticsearchConfiguration } from '../ConfigurationInterfaces';
 import { Statics } from '../Statics';
@@ -131,11 +130,15 @@ export class Elasticsearch extends Construct {
       },
     });
 
-    // Store the endpoint URL in SSM for other stacks/services to reference
-    new StringParameter(this, 'elasticsearch-endpoint', {
-      stringValue: `http://${instance.instancePrivateIp}:9200`,
-      parameterName: `/${Statics.projectName}/internal/elasticsearch/endpoint`,
-      description: 'Elasticsearch base URL',
-    });
+    // Grant the instance permission to update the SSM parameter (created by ParameterStage)
+    role.addToPolicy(new PolicyStatement({
+      actions: ['ssm:PutParameter'],
+      resources: [`arn:aws:ssm:${region}:${Stack.of(this).account}:parameter/${Statics.projectName}/internal/elasticsearch/endpoint`],
+    }));
+
+    // The install script will update the SSM parameter with the actual endpoint URL
+    userData.addCommands(
+      `aws ssm put-parameter --name "/${Statics.projectName}/internal/elasticsearch/endpoint" --value "http://$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):9200" --overwrite --region ${region}`,
+    );
   }
 }
