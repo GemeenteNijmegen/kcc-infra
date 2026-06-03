@@ -75,36 +75,35 @@ export const developmentConfiguration = {
         id: 'kiss-kcc-haal-centraal-api-key',
         path: `/${Statics.projectName}/kiss/haal-centraal/api-key`,
       }),
-      // Enterprise Search / Elastic
-      ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
-      ENTERPRISE_SEARCH_BASE_URL: new AppParameter({
-        type: 'ssm',
-        id: 'kiss-kcc-enterprise-search-base-url',
-        description: 'KISS config: Enterprise Search base URL',
-        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-base-url`,
-        defaultValue: '-',
-      }),
-      ENTERPRISE_SEARCH_PUBLIC_API_KEY: new AppParameter({
-        type: 'secret',
-        id: 'kiss-kcc-enterprise-search-public-api-key',
-        description: 'KISS config: Enterprise Search public API key',
-        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-public-api-key`,
-      }),
-      ENTERPRISE_SEARCH_PRIVATE_API_KEY: new AppParameter({
-        type: 'secret',
-        id: 'kiss-kcc-enterprise-search-private-api-key',
-        description: 'KISS config: Enterprise Search private API key',
-        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
-      }),
-      ELASTIC_USERNAME: 'elastic',
-      ELASTIC_PASSWORD: new AppParameter({
-        type: 'secret',
-        id: 'kiss-kcc-elastic-password',
-        description: 'KISS config: Elasticsearch password for elastic user',
-        path: `/${Statics.projectName}/kiss/elastic/password`,
-      }),
-      // ELASTIC_BASE_URL: temporarily disabled - waiting for database-stack to release SSM parameter ownership
-      // new AppParameter({
+      // Enterprise Search / Elastic - temporarily disabled for ownership transition
+      // ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
+      // ENTERPRISE_SEARCH_BASE_URL: new AppParameter({
+      //   type: 'ssm',
+      //   id: 'kiss-kcc-enterprise-search-base-url',
+      //   description: 'KISS config: Enterprise Search base URL',
+      //   path: `/${Statics.projectName}/kiss/elastic/enterprise-search-base-url`,
+      //   defaultValue: '-',
+      // }),
+      // ENTERPRISE_SEARCH_PUBLIC_API_KEY: new AppParameter({
+      //   type: 'secret',
+      //   id: 'kiss-kcc-enterprise-search-public-api-key',
+      //   description: 'KISS config: Enterprise Search public API key',
+      //   path: `/${Statics.projectName}/kiss/elastic/enterprise-search-public-api-key`,
+      // }),
+      // ENTERPRISE_SEARCH_PRIVATE_API_KEY: new AppParameter({
+      //   type: 'secret',
+      //   id: 'kiss-kcc-enterprise-search-private-api-key',
+      //   description: 'KISS config: Enterprise Search private API key',
+      //   path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
+      // }),
+      // ELASTIC_USERNAME: 'elastic',
+      // ELASTIC_PASSWORD: new AppParameter({
+      //   type: 'secret',
+      //   id: 'kiss-kcc-elastic-password',
+      //   description: 'KISS config: Elasticsearch password for elastic user',
+      //   path: `/${Statics.projectName}/kiss/elastic/password`,
+      // }),
+      // ELASTIC_BASE_URL: new AppParameter({
       //   type: 'ssm',
       //   id: 'kiss-kcc-elastic-base-url',
       //   description: 'KISS config: Elasticsearch base URL (http://<ip>:9200)',
