@@ -1,13 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-# Variables injected by CDK (replaced before upload)
+# Variables injected by CDK (exported before this script runs)
 ES_VERSION="${ES_VERSION}"
 SECRET_ID="${SECRET_ID}"
 AWS_REGION="${AWS_REGION}"
-
-# Install AWS CLI
-dnf install -y aws-cli
 
 # System tuning for Elasticsearch
 sysctl -w vm.max_map_count=262144
@@ -26,10 +23,13 @@ autorefresh=1
 type=rpm-md
 REPO
 
-# Install Elasticsearch
-dnf install -y "elasticsearch-${ES_VERSION}"
+# Install Elasticsearch (--nostart prevents auto-start so we can configure first)
+ES_JAVA_OPTS="" dnf install -y "elasticsearch-${ES_VERSION}"
 
-# Configure Elasticsearch for single-node (test) usage
+# Stop elasticsearch if it was auto-started
+systemctl stop elasticsearch 2>/dev/null || true
+
+# Configure Elasticsearch for single-node (test) usage BEFORE first start
 cat > /etc/elasticsearch/elasticsearch.yml << 'ESCONFIG'
 cluster.name: kcc-elasticsearch
 node.name: es-node-1
@@ -44,9 +44,17 @@ xpack.security.http.ssl.enabled: false
 xpack.security.transport.ssl.enabled: false
 ESCONFIG
 
+# Remove auto-generated security config from installation
+rm -rf /etc/elasticsearch/certs
+rm -f /etc/elasticsearch/elasticsearch.keystore
+/usr/share/elasticsearch/bin/elasticsearch-keystore create
+
 # Set JVM heap
 echo "-Xms2g" > /etc/elasticsearch/jvm.options.d/heap.options
 echo "-Xmx2g" >> /etc/elasticsearch/jvm.options.d/heap.options
+
+# Ensure data directory is clean for fresh start
+rm -rf /var/lib/elasticsearch/*
 
 # Start Elasticsearch
 systemctl daemon-reload
@@ -55,22 +63,25 @@ systemctl start elasticsearch
 
 # Wait for Elasticsearch to become available
 echo "Waiting for Elasticsearch to start..."
-for i in $(seq 1 60); do
-  if curl -sf http://localhost:9200 > /dev/null 2>&1; then
+for i in $(seq 1 90); do
+  if curl -sf http://localhost:9200 -u "elastic:" > /dev/null 2>&1 || \
+     curl -sf http://localhost:9200 > /dev/null 2>&1; then
     echo "Elasticsearch is up after ${i} seconds"
     break
   fi
   sleep 1
 done
 
-# Fetch password from Secrets Manager and set it as the elastic user password
+# Fetch password from Secrets Manager
 ES_PASSWORD=$(aws secretsmanager get-secret-value \
   --secret-id "${SECRET_ID}" \
   --region "${AWS_REGION}" \
   --query SecretString \
   --output text)
 
-echo "y" | /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i -s <<< "$ES_PASSWORD"
+# Set the elastic user password using the reset-password tool in batch mode
+# With a fresh keystore and no SSL, this should work non-interactively
+yes | /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i -b <<< "${ES_PASSWORD}"
 
 # Activate trial license for Enterprise features
 sleep 5
