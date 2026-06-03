@@ -95,6 +95,19 @@ export class KissService extends Construct implements IContainerService {
       POSTGRES_PASSWORD: Secret.fromSecretsManager(database.credentials, 'password'),
     };
 
+    // Elasticsearch secrets (owned by the Elasticsearch construct in database-stack)
+    const esEndpointParam = StringParameter.fromStringParameterName(this, 'es-endpoint', `/${Statics.projectName}/internal/elasticsearch/endpoint`);
+    const esPasswordSecret = SecretParameter.fromSecretNameV2(this, 'es-password', `/${Statics.projectName}/kiss/elastic/password`);
+    secrets = {
+      ...secrets,
+      ELASTIC_BASE_URL: Secret.fromSsmParameter(esEndpointParam),
+      ELASTIC_PASSWORD: Secret.fromSecretsManager(esPasswordSecret),
+    };
+    environment = {
+      ...environment,
+      ELASTIC_USERNAME: 'elastic',
+    };
+
     task.addContainer('kiss-bff', {
       image: ContainerImage.fromRegistry(KissService.IMAGE),
       logging: new AwsLogDriver({
