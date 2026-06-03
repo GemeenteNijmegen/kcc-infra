@@ -103,13 +103,14 @@ export const developmentConfiguration = {
         description: 'KISS config: Elasticsearch password for elastic user',
         path: `/${Statics.projectName}/kiss/elastic/password`,
       }),
-      ELASTIC_BASE_URL: new AppParameter({
-        type: 'ssm',
-        id: 'kiss-kcc-elastic-base-url',
-        description: 'KISS config: Elasticsearch base URL (http://<ip>:9200)',
-        path: `/${Statics.projectName}/internal/elasticsearch/endpoint`,
-        defaultValue: '-',
-      }),
+      // ELASTIC_BASE_URL: temporarily disabled - waiting for database-stack to release SSM parameter ownership
+      // new AppParameter({
+      //   type: 'ssm',
+      //   id: 'kiss-kcc-elastic-base-url',
+      //   description: 'KISS config: Elasticsearch base URL (http://<ip>:9200)',
+      //   path: `/${Statics.projectName}/internal/elasticsearch/endpoint`,
+      //   defaultValue: '-',
+      // }),
 
       // // Email
       // EMAIL_HOST: '',
