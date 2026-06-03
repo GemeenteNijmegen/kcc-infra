@@ -1,4 +1,3 @@
-import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Duration, Stack } from 'aws-cdk-lib';
 import {
@@ -18,6 +17,7 @@ import {
   UserData,
 } from 'aws-cdk-lib/aws-ec2';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
@@ -40,6 +40,7 @@ export class Elasticsearch extends Construct {
 
     const esVersion = props.config.version ?? '8.17.0';
     const volumeSizeGb = props.config.volumeSizeGb ?? 30;
+    const region = Stack.of(this).region;
 
     // Security group for the Elasticsearch instance
     const securityGroup = new SecurityGroup(this, 'elasticsearch-sg', {
@@ -48,7 +49,6 @@ export class Elasticsearch extends Construct {
       allowAllOutbound: true,
     });
 
-    // Allow access on port 9200 (Elasticsearch HTTP) from within the VPC
     securityGroup.addIngressRule(
       Peer.ipv4('10.0.0.0/8'),
       Port.tcp(9200),
@@ -73,18 +73,24 @@ export class Elasticsearch extends Construct {
       },
     });
 
-    // Allow the EC2 instance to read the secret (to set the ES password on boot)
     elasticPasswordSecret.grantRead(role);
 
-    // UserData: load install script and inject variables
+    // Upload install script to S3 as an asset
+    const scriptAsset = new Asset(this, 'install-script', {
+      path: join(__dirname, '..', 'elasticsearch', 'install.sh'),
+    });
+    scriptAsset.grantRead(role);
+
+    // UserData: download script from S3 and execute
     const userData = UserData.forLinux();
-    const installScript = readFileSync(join(__dirname, '..', 'elasticsearch', 'install.sh'), 'utf-8');
-    const region = Stack.of(this).region;
     userData.addCommands(
+      'dnf install -y aws-cli',
       `export ES_VERSION="${esVersion}"`,
       `export SECRET_ID="${elasticPasswordSecret.secretName}"`,
       `export AWS_REGION="${region}"`,
-      installScript,
+      `aws s3 cp s3://${scriptAsset.s3BucketName}/${scriptAsset.s3ObjectKey} /tmp/install-elasticsearch.sh`,
+      'chmod +x /tmp/install-elasticsearch.sh',
+      '/tmp/install-elasticsearch.sh',
     );
 
     // Create the EC2 instance
