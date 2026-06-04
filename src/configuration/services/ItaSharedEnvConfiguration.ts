@@ -42,10 +42,10 @@ export const ItaSharedEnvironmentConfiguration =
      defaultValue: 'ITA-Functioneel-Beheerder',
    }),
 
-   //    OIDC_NAME_CLAIM_TYPE: 'name',
-   //    OIDC_ROLE_CLAIM_TYPE: 'roles',
+      OIDC_NAME_CLAIM_TYPE: 'name',
+      OIDC_ROLE_CLAIM_TYPE: 'roles',
    //    OIDC_OBJECTREGISTER_MEDEWERKER_ID_CLAIM_TYPE: 'email',
-   //    OIDC_EMAIL_CLAIM_TYPE: 'email',
+      OIDC_EMAIL_CLAIM_TYPE: 'email',
 
    // Open Klant
    OpenKlantApi__BaseUrl: new AppParameter({
