@@ -90,6 +90,9 @@ curl -sf -X POST "http://localhost:9200/_license/start_trial?acknowledge=true" \
 # Install Enterprise Search
 dnf install -y "enterprise-search-${ES_VERSION}"
 
+# Enterprise Search needs Java in PATH. Use the JDK bundled with Elasticsearch
+ln -sf /usr/share/elasticsearch/jdk/bin/java /usr/local/bin/java
+
 # Generate encryption key for Enterprise Search
 ENCRYPTION_KEY=$(openssl rand -hex 32)
 
