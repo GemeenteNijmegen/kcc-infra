@@ -87,4 +87,29 @@ curl -sf -X POST "http://localhost:9200/_license/start_trial?acknowledge=true" \
   -u "elastic:${ES_PASSWORD}" \
   -H "Content-Type: application/json"
 
-echo "Elasticsearch ${ES_VERSION} installation complete"
+# Install Enterprise Search
+dnf install -y "enterprise-search-${ES_VERSION}"
+
+# Generate encryption key for Enterprise Search
+ENCRYPTION_KEY=$(openssl rand -hex 32)
+
+# Configure Enterprise Search
+cat > /usr/share/enterprise-search/config/enterprise-search.yml << ENTCONFIG
+secret_management.encryption_keys: [${ENCRYPTION_KEY}]
+elasticsearch.host: http://127.0.0.1:9200
+elasticsearch.username: elastic
+elasticsearch.password: ${ES_PASSWORD}
+elasticsearch.ssl.enabled: false
+ent_search.external_url: http://localhost:3002
+ent_search.listen_host: 0.0.0.0
+ent_search.listen_port: 3002
+kibana.host: http://localhost:5601
+allow_es_settings_modification: true
+ENTCONFIG
+
+# Start Enterprise Search
+systemctl daemon-reload
+systemctl enable enterprise-search
+systemctl start enterprise-search
+
+echo "Elasticsearch ${ES_VERSION} + Enterprise Search installation complete"

@@ -55,6 +55,12 @@ export class Elasticsearch extends Construct {
       'Allow Elasticsearch HTTP from private networks',
     );
 
+    securityGroup.addIngressRule(
+      Peer.ipv4('10.0.0.0/8'),
+      Port.tcp(3002),
+      'Allow Enterprise Search from private networks',
+    );
+
     // IAM role for the EC2 instance
     const role = new Role(this, 'elasticsearch-instance-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
@@ -136,6 +142,13 @@ export class Elasticsearch extends Construct {
       stringValue: `http://${instance.instancePrivateIp}:9200`,
       parameterName: `/${Statics.projectName}/internal/elasticsearch/endpoint`,
       description: 'Elasticsearch base URL',
+    });
+
+    // Store the Enterprise Search URL in SSM
+    new StringParameter(this, 'enterprise-search-endpoint', {
+      stringValue: `http://${instance.instancePrivateIp}:3002`,
+      parameterName: `/${Statics.projectName}/internal/enterprise-search/endpoint`,
+      description: 'Enterprise Search base URL',
     });
   }
 }

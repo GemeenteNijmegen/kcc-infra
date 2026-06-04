@@ -77,13 +77,8 @@ export const developmentConfiguration = {
       }),
       // Enterprise Search / Elastic
       ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
-      ENTERPRISE_SEARCH_BASE_URL: new AppParameter({
-        type: 'ssm',
-        id: 'kiss-kcc-enterprise-search-base-url',
-        description: 'KISS config: Enterprise Search base URL',
-        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-base-url`,
-        defaultValue: '-',
-      }),
+      // Note: ENTERPRISE_SEARCH_BASE_URL, ELASTIC_USERNAME, ELASTIC_PASSWORD, and ELASTIC_BASE_URL
+      // are injected directly in KissService from the Elasticsearch construct's resources.
       ENTERPRISE_SEARCH_PUBLIC_API_KEY: new AppParameter({
         type: 'secret',
         id: 'kiss-kcc-enterprise-search-public-api-key',
