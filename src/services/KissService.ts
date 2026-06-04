@@ -98,10 +98,12 @@ export class KissService extends Construct implements IContainerService {
     // Elasticsearch secrets (owned by the Elasticsearch construct in database-stack)
     const esEndpointParam = StringParameter.fromStringParameterName(this, 'es-endpoint', `/${Statics.projectName}/internal/elasticsearch/endpoint`);
     const esPasswordSecret = SecretParameter.fromSecretNameV2(this, 'es-password', `/${Statics.projectName}/kiss/elastic/password`);
+    const entSearchEndpointParam = StringParameter.fromStringParameterName(this, 'ent-search-endpoint', `/${Statics.projectName}/internal/enterprise-search/endpoint`);
     secrets = {
       ...secrets,
       ELASTIC_BASE_URL: Secret.fromSsmParameter(esEndpointParam),
       ELASTIC_PASSWORD: Secret.fromSecretsManager(esPasswordSecret),
+      ENTERPRISE_SEARCH_BASE_URL: Secret.fromSsmParameter(entSearchEndpointParam),
     };
     environment = {
       ...environment,
