@@ -97,6 +97,14 @@ export interface Configuration {
    * @default - no Elasticsearch instance is deployed
    */
   elasticsearch?: ElasticsearchConfiguration;
+
+  /**
+   * Provide configuration for ElasticSync scheduled tasks.
+   * These run the KISS Elastic Sync container on a schedule to
+   * keep Elasticsearch indices up-to-date.
+   * @default - no ElasticSync tasks are deployed
+   */
+  elasticSync?: ElasticSyncConfiguration;
 }
 
 
@@ -203,6 +211,55 @@ export interface ElasticsearchConfiguration {
    * @default elasticsearch
    */
   subdomain?: string;
+}
+
+/**
+ * Configuration for a single ElasticSync source (scheduled task)
+ */
+export interface ElasticSyncSourceConfiguration {
+  /**
+   * Identifier for this source.
+   * Used as prefix for CDK construct IDs (task definition, EventBridge rule, log stream).
+   * Must be unique across all sources within the same ElasticSync configuration.
+   */
+  id: string;
+  /**
+   * The container command arguments to select the source type.
+   * Possible values: 'vac', 'smoelenboek', 'sharepoint'.
+   * Omit (or leave empty) to sync SDG Producten (kennisbank). Default KISS behaviour.
+   */
+  args?: string[];
+  /**
+   * Schedule expression (EventBridge rate or cron).
+   * @example 'rate(59 minutes)'
+   * @example 'cron(0 * * * ? *)'
+   */
+  schedule: string;
+}
+
+/**
+ * Configuration for ElasticSync scheduled tasks
+ */
+export interface ElasticSyncConfiguration {
+  /**
+   * Container image for the sync tool
+   * @default 'ghcr.io/klantinteractie-servicesysteem/kiss-elastic-sync:latest'
+   */
+  image?: string;
+  /**
+   * Task size for sync tasks
+   * @default { cpu: '256', memory: '512' }
+   */
+  taskSize?: TaskSize;
+  /**
+   * Environment variables shared across all sync tasks.
+   * Secrets (AppParameter with type 'secret') will be injected via ECS secrets.
+   */
+  environment: Record<string, string | AppParameter>;
+  /**
+   * Sources to sync. Each source becomes a scheduled ECS task.
+   */
+  sources: ElasticSyncSourceConfiguration[];
 }
 
 /**

@@ -9,6 +9,7 @@ import { Construct } from 'constructs';
 import { Configurable, Configuration } from './ConfigurationInterfaces';
 import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
+import { ElasticSyncScheduledTasks } from './constructs/ElasticSyncScheduledTasks';
 import { HelloWorldService } from './services/HelloWorld';
 import { ItaService } from './services/ItaService';
 import { KissService } from './services/KissService';
@@ -65,6 +66,7 @@ export class MainStack extends Stack {
     this.kissFrontendService();
     this.itaService();
     this.openObjectService();
+    this.elasticSyncTasks();
 
   }
 
@@ -144,6 +146,16 @@ export class MainStack extends Stack {
       });
       this.containerPlatform.addService(service);
     }
+  }
+
+  private elasticSyncTasks() {
+    if (!this.configuration.elasticSync) {
+      return;
+    }
+    new ElasticSyncScheduledTasks(this, 'elastic-sync', {
+      cluster: this.containerPlatform.cluster,
+      config: this.configuration.elasticSync,
+    });
   }
 
 }
