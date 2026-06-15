@@ -111,7 +111,7 @@ export class ElasticSyncScheduledTasks extends Construct {
     rule.addTarget(new EcsTask({
       cluster: this.cluster,
       taskDefinition: taskDef,
-      subnetSelection: { subnetType: SubnetType.PRIVATE_ISOLATED },
+      subnetSelection: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
       taskCount: 1,
     }));
   }
