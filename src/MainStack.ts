@@ -154,7 +154,6 @@ export class MainStack extends Stack {
     }
     new ElasticSyncScheduledTasks(this, 'elastic-sync', {
       cluster: this.containerPlatform.cluster,
-      vpc: this.vpc.vpc,
       config: this.configuration.elasticSync,
     });
   }

@@ -224,8 +224,9 @@ export interface ElasticSyncSourceConfiguration {
    */
   id: string;
   /**
-   * The container argument to select the source type.
-   * No argument = SDG/kennisbank, 'vac', 'smoelenboek', 'sharepoint'
+   * The container command arguments to select the source type.
+   * Possible values: 'vac', 'smoelenboek', 'sharepoint'.
+   * Omit (or leave empty) to sync SDG Producten (kennisbank). Default KISS behaviour.
    */
   args?: string[];
   /**

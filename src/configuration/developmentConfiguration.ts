@@ -270,7 +270,8 @@ export const developmentConfiguration = {
         path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
       }),
 
-      // VAC source — reuses same SSM paths as KISS service
+      // VAC source
+      // Reuses same SSM paths as KISS service
       VAC_OBJECTEN_BASE_URL: new AppParameter({
         type: 'ssm',
         id: 'sync-vac-objecten-base-url',
@@ -292,7 +293,8 @@ export const developmentConfiguration = {
         path: `/${Statics.projectName}/kiss/vac/objecten-api-key`,
       }),
 
-      // Medewerker/Smoelenboek source — same Objects API, same token as groepen
+      // Medewerker/Smoelenboek source
+      // Same Objects API, same token as groepen
       MEDEWERKER_OBJECTEN_BASE_URL: new AppParameter({
         type: 'ssm',
         id: 'sync-medewerker-objecten-base-url',
@@ -314,7 +316,7 @@ export const developmentConfiguration = {
         path: `/${Statics.projectName}/kiss/groepen/objecten-api-key`,
       }),
 
-      // SDG/Kennisbank source — same Objects API
+      // SDG/Kennisbank source; same Objects API
       // Uncomment when SDG objecttype is created:
       // SDG_OBJECTEN_BASE_URL: new AppParameter({
       //   type: 'ssm',

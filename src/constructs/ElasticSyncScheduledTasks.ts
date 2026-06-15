@@ -1,4 +1,4 @@
-import { IVpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
+import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import {
   AwsLogDriver,
   Cluster,
@@ -23,10 +23,6 @@ export interface ElasticSyncScheduledTasksProps {
    */
   cluster: Cluster;
   /**
-   * The VPC for networking
-   */
-  vpc: IVpc;
-  /**
    * ElasticSync configuration
    */
   config: ElasticSyncConfiguration;
@@ -43,19 +39,30 @@ export class ElasticSyncScheduledTasks extends Construct {
 
   static readonly DEFAULT_IMAGE = 'ghcr.io/klantinteractie-servicesysteem/kiss-elastic-sync:latest';
 
+  private readonly cluster: Cluster;
+  private readonly image: string;
+  private readonly logGroup: LogGroup;
+  private readonly environment: Record<string, string>;
+  private readonly secrets: Record<string, Secret>;
+  private readonly taskSize: { cpu: string; memory: string };
+
   constructor(scope: Construct, id: string, props: ElasticSyncScheduledTasksProps) {
     super(scope, id);
 
     const config = props.config;
-    const image = config.image ?? ElasticSyncScheduledTasks.DEFAULT_IMAGE;
+    this.cluster = props.cluster;
+    this.image = config.image ?? ElasticSyncScheduledTasks.DEFAULT_IMAGE;
+    this.taskSize = config.taskSize ?? { cpu: '256', memory: '512' };
 
     // Shared log group for all sync tasks
-    const logGroup = new LogGroup(this, 'logs', {
+    this.logGroup = new LogGroup(this, 'logs', {
       retention: RetentionDays.ONE_MONTH,
     });
 
     // Resolve environment and secrets from the configuration
     const { environment, secrets } = this.loadEnvironment(config);
+    this.environment = environment;
+    this.secrets = secrets;
 
     // Add Elasticsearch connection details from SSM/Secrets Manager
     const esEndpointParam = StringParameter.fromStringParameterName(
@@ -68,68 +75,41 @@ export class ElasticSyncScheduledTasks extends Construct {
       this, 'ent-search-endpoint', `/${Statics.projectName}/internal/enterprise-search/endpoint`,
     );
 
-    secrets['ELASTIC_BASE_URL'] = Secret.fromSsmParameter(esEndpointParam);
-    secrets['ELASTIC_PASSWORD'] = Secret.fromSecretsManager(esPasswordSecret);
-    secrets['ENTERPRISE_SEARCH_BASE_URL'] = Secret.fromSsmParameter(entSearchEndpointParam);
-    environment['ELASTIC_USERNAME'] = 'elastic';
+    this.secrets['ELASTIC_BASE_URL'] = Secret.fromSsmParameter(esEndpointParam);
+    this.secrets['ELASTIC_PASSWORD'] = Secret.fromSecretsManager(esPasswordSecret);
+    this.secrets['ENTERPRISE_SEARCH_BASE_URL'] = Secret.fromSsmParameter(entSearchEndpointParam);
+    this.environment['ELASTIC_USERNAME'] = 'elastic';
 
     // Create a task per source
     for (const source of config.sources) {
-      this.createScheduledTask(source.id, {
-        cluster: props.cluster,
-        vpc: props.vpc,
-        image,
-        logGroup,
-        environment,
-        secrets,
-        args: source.args,
-        schedule: source.schedule,
-        taskSize: config.taskSize,
-      });
+      this.createScheduledTask(source);
     }
   }
 
-  private createScheduledTask(
-    sourceId: string,
-    opts: {
-      cluster: Cluster;
-      vpc: IVpc;
-      image: string;
-      logGroup: LogGroup;
-      environment: Record<string, string>;
-      secrets: Record<string, Secret>;
-      args?: string[];
-      schedule: string;
-      taskSize?: { cpu: string; memory: string };
-    },
-  ) {
-    const cpu = opts.taskSize?.cpu ?? '256';
-    const memory = opts.taskSize?.memory ?? '512';
-
-    const taskDef = new FargateTaskDefinition(this, `${sourceId}-task`, {
-      cpu: Number(cpu),
-      memoryLimitMiB: Number(memory),
+  private createScheduledTask(source: { id: string; args?: string[]; schedule: string }) {
+    const taskDef = new FargateTaskDefinition(this, `${source.id}-task`, {
+      cpu: Number(this.taskSize.cpu),
+      memoryLimitMiB: Number(this.taskSize.memory),
     });
 
-    taskDef.addContainer(`${sourceId}-container`, {
-      image: ContainerImage.fromRegistry(opts.image),
+    taskDef.addContainer(`${source.id}-container`, {
+      image: ContainerImage.fromRegistry(this.image),
       logging: new AwsLogDriver({
-        streamPrefix: sourceId,
-        logGroup: opts.logGroup,
+        streamPrefix: source.id,
+        logGroup: this.logGroup,
       }),
-      environment: opts.environment,
-      secrets: opts.secrets,
-      command: opts.args, // Container ENTRYPOINT uses these as arguments
+      environment: this.environment,
+      secrets: this.secrets,
+      command: source.args,
     });
 
-    // EventBridge rule to schedule the task
-    const rule = new Rule(this, `${sourceId}-schedule`, {
-      schedule: this.parseSchedule(opts.schedule),
-      description: `ElasticSync scheduled task for source: ${sourceId}`,
+    const rule = new Rule(this, `${source.id}-schedule`, {
+      schedule: this.parseSchedule(source.schedule),
+      description: `ElasticSync scheduled task for source: ${source.id}`,
     });
 
     rule.addTarget(new EcsTask({
-      cluster: opts.cluster,
+      cluster: this.cluster,
       taskDefinition: taskDef,
       subnetSelection: { subnetType: SubnetType.PRIVATE_ISOLATED },
       taskCount: 1,
@@ -137,13 +117,10 @@ export class ElasticSyncScheduledTasks extends Construct {
   }
 
   private parseSchedule(expression: string): Schedule {
-    if (expression.startsWith('rate(')) {
+    // If already a valid EventBridge expression, use as-is; otherwise wrap in rate()
+    if (expression.startsWith('rate(') || expression.startsWith('cron(')) {
       return Schedule.expression(expression);
     }
-    if (expression.startsWith('cron(')) {
-      return Schedule.expression(expression);
-    }
-    // Default: treat as rate expression
     return Schedule.expression(`rate(${expression})`);
   }
 
