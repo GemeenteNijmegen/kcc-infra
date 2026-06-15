@@ -75,10 +75,10 @@ export class ElasticSyncScheduledTasks extends Construct {
       this, 'ent-search-endpoint', `/${Statics.projectName}/internal/enterprise-search/endpoint`,
     );
 
-    this.secrets['ELASTIC_BASE_URL'] = Secret.fromSsmParameter(esEndpointParam);
-    this.secrets['ELASTIC_PASSWORD'] = Secret.fromSecretsManager(esPasswordSecret);
-    this.secrets['ENTERPRISE_SEARCH_BASE_URL'] = Secret.fromSsmParameter(entSearchEndpointParam);
-    this.environment['ELASTIC_USERNAME'] = 'elastic';
+    this.secrets.ELASTIC_BASE_URL = Secret.fromSsmParameter(esEndpointParam);
+    this.secrets.ELASTIC_PASSWORD = Secret.fromSecretsManager(esPasswordSecret);
+    this.secrets.ENTERPRISE_SEARCH_BASE_URL = Secret.fromSsmParameter(entSearchEndpointParam);
+    this.environment.ELASTIC_USERNAME = 'elastic';
 
     // Create a task per source
     for (const source of config.sources) {
