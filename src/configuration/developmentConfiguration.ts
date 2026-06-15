@@ -258,4 +258,95 @@ export const developmentConfiguration = {
     version: '8.17.0',
     amiId: 'ami-0f1834be8d049e69f',
   },
+  elasticSync: {
+    taskSize: { cpu: '256', memory: '512' },
+    environment: {
+      // Enterprise Search engine name (must match KISS config)
+      ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
+      ENTERPRISE_SEARCH_PRIVATE_API_KEY: new AppParameter({
+        type: 'secret',
+        id: 'sync-enterprise-search-private-api-key',
+        description: 'ElasticSync: Enterprise Search private API key (shared with KISS)',
+        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
+      }),
+
+      // VAC source — reuses same SSM paths as KISS service
+      VAC_OBJECTEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'sync-vac-objecten-base-url',
+        description: 'ElasticSync: Base URL for VAC objecten',
+        path: `/${Statics.projectName}/kiss/vac/objecten/base-url`,
+        defaultValue: 'https://objects.kcc-dev.csp-nijmegen.nl',
+      }),
+      VAC_OBJECT_TYPE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'sync-vac-objecttype-url',
+        description: 'ElasticSync: VAC objecttype URL',
+        path: `/${Statics.projectName}/kiss/vac/objecten/objecttype-url`,
+        defaultValue: 'https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objecttypes/c8dda48e-6ab3-4e16-9631-815435f7f3fa',
+      }),
+      VAC_OBJECTEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'sync-vac-objecten-token',
+        description: 'ElasticSync: API token for VAC objecten (shared with KISS)',
+        path: `/${Statics.projectName}/kiss/vac/objecten-api-key`,
+      }),
+
+      // Medewerker/Smoelenboek source — same Objects API, same token as groepen
+      MEDEWERKER_OBJECTEN_BASE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'sync-medewerker-objecten-base-url',
+        description: 'ElasticSync: Base URL for medewerker objecten',
+        path: `/${Statics.projectName}/kiss/medewerker/objecten/base-url`,
+        defaultValue: 'https://objects.kcc-dev.csp-nijmegen.nl',
+      }),
+      MEDEWERKER_OBJECT_TYPE_URL: new AppParameter({
+        type: 'ssm',
+        id: 'sync-medewerker-objecttype-url',
+        description: 'ElasticSync: Medewerker objecttype URL',
+        path: `/${Statics.projectName}/kiss/medewerker/objecten/objecttype-url`,
+        defaultValue: 'https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objecttypes/797a7a50-049d-491b-bb0a-fce1ba95a35c',
+      }),
+      MEDEWERKER_OBJECTEN_TOKEN: new AppParameter({
+        type: 'secret',
+        id: 'sync-medewerker-objecten-token',
+        description: 'ElasticSync: API token for medewerker objecten (same as groepen token)',
+        path: `/${Statics.projectName}/kiss/groepen/objecten-api-key`,
+      }),
+
+      // SDG/Kennisbank source — same Objects API
+      // Uncomment when SDG objecttype is created:
+      // SDG_OBJECTEN_BASE_URL: new AppParameter({
+      //   type: 'ssm',
+      //   id: 'sync-sdg-objecten-base-url',
+      //   description: 'ElasticSync: Base URL for SDG objecten (kennisbank)',
+      //   path: `/${Statics.projectName}/kiss/sdg/objecten/base-url`,
+      //   defaultValue: 'https://objects.kcc-dev.csp-nijmegen.nl',
+      // }),
+      // SDG_OBJECT_TYPE_URL: new AppParameter({
+      //   type: 'ssm',
+      //   id: 'sync-sdg-objecttype-url',
+      //   description: 'ElasticSync: SDG objecttype URL (fill with objecttype UUID after creating it)',
+      //   path: `/${Statics.projectName}/kiss/sdg/objecten/objecttype-url`,
+      // }),
+      // SDG_OBJECTEN_TOKEN: new AppParameter({
+      //   type: 'secret',
+      //   id: 'sync-sdg-objecten-token',
+      //   description: 'ElasticSync: API token for SDG objecten (same as groepen token)',
+      //   path: `/${Statics.projectName}/kiss/groepen/objecten-api-key`,
+      // }),
+    },
+    sources: [
+      {
+        id: 'vac',
+        args: ['vac'],
+        schedule: 'rate(59 minutes)',
+      },
+      {
+        id: 'smoelenboek',
+        args: ['smoelenboek'],
+        schedule: 'rate(59 minutes)',
+      },
+    ],
+  },
 } as Configuration;
