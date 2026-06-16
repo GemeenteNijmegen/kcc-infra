@@ -2,6 +2,7 @@ import { Criticality } from '@gemeentenijmegen/aws-constructs';
 import { Configuration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
+import { createAdditionalRegister } from './services/createAdditionalRegister';
 import { ItaSharedEnvironmentConfiguration } from './services/ItaSharedEnvConfiguration';
 
 const openKlantBaseUrl = new AppParameter({
@@ -194,6 +195,15 @@ export const developmentConfiguration = {
         description: 'KISS config: URL for Open-Zaak client secret (formulieren)',
         path: `/${Statics.projectName}/kiss/open-zaak-formulieren/clientsecret`,
       }),
+
+      // Additional register (shares the same Open-Klant instance as register 0,
+      // but talks to its own zaaksysteem)
+      ...createAdditionalRegister(1, {
+        name: 'rxmission',
+        klantinteractieBaseUrl: openKlantBaseUrl,
+        klantinteractieToken: openKlantApiKey,
+      }),
+
       USE_VACS: 'true',
       VAC_OBJECTEN_BASE_URL: new AppParameter({
         type: 'ssm',
