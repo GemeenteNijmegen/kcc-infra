@@ -1,0 +1,15 @@
+info:
+  name: objecttype Logboek
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: https://objects.kcc-dev.csp-nijmegen.nl/api/v2/objecttypes/8820cf2b-4875-4fb2-a697-fed37b5f5c2f
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

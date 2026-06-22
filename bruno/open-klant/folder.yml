@@ -1,0 +1,10 @@
+info:
+  name: open-klant
+  type: folder
+  seq: 3
+
+request:
+  headers:
+    - name: Authorization
+      value: Token {{open-klant-apikey}}
+  auth: inherit
