@@ -246,6 +246,16 @@ export const developmentConfiguration = {
       NOTIFICATIONS_DISABLED: 'True',
     },
   }],
+  openKlantServices: [{
+    id: 'open-klant-1',
+    subdomain: 'open-klant',
+    loadbalancerRulePriority: 50,
+    taskSize: { cpu: '512', memory: '1024' },
+    image: 'maykinmedia/open-klant:2.17.0',
+    redisIndexMain: 3,
+    redisIndexCelery: 4,
+    environment: {},
+  }],
   itaServices: [{
     id: 'ita-1',
     subdomain: 'taken',

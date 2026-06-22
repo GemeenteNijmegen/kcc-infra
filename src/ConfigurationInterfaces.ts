@@ -92,6 +92,10 @@ export interface Configuration {
    */
   openObjectServices?: OpenObjectServiceConfiguration[];
 
+  /** Provide configuration for Open Klant service
+ * @default - no Open Klant deployed */
+  openKlantServices?: OpenKlantServiceConfiguration[];
+
   /**
    * Provide configuration for an Elasticsearch 8.x EC2 instance
    * @default - no Elasticsearch instance is deployed
@@ -141,6 +145,17 @@ export interface OpenObjectServiceConfiguration extends MainTaskSizeConfiguratio
   /**
    * Redis indexes for main and celery
    */
+  redisIndexMain: number;
+  redisIndexCelery: number;
+}
+
+export interface OpenKlantServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {
+  /** Environment variables for the Open Klant application.
+   * Secrets can be included here and will be treated as such by ECS.
+  */
+  environment: Record<string, string | AppParameter>;
+
+  /** Redis indexes for main and celery */
   redisIndexMain: number;
   redisIndexCelery: number;
 }

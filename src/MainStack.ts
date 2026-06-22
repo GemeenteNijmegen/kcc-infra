@@ -13,6 +13,7 @@ import { ElasticSyncScheduledTasks } from './constructs/ElasticSyncScheduledTask
 import { HelloWorldService } from './services/HelloWorld';
 import { ItaService } from './services/ItaService';
 import { KissService } from './services/KissService';
+import { OpenKlantService } from './services/OpenKlantService';
 import { OpenObjectService } from './services/OpenObjectService';
 import { Statics } from './Statics';
 
@@ -66,6 +67,7 @@ export class MainStack extends Stack {
     this.kissFrontendService();
     this.itaService();
     this.openObjectService();
+    this.openKlantService();
     this.elasticSyncTasks();
 
   }
@@ -143,6 +145,18 @@ export class MainStack extends Stack {
     for (const openObjectServiceConfig of this.configuration.openObjectServices) {
       const service = new OpenObjectService(this, openObjectServiceConfig.id, {
         serviceConfiguration: openObjectServiceConfig,
+      });
+      this.containerPlatform.addService(service);
+    }
+  }
+
+  private openKlantService() {
+    if (!this.configuration.openKlantServices) {
+      return;
+    }
+    for (const openKlantServiceConfig of this.configuration.openKlantServices) {
+      const service = new OpenKlantService(this, openKlantServiceConfig.id, {
+        serviceConfiguration: openKlantServiceConfig,
       });
       this.containerPlatform.addService(service);
     }
