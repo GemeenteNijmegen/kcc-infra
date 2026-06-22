@@ -2,3 +2,7 @@ name: kcs - development
 variables:
   - secret: true
     name: objectsToken
+  - secret: true
+    name: open-klant-apikey
+  - name: open-klant-baseurl
+    value: https://mijn-services.accp.nijmegen.nl//open-klant/klantinteracties
