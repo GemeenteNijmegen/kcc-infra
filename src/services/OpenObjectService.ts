@@ -108,6 +108,7 @@ export class OpenObjectService extends Construct implements IContainerService {
       LOG_LEVEL: 'DEBUG',
       LOG_REQUESTS: 'True',
       LOG_OUTGOING_REQUESTS_DB_SAVE: 'True',
+      LOG_OUTGOING_REQUESTS_DB_SAVE_BODY: 'True',
       LOG_QUERIES: 'False',
       DEBUG: 'True',
       SESSION_COOKIE_AGE: '36000',
@@ -162,7 +163,7 @@ export class OpenObjectService extends Construct implements IContainerService {
     });
 
     task.addContainer('objects-main', {
-      image: ContainerImage.fromRegistry(OpenObjectService.DEFAULT_BACKUP_IMAGE),
+      image: ContainerImage.fromRegistry(config.image?.trim() || OpenObjectService.DEFAULT_BACKUP_IMAGE),
       logging: new AwsLogDriver({
         streamPrefix: 'logs',
         logGroup: logs,
@@ -220,7 +221,7 @@ export class OpenObjectService extends Construct implements IContainerService {
 
 
     task.addContainer('objects-celery', {
-      image: ContainerImage.fromRegistry(OpenObjectService.DEFAULT_BACKUP_IMAGE),
+      image: ContainerImage.fromRegistry(config.image?.trim() || OpenObjectService.DEFAULT_BACKUP_IMAGE),
       logging: new AwsLogDriver({
         streamPrefix: 'logs',
         logGroup: logs,
