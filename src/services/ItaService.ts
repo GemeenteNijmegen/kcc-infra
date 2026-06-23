@@ -1,7 +1,9 @@
 import { Duration, RemovalPolicy, Token } from 'aws-cdk-lib';
-import { ISecurityGroup, Port, SecurityGroup } from 'aws-cdk-lib/aws-ec2';
+import { ISecurityGroup, Port, SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, Secret, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { Rule } from 'aws-cdk-lib/aws-events';
+import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DatabaseInstance } from 'aws-cdk-lib/aws-rds';
 import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
@@ -48,9 +50,8 @@ export class ItaService extends Construct implements IContainerService {
     const webService = this.setupWebService(logs, platform, environment, secrets);
     const pollerService = this.setupPollerService(logs, platform, environment, secrets);
 
-
-    this.allowDbConnectivity(webService, db.securityGroup, db.port);
-    this.allowDbConnectivity(pollerService, db.securityGroup, db.port);
+    this.allowDbConnectivity(webService.connections.securityGroups, db.securityGroup, db.port);
+    this.allowDbConnectivity(pollerService.securityGroups ?? [], db.securityGroup, db.port);
 
     new SubdomainCloudfront(this, 'subdomain-cloudfront', {
       certificate: platform.wildcardCertificate,
@@ -132,7 +133,6 @@ export class ItaService extends Construct implements IContainerService {
     return service;
   }
 
-  // Nog uitzoeken hoe en of die poller nog aangeroepen moet worden. Eventbridge?
   private setupPollerService(logs: LogGroup, platform: ContainerServiceProps, environment: Record<string, string>, secrets: Record<string, Secret>) {
     const isEc2 = platform.computeProvider === 'EC2';
     const config = this.props.serviceConfiguration;
@@ -149,36 +149,27 @@ export class ItaService extends Construct implements IContainerService {
         streamPrefix: 'logs',
         logGroup: logs,
       }),
-      portMappings: [{
-        containerPort: ItaService.WEB_CONTAINER_PORT,
-        hostPort: isEc2 ? 0 : ItaService.WEB_CONTAINER_PORT,
-        protocol: Protocol.TCP,
-      }],
       environment: environment,
       secrets: secrets,
       memoryReservationMiB: isEc2 ? 512 : undefined,
     });
 
+    // Create a ECS task
+    const ecsTask = new EcsTask({
+      cluster: platform.cluster,
+      taskDefinition: task,
+      subnetSelection: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
+      taskCount: 1,
+    });
 
-    let service: BaseService;
-    if (isEc2) {
-      service = new Ec2Service(this, 'pollerservice', {
-        cluster: platform.cluster,
-        taskDefinition: task,
-        desiredCount: 1,
-        enableExecuteCommand: true,
-      });
-    } else {
-      service = new FargateService(this, 'pollerservice', {
-        cluster: platform.cluster,
-        taskDefinition: task,
-        desiredCount: 0, // TODO: voor nu even uit tot duidelijk is hoe deze het beste
-        enableExecuteCommand: true,
-      });
-    }
+    // Run on schedule
+    const rule = new Rule(this, `poller-schedule`, {
+      schedule: this.props.serviceConfiguration.pollerSchedule,
+      description: `ElasticSync scheduled task for source: ita poller`,
+    });
+    rule.addTarget(ecsTask);
 
-    ContainerServiceUtils.allowExecutingCommands(task);
-    return service;
+    return ecsTask;
   }
 
 
@@ -256,8 +247,8 @@ export class ItaService extends Construct implements IContainerService {
     return { credentials, host: hostname, port, securityGroup: dbSecurityGroup, name: dbName, connectionString };
   }
 
-  private allowDbConnectivity(service: BaseService, dbSecurityGroup: ISecurityGroup, dbPort: string) {
-    service.connections.securityGroups.forEach(serviceSecurityGroup => {
+  private allowDbConnectivity(securityGroups: ISecurityGroup[], dbSecurityGroup: ISecurityGroup, dbPort: string) {
+    securityGroups.forEach(serviceSecurityGroup => {
       dbSecurityGroup.connections.allowFrom(serviceSecurityGroup, Port.tcp(Token.asNumber(dbPort)));
     });
   }

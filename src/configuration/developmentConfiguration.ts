@@ -4,6 +4,8 @@ import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
 import { createAdditionalRegister } from './services/createAdditionalRegister';
 import { ItaSharedEnvironmentConfiguration } from './services/ItaSharedEnvConfiguration';
+import { Duration } from 'aws-cdk-lib';
+import { Schedule } from 'aws-cdk-lib/aws-events';
 
 const openKlantBaseUrl = new AppParameter({
   type: 'ssm',
@@ -263,6 +265,7 @@ export const developmentConfiguration = {
     taskSize: { cpu: '512', memory: '1024' },
     imageWebserver: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.web:3.1',
     imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.1',
+    pollerSchedule: Schedule.rate(Duration.minutes(5)),
     environment: {
       ...ItaSharedEnvironmentConfiguration,
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: 'true',

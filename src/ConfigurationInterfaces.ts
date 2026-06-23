@@ -1,6 +1,7 @@
 import { Criticality } from '@gemeentenijmegen/aws-constructs';
 import { Environment } from 'aws-cdk-lib';
 import { AppParameter } from './constructs/AppParameter';
+import { Schedule } from 'aws-cdk-lib/aws-events';
 
 /**
  * Adds a configuration field to another interface
@@ -133,6 +134,7 @@ export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, Serv
   environment: Record<string, string | AppParameter>;
   imageWebserver: string;
   imagePoller: string;
+  pollerSchedule: Schedule;
 }
 
 export interface OpenObjectServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {
