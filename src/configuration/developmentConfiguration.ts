@@ -8,7 +8,6 @@ import { ItaSharedEnvironmentConfiguration } from './services/ItaSharedEnvConfig
 import { KissSharedEnvironmentConfiguration } from './services/KissSharedEnvironmentConfiguration';
 
 
-
 export const developmentConfiguration = {
   branch: 'development',
   buildEnvironment: Statics.gnBuildEnvironment,

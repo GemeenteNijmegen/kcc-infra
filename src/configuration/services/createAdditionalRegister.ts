@@ -7,9 +7,10 @@ export interface AdditionalRegisterOptions {
    * (including additional ones) reuses the same `KLANTINTERACTIE_*`
    * `AppParameter`s — pass in the same instances used for register 0
    * rather than creating new ones.
+   * If empty, it will creates its own new AppParameters
    */
-  readonly klantinteractieBaseUrl: AppParameter;
-  readonly klantinteractieToken: AppParameter;
+  readonly klantinteractieBaseUrl?: AppParameter;
+  readonly klantinteractieToken?: AppParameter;
   /**
    * @default 'OpenKlant2'
    */
@@ -55,8 +56,19 @@ export function createAdditionalRegister(
 
   return {
     [`${prefix}IS_DEFAULT`]: 'false',
-    [`${prefix}KLANTINTERACTIE_BASE_URL`]: options.klantinteractieBaseUrl,
-    [`${prefix}KLANTINTERACTIE_TOKEN`]: options.klantinteractieToken,
+    [`${prefix}KLANTINTERACTIE_BASE_URL`]: options.klantinteractieBaseUrl ?? new AppParameter({
+      type: 'ssm',
+      id: `kiss-kcc-open-klant-url-${index}`,
+      description: `KISS config: URL for Open-Klant (register ${index}: ${options.name})`,
+      path: `${ssmBase}/open-klant/base-url`,
+    }),
+
+    [`${prefix}KLANTINTERACTIE_TOKEN`]: options.klantinteractieToken ?? new AppParameter({
+      type: 'secret',
+      id: `kiss-kcc-open-klant-api-token-${index}`,
+      description: `KISS config: API token for Open-Klant (register ${index}: ${options.name})`,
+      path: `${ssmBase}/open-klant/api-token`,
+    }),
     [`${prefix}REGISTRY_VERSION`]: options.registryVersion ?? 'OpenKlant2',
     [`${prefix}ZAAKSYSTEEM_ZAKEN_BASE_URL`]: new AppParameter({
       type: 'ssm',

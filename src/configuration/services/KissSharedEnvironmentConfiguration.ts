@@ -1,6 +1,6 @@
-import { AppParameter } from "../../constructs/AppParameter";
-import { Statics } from "../../Statics";
-import { createAdditionalRegister } from "./createAdditionalRegister";
+import { createAdditionalRegister } from './createAdditionalRegister';
+import { AppParameter } from '../../constructs/AppParameter';
+import { Statics } from '../../Statics';
 
 const openKlantBaseUrl = new AppParameter({
   type: 'ssm',
@@ -246,4 +246,4 @@ export const KissSharedEnvironmentConfiguration = {
     description: 'KISS config: API KEY for objecten API vac',
     path: `/${Statics.projectName}/kiss/vac/objecten-api-key`,
   }),
-}
+};

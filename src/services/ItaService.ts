@@ -163,9 +163,9 @@ export class ItaService extends Construct implements IContainerService {
     });
 
     // Run on schedule
-    const rule = new Rule(this, `poller-schedule`, {
+    const rule = new Rule(this, 'poller-schedule', {
       schedule: this.props.serviceConfiguration.pollerSchedule,
-      description: `ElasticSync scheduled task for source: ita poller`,
+      description: 'ElasticSync scheduled task for source: ita poller',
     });
     rule.addTarget(ecsTask);
 
