@@ -213,8 +213,6 @@ export const KissSharedEnvironmentConfiguration = {
   // but talks to its own zaaksysteem)
   ...createAdditionalRegister(1, {
     name: 'rxmission',
-    klantinteractieBaseUrl: openKlantBaseUrl,
-    klantinteractieToken: openKlantApiKey,
   }),
 
   // Vraag antwoord combinaties
