@@ -59,9 +59,9 @@ ES_PASSWORD=$(aws secretsmanager get-secret-value \
   --output text)
 echo "${ES_PASSWORD}" | /usr/share/elasticsearch/bin/elasticsearch-keystore add -xf "bootstrap.password"
 
-# Set JVM heap (1g to leave room for Enterprise Search on t3.large)
-echo "-Xms1g" > /etc/elasticsearch/jvm.options.d/heap.options
-echo "-Xmx1g" >> /etc/elasticsearch/jvm.options.d/heap.options
+# Set JVM heap
+echo "-Xms3g" > /etc/elasticsearch/jvm.options.d/heap.options
+echo "-Xmx3g" >> /etc/elasticsearch/jvm.options.d/heap.options
 
 # Ensure correct ownership
 chown -R elasticsearch:elasticsearch /etc/elasticsearch
@@ -109,6 +109,14 @@ ent_search.listen_port: 3002
 kibana.host: http://localhost:5601
 allow_es_settings_modification: true
 ENTCONFIG
+
+# Cap Enterprise Search JVM memory (otherwise it's unconstrained and can
+# compete with Elasticsearch for RAM on the same host)
+mkdir -p /etc/systemd/system/enterprise-search.service.d
+cat > /etc/systemd/system/enterprise-search.service.d/override.conf << 'ENTOVERRIDE'
+[Service]
+Environment=JAVA_OPTS=-Xms3g -Xmx3g
+ENTOVERRIDE
 
 # Start Enterprise Search
 systemctl daemon-reload
