@@ -59,9 +59,9 @@ ES_PASSWORD=$(aws secretsmanager get-secret-value \
   --output text)
 echo "${ES_PASSWORD}" | /usr/share/elasticsearch/bin/elasticsearch-keystore add -xf "bootstrap.password"
 
-# Set JVM heap
-echo "-Xms2g" > /etc/elasticsearch/jvm.options.d/heap.options
-echo "-Xmx2g" >> /etc/elasticsearch/jvm.options.d/heap.options
+# Set JVM heap (1g to leave room for Enterprise Search on t3.large)
+echo "-Xms1g" > /etc/elasticsearch/jvm.options.d/heap.options
+echo "-Xmx1g" >> /etc/elasticsearch/jvm.options.d/heap.options
 
 # Ensure correct ownership
 chown -R elasticsearch:elasticsearch /etc/elasticsearch
