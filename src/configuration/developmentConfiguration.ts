@@ -71,7 +71,7 @@ export const developmentConfiguration = {
     },
   }],
   elasticsearch: {
-    instanceType: 't3.medium',
+    instanceType: 't3.large',
     volumeSizeGb: 30,
     version: '8.17.0',
     amiId: 'ami-0f1834be8d049e69f',
