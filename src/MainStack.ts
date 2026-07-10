@@ -10,7 +10,6 @@ import { Configurable, Configuration } from './ConfigurationInterfaces';
 import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
 import { ElasticSyncScheduledTasks } from './constructs/ElasticSyncScheduledTasks';
-import { HelloWorldService } from './services/HelloWorld';
 import { ItaService } from './services/ItaService';
 import { KissService } from './services/KissService';
 import { OpenKlantService } from './services/OpenKlantService';
@@ -63,7 +62,6 @@ export class MainStack extends Stack {
       ],
     });
 
-    this.helloWorldService();
     this.kissFrontendService();
     this.itaService();
     this.openObjectService();
@@ -95,23 +93,6 @@ export class MainStack extends Stack {
     });
     const certificateArn = parameters.get(Statics.ssmWildcardCertificateArn);
     return Certificate.fromCertificateArn(this, 'certificate', certificateArn);
-  }
-
-  /**
-   * For each hello world service configuration deploy a service.
-   * @param platform
-   * @returns
-   */
-  private helloWorldService() {
-    if (!this.configuration.helloWorlServices) {
-      return;
-    }
-    for (const helloWorldServiceConfig of this.configuration.helloWorlServices) {
-      const service = new HelloWorldService(this, helloWorldServiceConfig.id, {
-        serviceConfiguration: helloWorldServiceConfig,
-      });
-      this.containerPlatform.addService(service);
-    }
   }
 
   private kissFrontendService() {

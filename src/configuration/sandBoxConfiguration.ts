@@ -10,13 +10,6 @@ export const sandBoxConfiguration = {
   criticality: new Criticality('low'),
   databaseSnapshotRetentionDays: 0,
   computeProvider: 'EC2',
-  helloWorlServices: [
-    {
-      subdomain: 'hello-world',
-      id: 'hello-world-service-1',
-      loadbalancerRulePriority: 10,
-    },
-  ],
   kissServices: [{
     id: 'kiss-1',
     subdomain: 'kiss',

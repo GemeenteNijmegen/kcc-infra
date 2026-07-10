@@ -69,13 +69,6 @@ export interface Configuration {
   computeProvider?: ComputeProvider;
 
   /**
-   * Provide configuration for a number of hello world services (usually just one)
-   * @default - no hello world services are deployed
-   */
-  helloWorlServices?: HelloWorldServiceConfiguration[];
-
-
-  /**
    * Provide configuration for the KISS frontend service
    * @default - no KISS frontend service is deployed
    */
@@ -111,9 +104,6 @@ export interface Configuration {
    */
   elasticSync?: ElasticSyncConfiguration;
 }
-
-
-export interface HelloWorldServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration { }
 
 export interface KissServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
   /**

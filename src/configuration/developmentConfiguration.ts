@@ -15,13 +15,6 @@ export const developmentConfiguration = {
   criticality: new Criticality('low'),
   databaseSnapshotRetentionDays: 0,
   computeProvider: 'FARGATE',
-  helloWorlServices: [
-    {
-      subdomain: 'hello-world',
-      id: 'hello-world-service-1',
-      loadbalancerRulePriority: 10,
-    },
-  ],
   kissServices: [{
     id: 'kiss-1',
     subdomain: 'kiss',
