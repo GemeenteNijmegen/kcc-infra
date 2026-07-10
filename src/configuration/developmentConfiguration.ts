@@ -4,6 +4,7 @@ import { Schedule } from 'aws-cdk-lib/aws-events';
 import { Configuration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
+import { ENTERPRISE_SEARCH_ENGINE, ENTERPRISE_SEARCH_PRIVATE_API_KEY } from './services/globalEnvironmentConfiguration';
 import { ItaSharedEnvironmentConfiguration } from './services/ItaSharedEnvConfiguration';
 import { KissSharedEnvironmentConfiguration } from './services/KissSharedEnvironmentConfiguration';
 
@@ -73,13 +74,8 @@ export const developmentConfiguration = {
     taskSize: { cpu: '256', memory: '512' },
     environment: {
       // Enterprise Search engine name (must match KISS config)
-      ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
-      ENTERPRISE_SEARCH_PRIVATE_API_KEY: new AppParameter({
-        type: 'secret',
-        id: 'sync-enterprise-search-private-api-key',
-        description: 'ElasticSync: Enterprise Search private API key (shared with KISS)',
-        path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
-      }),
+      ENTERPRISE_SEARCH_ENGINE: ENTERPRISE_SEARCH_ENGINE,
+      ENTERPRISE_SEARCH_PRIVATE_API_KEY: ENTERPRISE_SEARCH_PRIVATE_API_KEY,
 
       // VAC source
       // Reuses same SSM paths as KISS service

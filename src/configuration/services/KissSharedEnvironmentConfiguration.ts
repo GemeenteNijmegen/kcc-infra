@@ -1,4 +1,5 @@
 import { createAdditionalRegister } from './createAdditionalRegister';
+import { ENTERPRISE_SEARCH_ENGINE, ENTERPRISE_SEARCH_PRIVATE_API_KEY } from './globalEnvironmentConfiguration';
 import { AppParameter } from '../../constructs/AppParameter';
 import { Statics } from '../../Statics';
 
@@ -61,23 +62,11 @@ export const KissSharedEnvironmentConfiguration = {
 
 
   // Enterprise Search / Elastic
-  ENTERPRISE_SEARCH_ENGINE: 'kiss-engine',
   // Note: ENTERPRISE_SEARCH_BASE_URL, ELASTIC_USERNAME, ELASTIC_PASSWORD, and ELASTIC_BASE_URL
   // are injected directly in KissService from the Elasticsearch construct's resources.
-  ENTERPRISE_SEARCH_PUBLIC_API_KEY: new AppParameter({
-    type: 'secret',
-    id: 'kiss-kcc-enterprise-search-public-api-key',
-    description: 'KISS config: Enterprise Search public API key',
-    path: `/${Statics.projectName}/kiss/elastic/enterprise-search-public-api-key`,
-  }),
-  ENTERPRISE_SEARCH_PRIVATE_API_KEY: new AppParameter({
-    type: 'secret',
-    id: 'kiss-kcc-enterprise-search-private-api-key',
-    description: 'KISS config: Enterprise Search private API key',
-    path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
-  }),
-  // Note: ELASTIC_USERNAME, ELASTIC_PASSWORD, and ELASTIC_BASE_URL are injected
-  // directly in KissService from the Elasticsearch construct's resources.
+  ENTERPRISE_SEARCH_ENGINE: ENTERPRISE_SEARCH_ENGINE,
+  ENTERPRISE_SEARCH_PRIVATE_API_KEY: ENTERPRISE_SEARCH_PRIVATE_API_KEY,
+
 
   // Email
   EMAIL_HOST: new AppParameter({
