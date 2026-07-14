@@ -13,5 +13,5 @@ export const ENTERPRISE_SEARCH_PRIVATE_API_KEY = new AppParameter({
   type: 'secret',
   id: 'kcc-enterprise-search-private-api-key',
   description: 'Enterprise Search private API key (used by kiss, sync, and ES constructs). Note: this should be set manually, see IaC for docs.',
-  path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key-shared`,
+  path: `/${Statics.projectName}/kiss/elastic/enterprise-search-private-api-key`,
 });
