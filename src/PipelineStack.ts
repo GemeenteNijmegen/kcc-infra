@@ -78,6 +78,7 @@ export class PipelineStack extends Stack {
       synth: synthStep,
       dockerCredentials: [pipelines.DockerCredential.dockerHub(dockerHub)],
       pipelineType: PipelineType.V1,
+      dockerEnabledForSynth: true,
       synthCodeBuildDefaults: {
         partialBuildSpec: BuildSpec.fromObject({
           phases: {
