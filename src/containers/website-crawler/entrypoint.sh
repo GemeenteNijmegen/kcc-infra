@@ -1,5 +1,5 @@
 #!/bin/sh
-# Renders /home/app/config/crawler.template.yml into a real config using env vars,
+# Renders /app/config/crawler.yml.template into a real config using env vars,
 # then runs a single Open Crawler crawl. Intended for a scheduled ECS task
 # (e.g. triggered by EventBridge Scheduler) — this process exits when the
 # crawl finishes, it does not stay running.
