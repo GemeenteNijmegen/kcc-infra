@@ -158,4 +158,18 @@ export const developmentConfiguration = {
       },
     ],
   },
+  websiteCrawler: {
+    taskSize: { cpu: '256', memory: '512' },
+    environment: {
+      OUTPUT_INDEX: ENTERPRISE_SEARCH_ENGINE, // Store in the ES index for VAC, Medewerkers etc. 
+      // Note: ELASTIC_ENDPOINT, ELASTIC_USERNAME, ELASTIC_PASSWORD are injected in the service construct.
+    },
+    sources: [
+      {
+        id: 'nijmegen-website',
+        schedule: 'rate(59 minutes)',
+      }
+    ],
+
+  }
 } as Configuration;

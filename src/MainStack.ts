@@ -10,6 +10,7 @@ import { Configurable, Configuration } from './ConfigurationInterfaces';
 import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
 import { ElasticSyncScheduledTasks } from './constructs/ElasticSyncScheduledTasks';
+import { WebsiteCrawlerScheduledTasks } from './constructs/WebsiteCrawlerScheduledTasks';
 import { ItaService } from './services/ItaService';
 import { KissService } from './services/KissService';
 import { OpenKlantService } from './services/OpenKlantService';
@@ -67,6 +68,7 @@ export class MainStack extends Stack {
     this.openObjectService();
     this.openKlantService();
     this.elasticSyncTasks();
+    this.websiteCrawlerTasks();
 
   }
 
@@ -150,6 +152,16 @@ export class MainStack extends Stack {
     new ElasticSyncScheduledTasks(this, 'elastic-sync', {
       cluster: this.containerPlatform.cluster,
       config: this.configuration.elasticSync,
+    });
+  }
+
+  private websiteCrawlerTasks() {
+    if (!this.configuration.websiteCrawler) {
+      return;
+    }
+    new WebsiteCrawlerScheduledTasks(this, 'website-crawler', {
+      cluster: this.containerPlatform.cluster,
+      config: this.configuration.websiteCrawler,
     });
   }
 

@@ -1,0 +1,52 @@
+## ================== Open Crawler Configuration - Elasticsearch ====================
+## This file is a TEMPLATE. It is rendered into a real config by entrypoint.sh
+## at container startup, using values from environment variables. Do not run
+## it directly — use the Docker image built from the accompanying Dockerfile.
+
+domains:
+  - url: https://nijmegen.nl
+    exclude_tags:
+      - header
+      - footer
+      - nav
+    crawl_rules:
+      - policy: deny
+        type: contains
+        pattern: /login
+      - policy: deny
+        type: contains
+        pattern: /logout
+
+## ------------------------------- Output -------------------------------------
+output_sink: elasticsearch
+output_index: ${OUTPUT_INDEX}
+
+## ------------------------------- Crawl limits -------------------------------
+max_crawl_depth: 1
+max_extracted_links_count: 10
+max_unique_url_count: 10
+purge_crawl_enabled: true
+full_html_extraction_enabled: false
+# user_agent: "My-Crawler/1.0"
+# threads_per_crawl: 5
+
+## ------------------------------- Binary content -----------------------------
+binary_content_extraction_enabled: true
+binary_content_extraction_mime_types:
+  - application/pdf
+  - application/msword
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+## ------------------------------- Logging ------------------------------------
+log_level: info
+event_logs_to_file: false
+system_logs_to_file: false
+
+## ------------------------------- Elasticsearch ------------------------------
+elasticsearch:
+  host: ${ELASTIC_ENDPOINT}
+  username: ${ELASTIC_USERNAME}
+  password: ${ELASTIC_PASSWORD}
+  bulk_api:
+    max_items: 100
+    max_size_bytes: 1048576

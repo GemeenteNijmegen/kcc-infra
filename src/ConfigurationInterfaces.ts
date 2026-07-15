@@ -103,6 +103,14 @@ export interface Configuration {
    * @default - no ElasticSync tasks are deployed
    */
   elasticSync?: ElasticSyncConfiguration;
+
+  /**
+   * Provide configuration for WebsiteCrawler scheduled tasks.
+   * These run the Open Crawler container on a schedule to crawl
+   * websites into Elasticsearch.
+   * @default - no WebsiteCrawler tasks are deployed
+   */
+  websiteCrawler?: WebsiteCrawlerConfiguration;
 }
 
 export interface KissServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {
@@ -267,6 +275,50 @@ export interface ElasticSyncConfiguration {
    * Sources to sync. Each source becomes a scheduled ECS task.
    */
   sources: ElasticSyncSourceConfiguration[];
+}
+
+/**
+ * A single crawl target for the WebsiteCrawler scheduled tasks
+ */
+export interface WebsiteCrawlerSourceConfiguration {
+  /**
+   * Unique identifier for this source, used in resource ids and log stream names.
+   * Must be unique across all sources within the same WebsiteCrawler configuration.
+   */
+  id: string;
+  /**
+   * Schedule expression (EventBridge rate or cron).
+   * @example 'rate(1 day)'
+   * @example 'cron(0 3 * * ? *)'
+   */
+  schedule: string;
+  /**
+   * Environment variables specific to this source (e.g. TARGET_URL, OUTPUT_INDEX).
+   * Merged with (and overriding) the shared WebsiteCrawlerConfiguration environment.
+   * Secrets (AppParameter with type 'secret') will be injected via ECS secrets.
+   */
+  environment?: Record<string, string | AppParameter>;
+}
+
+/**
+ * Configuration for WebsiteCrawler scheduled tasks
+ */
+export interface WebsiteCrawlerConfiguration {
+  /**
+   * Task size for crawl tasks
+   * @default { cpu: '256', memory: '512' }
+   */
+  taskSize?: TaskSize;
+  /**
+   * Environment variables shared across all crawl tasks (e.g. ELASTIC_HOST,
+   * ELASTIC_PORT, ELASTIC_API_KEY).
+   * Secrets (AppParameter with type 'secret') will be injected via ECS secrets.
+   */
+  environment: Record<string, string | AppParameter>;
+  /**
+   * Sources to crawl. Each source becomes a scheduled ECS task.
+   */
+  sources: WebsiteCrawlerSourceConfiguration[];
 }
 
 /**
