@@ -36,7 +36,8 @@ export interface WebsiteCrawlerScheduledTasksProps {
  *
  * Each configured source gets its own scheduled task with the shared
  * connection environment merged with source-specific overrides (e.g.
- * TARGET_URL, OUTPUT_INDEX).
+ * TARGET_URL). OUTPUT_INDEX is derived from the source id (`search-<id>`)
+ * and set by this construct, not by configuration.
  */
 export class WebsiteCrawlerScheduledTasks extends Construct {
 
@@ -98,7 +99,7 @@ export class WebsiteCrawlerScheduledTasks extends Construct {
         streamPrefix: source.id,
         logGroup: this.logGroup,
       }),
-      environment: { ...this.environment, ...sourceEnvironment },
+      environment: { ...this.environment, ...sourceEnvironment, OUTPUT_INDEX: `search-${source.id}` },
       secrets: { ...this.secrets, ...sourceSecrets },
     });
 

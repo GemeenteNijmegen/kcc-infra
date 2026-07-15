@@ -293,9 +293,11 @@ export interface WebsiteCrawlerSourceConfiguration {
    */
   schedule: string;
   /**
-   * Environment variables specific to this source (e.g. TARGET_URL, OUTPUT_INDEX).
+   * Environment variables specific to this source (e.g. TARGET_URL).
    * Merged with (and overriding) the shared WebsiteCrawlerConfiguration environment.
    * Secrets (AppParameter with type 'secret') will be injected via ECS secrets.
+   * OUTPUT_INDEX is derived from `id` (`search-<id>`) and set automatically —
+   * do not set it here.
    */
   environment?: Record<string, string | AppParameter>;
 }
