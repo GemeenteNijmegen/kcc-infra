@@ -5,7 +5,7 @@ import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { Configurable } from './ConfigurationInterfaces';
 import { Database } from './constructs/Database';
-import { Elasticsearch } from './constructs/Elasticsearch';
+import { Elasticsearch } from './services/Elasticsearch';
 import { Statics } from './Statics';
 
 interface DatabaseStackProps extends StackProps, Configurable { }

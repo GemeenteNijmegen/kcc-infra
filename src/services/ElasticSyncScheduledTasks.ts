@@ -13,7 +13,7 @@ import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import { ElasticSyncConfiguration } from '../ConfigurationInterfaces';
-import { AppParameter } from './AppParameter';
+import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
 
 

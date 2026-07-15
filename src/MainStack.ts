@@ -9,12 +9,12 @@ import { Construct } from 'constructs';
 import { Configurable, Configuration } from './ConfigurationInterfaces';
 import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
-import { ElasticSyncScheduledTasks } from './constructs/ElasticSyncScheduledTasks';
-import { WebsiteCrawlerScheduledTasks } from './constructs/WebsiteCrawlerScheduledTasks';
+import { ElasticSyncScheduledTasks } from './services/ElasticSyncScheduledTasks';
 import { ItaService } from './services/ItaService';
 import { KissService } from './services/KissService';
 import { OpenKlantService } from './services/OpenKlantService';
 import { OpenObjectService } from './services/OpenObjectService';
+import { WebsiteCrawlerScheduledTasks } from './services/WebsiteCrawlerScheduledTasks';
 import { Statics } from './Statics';
 
 
