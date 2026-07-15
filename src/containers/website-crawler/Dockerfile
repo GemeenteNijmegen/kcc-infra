@@ -6,12 +6,12 @@ FROM docker.elastic.co/integrations/crawler:1.0.0
 
 WORKDIR /app
 
-COPY crawler.template.yml /app/config/crawler.template.yml
-COPY entrypoint.sh /app/entrypoint.sh
+# Base image runs as non-root user "java" (uid/gid 1000). COPY defaults to
+# root:root ownership regardless of the active USER, so without --chown the
+# following chmod would fail with "Operation not permitted".
+COPY --chown=java:java crawler.template.yml /app/config/crawler.template.yml
+COPY --chown=java:java entrypoint.sh /app/entrypoint.sh
 
-# Base image may run as a non-root user by default; this only affects files
-# we're adding here. If you hit a permission error running the container,
-# check which user the base image's Dockerfile sets and chown accordingly.
 RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]
