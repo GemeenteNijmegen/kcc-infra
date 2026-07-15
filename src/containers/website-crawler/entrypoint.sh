@@ -1,12 +1,12 @@
 #!/bin/sh
-# Renders /app/config/crawler.yml.template into a real config using env vars,
+# Renders /home/app/config/crawler.template.yml into a real config using env vars,
 # then runs a single Open Crawler crawl. Intended for a scheduled ECS task
 # (e.g. triggered by EventBridge Scheduler) — this process exits when the
 # crawl finishes, it does not stay running.
 
 set -eu
 
-TEMPLATE="/app/config/crawler.template.yml"
+TEMPLATE="/home/app/config/crawler.template.yml"
 RENDERED="/tmp/crawler.yml"
 
 required_vars="ELASTIC_ENDPOINT ELASTIC_USERNAME ELASTIC_PASSWORD OUTPUT_INDEX TARGET_URL"
@@ -26,6 +26,7 @@ fi
 
 sed \
   -e "s|\${OUTPUT_INDEX}|${OUTPUT_INDEX}|g" \
+  -e "s|\${TARGET_URL}|${TARGET_URL}|g" \
   -e "s|\${ELASTIC_ENDPOINT}|${ELASTIC_ENDPOINT}|g" \
   -e "s|\${ELASTIC_USERNAME}|${ELASTIC_USERNAME}|g" \
   -e "s|\${ELASTIC_PASSWORD}|${ELASTIC_PASSWORD}|g" \

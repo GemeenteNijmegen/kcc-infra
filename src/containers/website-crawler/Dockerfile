@@ -4,14 +4,16 @@
 
 FROM docker.elastic.co/integrations/crawler:1.0.0
 
-WORKDIR /app
+# Keep the base image's own WORKDIR (/home/app). The crawler binary
+# (bin/crawler) and its Gemfile live there, and entrypoint.sh invokes
+# `bin/crawler` as a relative path, so it must run with /home/app as cwd.
 
 # Base image runs as non-root user "java" (uid/gid 1000). COPY defaults to
 # root:root ownership regardless of the active USER, so without --chown the
 # following chmod would fail with "Operation not permitted".
-COPY --chown=java:java crawler.template.yml /app/config/crawler.template.yml
-COPY --chown=java:java entrypoint.sh /app/entrypoint.sh
+COPY --chown=java:java crawler.template.yml /home/app/config/crawler.template.yml
+COPY --chown=java:java entrypoint.sh /home/app/entrypoint.sh
 
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /home/app/entrypoint.sh
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/home/app/entrypoint.sh"]
