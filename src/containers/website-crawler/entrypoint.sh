@@ -9,7 +9,7 @@ set -eu
 TEMPLATE="/app/config/crawler.template.yml"
 RENDERED="/tmp/crawler.yml"
 
-required_vars="ELASTIC_ENDPOINT ELASTIC_USERNAME ELASTIC_PASSWORD OUTPUT_INDEX"
+required_vars="ELASTIC_ENDPOINT ELASTIC_USERNAME ELASTIC_PASSWORD OUTPUT_INDEX TARGET_URL"
 
 missing=""
 for var in $required_vars; do

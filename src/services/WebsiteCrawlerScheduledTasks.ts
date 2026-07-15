@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import {
   AwsLogDriver,
@@ -13,6 +12,7 @@ import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
+import { join } from 'path';
 import { WebsiteCrawlerConfiguration, WebsiteCrawlerSourceConfiguration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';

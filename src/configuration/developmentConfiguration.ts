@@ -168,6 +168,9 @@ export const developmentConfiguration = {
       {
         id: 'nijmegen-website',
         schedule: 'rate(59 minutes)',
+        environment: {
+          TARGET_URL: 'https://nijmegen.nl'
+        }
       },
     ],
 

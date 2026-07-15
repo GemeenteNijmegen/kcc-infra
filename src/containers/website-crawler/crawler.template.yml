@@ -4,7 +4,7 @@
 ## it directly — use the Docker image built from the accompanying Dockerfile.
 
 domains:
-  - url: https://nijmegen.nl
+  - url: ${TARGET_URL}
     exclude_tags:
       - header
       - footer
