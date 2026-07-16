@@ -6,9 +6,9 @@ import {
   FargateTaskDefinition,
   Secret,
 } from 'aws-cdk-lib/aws-ecs';
-import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
-import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { Schedule, ScheduleExpression } from 'aws-cdk-lib/aws-scheduler';
+import { EcsRunFargateTask } from 'aws-cdk-lib/aws-scheduler-targets';
 import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
@@ -103,25 +103,23 @@ export class WebsiteCrawlerScheduledTasks extends Construct {
       secrets: { ...this.secrets, ...sourceSecrets },
     });
 
-    const rule = new Rule(this, `${source.id}-schedule`, {
+    new Schedule(this, `${source.id}-schedule`, {
       schedule: this.parseSchedule(source.schedule),
       description: `WebsiteCrawler scheduled task for source: ${source.id}`,
+      target: new EcsRunFargateTask(this.cluster, {
+        taskDefinition: taskDef,
+        vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
+        taskCount: 1,
+      }),
     });
-
-    rule.addTarget(new EcsTask({
-      cluster: this.cluster,
-      taskDefinition: taskDef,
-      subnetSelection: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
-      taskCount: 1,
-    }));
   }
 
-  private parseSchedule(expression: string): Schedule {
-    // If already a valid EventBridge expression, use as-is; otherwise wrap in rate()
-    if (expression.startsWith('rate(') || expression.startsWith('cron(')) {
-      return Schedule.expression(expression);
+  private parseSchedule(expression: string): ScheduleExpression {
+    // If already a valid Scheduler expression, use as-is; otherwise wrap in rate()
+    if (expression.startsWith('rate(') || expression.startsWith('cron(') || expression.startsWith('at(')) {
+      return ScheduleExpression.expression(expression);
     }
-    return Schedule.expression(`rate(${expression})`);
+    return ScheduleExpression.expression(`rate(${expression})`);
   }
 
   private resolveEnvironment(source: Record<string, string | AppParameter>, idPrefix: string) {
