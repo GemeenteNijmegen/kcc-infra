@@ -121,6 +121,8 @@ export interface KissServiceConfiguration extends MainTaskSizeConfiguration, Ser
    * as such by ECS.
    */
   environment: Record<string, string | AppParameter>;
+
+  image?: string;
 }
 
 export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration {

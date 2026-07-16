@@ -18,6 +18,7 @@ export const developmentConfiguration = {
   computeProvider: 'FARGATE',
   kissServices: [{
     id: 'kiss-1',
+    image: 'ghcr.io/klantinteractie-servicesysteem/kiss-frontend:main',
     subdomain: 'kiss',
     loadbalancerRulePriority: 30,
     taskSize: { cpu: '512', memory: '1024' },

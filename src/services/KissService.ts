@@ -111,7 +111,7 @@ export class KissService extends Construct implements IContainerService {
     };
 
     task.addContainer('kiss-bff', {
-      image: ContainerImage.fromRegistry(KissService.IMAGE),
+      image: ContainerImage.fromRegistry(this.props.serviceConfiguration.image ?? KissService.IMAGE),
       logging: new AwsLogDriver({
         streamPrefix: 'logs',
         logGroup: logs,
