@@ -169,8 +169,8 @@ export const developmentConfiguration = {
         id: 'nijmegen-website',
         schedule: 'rate(59 minutes)',
         environment: {
-          TARGET_URL: 'https://www.nijmegen.nl' // without www. gives a 301, which causes problems
-        }
+          TARGET_URL: 'https://www.nijmegen.nl', // without www. gives a 301, which causes problems
+        },
       },
     ],
 

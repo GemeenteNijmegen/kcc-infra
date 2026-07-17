@@ -1,18 +1,12 @@
+import { join } from 'path';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
-import {
-  AwsLogDriver,
-  Cluster,
-  ContainerImage,
-  FargateTaskDefinition,
-  Secret,
-} from 'aws-cdk-lib/aws-ecs';
+import { AwsLogDriver, Cluster, ContainerImage, FargateTaskDefinition, Secret } from 'aws-cdk-lib/aws-ecs';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Schedule, ScheduleExpression } from 'aws-cdk-lib/aws-scheduler';
 import { EcsRunFargateTask } from 'aws-cdk-lib/aws-scheduler-targets';
 import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
-import { join } from 'path';
 import { WebsiteCrawlerConfiguration, WebsiteCrawlerSourceConfiguration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
