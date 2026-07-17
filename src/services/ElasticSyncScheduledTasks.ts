@@ -103,7 +103,10 @@ export class ElasticSyncScheduledTasks extends Construct {
       command: source.args,
     });
 
-    new Schedule(this, `${source.id}-schedule`, {
+    // NB: construct id differs from the legacy `${source.id}-schedule` (an
+    // AWS::Events::Rule) on purpose. CloudFormation cannot change a resource's
+    // type under the same logical id, so a new id forces delete-old/create-new.
+    new Schedule(this, `${source.id}-scheduler`, {
       schedule: this.parseSchedule(source.schedule),
       description: `ElasticSync scheduled task for source: ${source.id}`,
       target: new EcsRunFargateTask(this.cluster, {
