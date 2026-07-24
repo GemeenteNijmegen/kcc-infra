@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { SubnetType } from 'aws-cdk-lib/aws-ec2';
+import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { AwsLogDriver, Cluster, ContainerImage, FargateTaskDefinition, Secret } from 'aws-cdk-lib/aws-ecs';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Schedule, ScheduleExpression } from 'aws-cdk-lib/aws-scheduler';
@@ -41,12 +41,17 @@ export class WebsiteCrawlerScheduledTasks extends Construct {
   private readonly environment: Record<string, string>;
   private readonly secrets: Record<string, Secret>;
   private readonly taskSize: { cpu: string; memory: string };
+  private readonly securityGroup: SecurityGroup;
 
   constructor(scope: Construct, id: string, props: WebsiteCrawlerScheduledTasksProps) {
     super(scope, id);
 
     const config = props.config;
     this.cluster = props.cluster;
+    this.securityGroup = new SecurityGroup(this, 'task-sg', {
+      vpc: this.cluster.vpc,
+      allowAllOutbound: true,
+    });
     this.image = ContainerImage.fromAsset(join(__dirname, '..', 'containers', 'website-crawler'));
     this.taskSize = config.taskSize ?? { cpu: '256', memory: '512' };
 
@@ -106,6 +111,7 @@ export class WebsiteCrawlerScheduledTasks extends Construct {
       target: new EcsRunFargateTask(this.cluster, {
         taskDefinition: taskDef,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
+        securityGroups: [this.securityGroup],
         taskCount: 1,
       }),
     });
