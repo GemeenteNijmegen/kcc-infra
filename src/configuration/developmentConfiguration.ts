@@ -168,7 +168,7 @@ export const developmentConfiguration = {
     sources: [
       {
         id: 'nijmegen-website',
-        schedule: 'rate(59 minutes)',
+        schedule: 'rate(1 day)',
         environment: {
           TARGET_URL: 'https://www.nijmegen.nl', // without www. gives a 301, which causes problems
         },
