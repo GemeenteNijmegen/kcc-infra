@@ -32,9 +32,10 @@ output_sink: elasticsearch
 output_index: ${OUTPUT_INDEX}
 
 ## ------------------------------- Crawl limits -------------------------------
-max_crawl_depth: 1
-max_extracted_links_count: 10
-max_unique_url_count: 10
+max_crawl_depth: 10
+max_extracted_links_count: 1000
+max_unique_url_count: 100000
+url_queue_size_limit: 100000
 purge_crawl_enabled: true
 full_html_extraction_enabled: false
 # user_agent: "My-Crawler/1.0"
