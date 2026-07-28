@@ -4,6 +4,8 @@ set -euo pipefail
 # Variables injected by CDK (exported before this script runs)
 ES_VERSION="${ES_VERSION}"
 SECRET_ID="${SECRET_ID}"
+KIBANA_SYSTEM_PASSWORD_SECRET_ID="${KIBANA_SYSTEM_PASSWORD_SECRET_ID}"
+KIBANA_UI_ADMIN_PASSWORD_SECRET_ID="${KIBANA_UI_ADMIN_PASSWORD_SECRET_ID}"
 AWS_REGION="${AWS_REGION}"
 
 # System tuning for Elasticsearch
@@ -81,6 +83,32 @@ for i in $(seq 1 90); do
   fi
   sleep 1
 done
+
+# Set the password for the built-in kibana_system user (Kibana's backend
+# account - see docs/plans/kibana-elasticsearch-users.md). This must not be
+# the elastic superuser: Kibana refuses to start with it.
+KIBANA_SYSTEM_PASSWORD=$(aws secretsmanager get-secret-value \
+  --secret-id "${KIBANA_SYSTEM_PASSWORD_SECRET_ID}" \
+  --region "${AWS_REGION}" \
+  --query SecretString \
+  --output text)
+curl -sf -u "elastic:${ES_PASSWORD}" -X POST \
+  "http://localhost:9200/_security/user/kibana_system/_password" \
+  -H "Content-Type: application/json" \
+  -d "{\"password\":\"${KIBANA_SYSTEM_PASSWORD}\"}"
+
+# Create/update the interactive login user for the Kibana web UI. Dev-only:
+# granted kibana_admin + superuser for simplicity (see plan doc for the
+# more restrictive alternative).
+KIBANA_UI_ADMIN_PASSWORD=$(aws secretsmanager get-secret-value \
+  --secret-id "${KIBANA_UI_ADMIN_PASSWORD_SECRET_ID}" \
+  --region "${AWS_REGION}" \
+  --query SecretString \
+  --output text)
+curl -sf -u "elastic:${ES_PASSWORD}" -X POST \
+  "http://localhost:9200/_security/user/kibana-ui-admin" \
+  -H "Content-Type: application/json" \
+  -d "{\"password\":\"${KIBANA_UI_ADMIN_PASSWORD}\",\"roles\":[\"kibana_admin\",\"superuser\"],\"full_name\":\"Kibana UI admin\"}"
 
 # Activate trial license for Enterprise features
 curl -sf -X POST "http://localhost:9200/_license/start_trial?acknowledge=true" \

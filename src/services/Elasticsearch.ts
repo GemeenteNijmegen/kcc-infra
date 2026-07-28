@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { Duration, Stack } from 'aws-cdk-lib';
+import { CfnOutput, Duration, Stack } from 'aws-cdk-lib';
 import {
   BlockDeviceVolume,
   CloudFormationInit,
@@ -81,6 +81,30 @@ export class Elasticsearch extends Construct {
 
     elasticPasswordSecret.grantRead(role);
 
+    // Backend account Kibana uses to connect to Elasticsearch (built-in
+    // `kibana_system` user, password-only - see docs/plans/kibana-elasticsearch-users.md)
+    const kibanaSystemPasswordSecret = new Secret(this, 'kibana-system-password', {
+      secretName: `/${Statics.projectName}/kibana/system-user/password`,
+      description: 'Password for the Elasticsearch kibana_system user',
+      generateSecretString: {
+        excludePunctuation: true,
+        passwordLength: 32,
+      },
+    });
+    kibanaSystemPasswordSecret.grantRead(role);
+
+    // Interactive login account for the Kibana web UI (native realm user,
+    // not used by any ECS task - see docs/plans/kibana-elasticsearch-users.md)
+    const kibanaUiAdminPasswordSecret = new Secret(this, 'kibana-ui-admin-password', {
+      secretName: `/${Statics.projectName}/kibana/ui-admin/password`,
+      description: 'Password for the kibana-ui-admin Elasticsearch/Kibana login user',
+      generateSecretString: {
+        excludePunctuation: true,
+        passwordLength: 32,
+      },
+    });
+    kibanaUiAdminPasswordSecret.grantRead(role);
+
     // Upload install script to S3 as an asset
     const scriptAsset = new Asset(this, 'install-script', {
       path: join(__dirname, '..', 'elasticsearch', 'install.sh'),
@@ -93,6 +117,8 @@ export class Elasticsearch extends Construct {
       'dnf install -y aws-cli',
       `export ES_VERSION="${esVersion}"`,
       `export SECRET_ID="${elasticPasswordSecret.secretName}"`,
+      `export KIBANA_SYSTEM_PASSWORD_SECRET_ID="${kibanaSystemPasswordSecret.secretName}"`,
+      `export KIBANA_UI_ADMIN_PASSWORD_SECRET_ID="${kibanaUiAdminPasswordSecret.secretName}"`,
       `export AWS_REGION="${region}"`,
       `aws s3 cp s3://${scriptAsset.s3BucketName}/${scriptAsset.s3ObjectKey} /tmp/install-elasticsearch.sh`,
       'chmod +x /tmp/install-elasticsearch.sh',
@@ -149,6 +175,12 @@ export class Elasticsearch extends Construct {
       stringValue: `http://${instance.instancePrivateIp}:3002`,
       parameterName: `/${Statics.projectName}/internal/enterprise-search/endpoint`,
       description: 'Enterprise Search base URL',
+    });
+
+    // Pointer (not the value) to where operators can find the Kibana UI login password
+    new CfnOutput(this, 'kibanaUiAdminPasswordSecretName', {
+      description: 'Secrets Manager secret holding the kibana-ui-admin login password',
+      value: kibanaUiAdminPasswordSecret.secretName,
     });
   }
 }
