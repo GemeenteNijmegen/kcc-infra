@@ -87,10 +87,11 @@ export class KibanaService extends Construct implements IContainerService {
 
     let { environment, secrets } = this.loadEnvironmentFromConfig(config);
 
-    // Elasticsearch connection (owned by the Elasticsearch construct in database-stack,
-    // shared with the KISS service).
+    // Elasticsearch connection (endpoint owned by the Elasticsearch construct
+    // in database-stack). Kibana authenticates as the built-in kibana_system
+    // user - never the elastic superuser, see docs/plans/kibana-elasticsearch-users.md.
     const esEndpointParam = StringParameter.fromStringParameterName(this, 'es-endpoint', `/${Statics.projectName}/internal/elasticsearch/endpoint`);
-    const esPasswordSecret = SecretParameter.fromSecretNameV2(this, 'es-password', `/${Statics.projectName}/kiss/elastic/password`);
+    const kibanaSystemPasswordSecret = SecretParameter.fromSecretNameV2(this, 'kibana-system-password', `/${Statics.projectName}/kibana/system-user/password`);
 
     // Kibana uses this key to encrypt session cookies and saved objects.
     const encryptionKey = new SecretParameter(this, 'encryption-key', {
@@ -105,13 +106,13 @@ export class KibanaService extends Construct implements IContainerService {
       ...environment,
       SERVER_HOST: '0.0.0.0',
       SERVER_PUBLICBASEURL: `https://${config.subdomain}.${platform.hostedZone.zoneName}`,
-      ELASTICSEARCH_USERNAME: 'elastic',
+      ELASTICSEARCH_USERNAME: 'kibana_system',
     };
 
     secrets = {
       ...secrets,
       ELASTICSEARCH_HOSTS: Secret.fromSsmParameter(esEndpointParam),
-      ELASTICSEARCH_PASSWORD: Secret.fromSecretsManager(esPasswordSecret),
+      ELASTICSEARCH_PASSWORD: Secret.fromSecretsManager(kibanaSystemPasswordSecret),
       XPACK_SECURITY_ENCRYPTIONKEY: Secret.fromSecretsManager(encryptionKey),
     };
 
