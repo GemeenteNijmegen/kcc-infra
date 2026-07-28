@@ -11,6 +11,7 @@ import { ContainerPlatform } from './constructs/ContainerPlatform';
 import { DnsRecords } from './constructs/DnsRecords';
 import { ElasticSyncScheduledTasks } from './services/ElasticSyncScheduledTasks';
 import { ItaService } from './services/ItaService';
+import { KibanaService } from './services/KibanaService';
 import { KissService } from './services/KissService';
 import { OpenKlantService } from './services/OpenKlantService';
 import { OpenObjectService } from './services/OpenObjectService';
@@ -67,6 +68,7 @@ export class MainStack extends Stack {
     this.itaService();
     this.openObjectService();
     this.openKlantService();
+    this.kibanaService();
     this.elasticSyncTasks();
     this.websiteCrawlerTasks();
 
@@ -140,6 +142,18 @@ export class MainStack extends Stack {
     for (const openKlantServiceConfig of this.configuration.openKlantServices) {
       const service = new OpenKlantService(this, openKlantServiceConfig.id, {
         serviceConfiguration: openKlantServiceConfig,
+      });
+      this.containerPlatform.addService(service);
+    }
+  }
+
+  private kibanaService() {
+    if (!this.configuration.kibanaServices) {
+      return;
+    }
+    for (const kibanaServiceConfig of this.configuration.kibanaServices) {
+      const service = new KibanaService(this, kibanaServiceConfig.id, {
+        serviceConfiguration: kibanaServiceConfig,
       });
       this.containerPlatform.addService(service);
     }
