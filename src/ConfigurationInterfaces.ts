@@ -91,6 +91,12 @@ export interface Configuration {
   openKlantServices?: OpenKlantServiceConfiguration[];
 
   /**
+   * Provide configuration for the Kibana service
+   * @default - no Kibana service is deployed
+   */
+  kibanaServices?: KibanaServiceConfiguration[];
+
+  /**
    * Provide configuration for an Elasticsearch 8.x EC2 instance
    * @default - no Elasticsearch instance is deployed
    */
@@ -160,6 +166,17 @@ export interface OpenKlantServiceConfiguration extends MainTaskSizeConfiguration
   /** Redis indexes for main and celery */
   redisIndexMain: number;
   redisIndexCelery: number;
+}
+
+export interface KibanaServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {
+  /**
+   * Additional environment variables for the Kibana container.
+   * Secrets can be included here and will be treated as such by ECS.
+   * Note: connection to Elasticsearch (host, username, password) and the
+   * saved-objects encryption key are configured automatically by the service.
+   * @default {}
+   */
+  environment?: Record<string, string | AppParameter>;
 }
 
 export interface ServiceConfiguration {

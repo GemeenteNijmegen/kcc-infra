@@ -65,6 +65,13 @@ export const developmentConfiguration = {
       GroepOptions__TypeVersion: '1',
     },
   }],
+  kibanaServices: [{
+    id: 'kibana-1',
+    subdomain: 'kibana',
+    loadbalancerRulePriority: 55,
+    taskSize: { cpu: '512', memory: '1024' },
+    environment: {},
+  }],
   elasticsearch: {
     instanceType: 't3.large',
     volumeSizeGb: 30,
