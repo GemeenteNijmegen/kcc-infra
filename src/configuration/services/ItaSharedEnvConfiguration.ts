@@ -182,32 +182,36 @@ export const ItaSharedEnvironmentConfiguration =
 
 
   // Optional styling / later
-  // RESOURCES__LOGO_URL: new AppParameter({
-  //   type: 'ssm',
-  //   id: 'ita-logo-url',
-  //   path: `/${Statics.projectName}/ita/styling/logo-url`,
-  //   description: 'ITA: logo URL',
-  // }),
-  //
-  // RESOURCES__FAVICON_URL: new AppParameter({
-  //   type: 'ssm',
-  //   id: 'ita-favicon-url',
-  //   path: `/${Statics.projectName}/ita/styling/favicon-url`,
-  //   description: 'ITA: favicon URL',
-  // }),
-  //
-  // RESOURCES__DESIGN_TOKENS_URL: new AppParameter({
-  //   type: 'ssm',
-  //   id: 'ita-design-tokens-url',
-  //   path: `/${Statics.projectName}/ita/styling/design-tokens-url`,
-  //   description: 'ITA: NL Design System design tokens CSS URL',
-  // }),
-  //
+  RESOURCES__LOGO_URL: new AppParameter({
+    type: 'ssm',
+    id: 'ita-logo-url',
+    path: `/${Statics.projectName}/ita/styling/logo-url`,
+    description: 'ITA: logo URL',
+    defaultValue: 'https://componenten.nijmegen.nl/v6.5.0/img/beeldmerklabel.svg',
+  }),
+
+  RESOURCES__FAVICON_URL: new AppParameter({
+    type: 'ssm',
+    id: 'ita-favicon-url',
+    path: `/${Statics.projectName}/ita/styling/favicon-url`,
+    description: 'ITA: favicon URL',
+    defaultValue: 'https://componenten.nijmegen.nl/v6.5.0/_subtheme/img/favicon.ico',
+  }),
+
+  RESOURCES__DESIGN_TOKENS_URL: new AppParameter({
+    type: 'ssm',
+    id: 'ita-design-tokens-url',
+    path: `/${Statics.projectName}/ita/styling/design-tokens-url`,
+    description: 'ITA: NL Design System design tokens CSS URL',
+    defaultValue: 'https://unpkg.com/@gemeentenijmegen/design-tokens@latest/dist/index.css',
+  }),
+
   // RESOURCES__WEB_FONT_SOURCES: new AppParameter({
   //   type: 'ssm',
   //   id: 'ita-web-font-sources',
   //   path: `/${Statics.projectName}/ita/styling/web-font-sources`,
   //   description: 'ITA: space-separated web font source URLs',
+  //   defaultValue: '',
   // }),
 
   // Optional diagnostics / later
