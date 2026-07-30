@@ -14,7 +14,7 @@ const project = new GemeenteNijmegenCdkApp({
     'pg', // Postgres client 🐘
   ],
   devDeps: [
-    "@gemeentenijmegen/font",
+    '@gemeentenijmegen/font',
   ],
   jestOptions: {
     jestConfig: {
