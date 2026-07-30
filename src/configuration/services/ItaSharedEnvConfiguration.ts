@@ -182,6 +182,7 @@ export const ItaSharedEnvironmentConfiguration =
 
 
   // Optional styling / later
+  RESOURCES__THEME_NAAM: 'nijmegen-theme',
   RESOURCES__LOGO_URL: new AppParameter({
     type: 'ssm',
     id: 'ita-logo-url',
@@ -219,7 +220,5 @@ export const ItaSharedEnvironmentConfiguration =
   Logging__LogLevel__Default: 'Information',
   Logging__LogLevel__Microsoft_AspNetCore: 'Warning',
   // Serilog__MinimumLevel: 'Information',
-  //
-  // Optional theme name; alleen toevoegen als ITA deze in jullie versie gebruikt.
-  // RESOURCES__THEME_NAAM: 'Gemeente Nijmegen',
+
 };
