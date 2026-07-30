@@ -1,6 +1,6 @@
 import { aws_cloudfront_origins } from 'aws-cdk-lib';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { AllowedMethods, CachePolicy, Distribution, OriginProtocolPolicy, OriginRequestPolicy, PriceClass, ResponseHeadersPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, BehaviorOptions, CachePolicy, Distribution, OriginProtocolPolicy, OriginRequestPolicy, PriceClass, ResponseHeadersPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { Port } from 'aws-cdk-lib/aws-ec2';
 import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { AaaaRecord, ARecord, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
@@ -13,6 +13,11 @@ class SubdomainCloudfrontProps {
   loadbalancer: ApplicationLoadBalancer;
   hostedZone: IHostedZone;
   certificate: ICertificate;
+  /**
+   * Extra cache behaviors keyed by path pattern (e.g. 'css/*'), on top of
+   * the default behavior that forwards everything to the loadbalancer.
+   */
+  additionalBehaviors?: Record<string, BehaviorOptions>;
 }
 export class SubdomainCloudfront extends Construct {
 
@@ -54,6 +59,7 @@ export class SubdomainCloudfront extends Construct {
         originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
         cachePolicy: CachePolicy.CACHING_DISABLED, // Maybe later we can look into this
       },
+      additionalBehaviors: this.props.additionalBehaviors,
       certificate: this.props.certificate,
       domainNames: [this.domain],
       priceClass: PriceClass.PRICE_CLASS_100,

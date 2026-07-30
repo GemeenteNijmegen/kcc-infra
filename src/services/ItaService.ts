@@ -1,4 +1,7 @@
+import { join } from 'path';
 import { Duration, RemovalPolicy, Token } from 'aws-cdk-lib';
+import { CachePolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ISecurityGroup, Port, SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, Secret, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
@@ -6,6 +9,8 @@ import { Rule } from 'aws-cdk-lib/aws-events';
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DatabaseInstance } from 'aws-cdk-lib/aws-rds';
+import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
@@ -53,11 +58,20 @@ export class ItaService extends Construct implements IContainerService {
     this.allowDbConnectivity(webService.connections.securityGroups, db.securityGroup, db.port);
     this.allowDbConnectivity(pollerService.securityGroups ?? [], db.securityGroup, db.port);
 
+    const staticAssetsBucket = this.setupStaticAssets();
+
     new SubdomainCloudfront(this, 'subdomain-cloudfront', {
       certificate: platform.wildcardCertificate,
       hostedZone: platform.hostedZone,
       loadbalancer: platform.loadbalancer.alb,
       subdomain: subdomain,
+      additionalBehaviors: {
+        'css/*': {
+          origin: S3BucketOrigin.withOriginAccessControl(staticAssetsBucket),
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+        },
+      },
     });
 
     const ruleMatchingDomain = `${subdomain}.${platform.hostedZone.zoneName}`;
@@ -170,6 +184,27 @@ export class ItaService extends Construct implements IContainerService {
     rule.addTarget(ecsTask);
 
     return ecsTask;
+  }
+
+  /**
+   * Bucket serving the static resources (e.g. custom css) exposed on the
+   * ITA CloudFront distribution under the /css path. Contents are deployed
+   * from src/services/ita-static in this repo.
+   */
+  private setupStaticAssets(): IBucket {
+    const bucket = new Bucket(this, 'static-assets', {
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+
+    new BucketDeployment(this, 'static-assets-deployment', {
+      sources: [Source.asset(join(__dirname, 'ita-static'))],
+      destinationBucket: bucket,
+    });
+
+    return bucket;
   }
 
 

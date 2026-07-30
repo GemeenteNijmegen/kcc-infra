@@ -181,7 +181,7 @@ export const ItaSharedEnvironmentConfiguration =
   }),
 
 
-  // Optional styling / later
+  // Styling in Gemeente Nijmegen theme (no NLDS used as this is currently not sufficient)
   RESOURCES__THEME_NAAM: 'nijmegen-theme',
   RESOURCES__LOGO_URL: new AppParameter({
     type: 'ssm',
@@ -190,7 +190,6 @@ export const ItaSharedEnvironmentConfiguration =
     description: 'ITA: logo URL',
     defaultValue: 'https://componenten.nijmegen.nl/v6.5.0/img/beeldmerklabel.svg',
   }),
-
   RESOURCES__FAVICON_URL: new AppParameter({
     type: 'ssm',
     id: 'ita-favicon-url',
@@ -198,15 +197,13 @@ export const ItaSharedEnvironmentConfiguration =
     description: 'ITA: favicon URL',
     defaultValue: 'https://componenten.nijmegen.nl/v6.5.0/_subtheme/img/favicon.ico',
   }),
-
-  RESOURCES__DESIGN_TOKENS_URL: new AppParameter({
+  RESOURCES__DESIGN_TOKENS_URL: new AppParameter({ // Used to inject custom css
     type: 'ssm',
     id: 'ita-design-tokens-url',
     path: `/${Statics.projectName}/ita/styling/design-tokens-url`,
     description: 'ITA: NL Design System design tokens CSS URL',
-    defaultValue: 'https://unpkg.com/@gemeentenijmegen/design-tokens@latest/dist/index.css',
+    defaultValue: 'https://taken.kcc-dev.csp-nijmegen.nl/css/ita-theme.css',
   }),
-
   // RESOURCES__WEB_FONT_SOURCES: new AppParameter({
   //   type: 'ssm',
   //   id: 'ita-web-font-sources',
