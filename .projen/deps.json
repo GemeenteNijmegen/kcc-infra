@@ -1,6 +1,10 @@
 {
   "dependencies": [
     {
+      "name": "@gemeentenijmegen/font",
+      "type": "build"
+    },
+    {
       "name": "@stylistic/eslint-plugin",
       "version": "^2",
       "type": "build"

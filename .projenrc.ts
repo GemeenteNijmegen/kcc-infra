@@ -13,6 +13,9 @@ const project = new GemeenteNijmegenCdkApp({
     '@aws-sdk/client-ec2',
     'pg', // Postgres client 🐘
   ],
+  devDeps: [
+    "@gemeentenijmegen/font",
+  ],
   jestOptions: {
     jestConfig: {
       setupFiles: ['dotenv/config'],

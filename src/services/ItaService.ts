@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { Duration, RemovalPolicy, Token } from 'aws-cdk-lib';
 import { CachePolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -15,6 +14,7 @@ import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
+import { join } from 'path';
 import { ItaServiceConfiguration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { ContainerServiceProps, IContainerService } from '../constructs/ContainerPlatform';
@@ -200,7 +200,11 @@ export class ItaService extends Construct implements IContainerService {
     });
 
     new BucketDeployment(this, 'static-assets-deployment', {
-      sources: [Source.asset(join(__dirname, 'ita-static'))],
+      sources: [
+        Source.asset(join(__dirname, 'ita-static')),
+        Source.asset(join('node_modules', '@gemeentenijmegen', 'fonts', 'ordana')),
+        Source.asset(join('node_modules', '@gemeentenijmegen', 'fonts', 'source-sans-pro'))
+      ],
       destinationBucket: bucket,
     });
 
