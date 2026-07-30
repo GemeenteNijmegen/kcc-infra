@@ -8,12 +8,19 @@ FROM docker.elastic.co/integrations/crawler:1.0.0
 # (bin/crawler) and its Gemfile live there, and entrypoint.sh invokes
 # `bin/crawler` as a relative path, so it must run with /home/app as cwd.
 
-# Base image runs as non-root user "java" (uid/gid 1000). COPY defaults to
-# root:root ownership regardless of the active USER, so without --chown the
-# following chmod would fail with "Operation not permitted".
+# Base image (Chainguard/apk-based) runs as non-root user "java" (uid/gid
+# 1000) by default. Package installation needs root; switch back afterwards
+# so the crawl itself still runs unprivileged.
+USER root
+RUN apk update && apk add --no-cache python3
+
+# COPY defaults to root:root ownership regardless of the active USER, so
+# without --chown the chmod below would fail with "Operation not permitted".
 COPY --chown=java:java crawler.template.yml /home/app/config/crawler.template.yml
 COPY --chown=java:java entrypoint.sh /home/app/entrypoint.sh
+COPY --chown=java:java bootstrap_elasticsearch.py /home/app/bootstrap_elasticsearch.py
 
-RUN chmod +x /home/app/entrypoint.sh
+RUN chmod +x /home/app/entrypoint.sh /home/app/bootstrap_elasticsearch.py
 
+USER java
 ENTRYPOINT ["/home/app/entrypoint.sh"]
