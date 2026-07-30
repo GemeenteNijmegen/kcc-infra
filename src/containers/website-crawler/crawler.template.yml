@@ -5,6 +5,8 @@
 
 domains:
   - url: ${TARGET_URL}
+    sitemap_urls:
+      - ${TARGET_URL}/sitemap.xml
     exclude_tags:
       - header
       - footer
@@ -58,6 +60,10 @@ elasticsearch:
   host: ${ELASTIC_ENDPOINT}
   username: ${ELASTIC_USERNAME}
   password: ${ELASTIC_PASSWORD}
+  # Strips the " - Gemeente Nijmegen" title suffix, then defers to the
+  # default ent-search-generic-ingestion pipeline. Created by
+  # bootstrap_elasticsearch.py (see entrypoint.sh) if it doesn't exist yet.
+  pipeline: kiss-crawler-website-pipeline
   bulk_api:
     max_items: 100
     max_size_bytes: 1048576
