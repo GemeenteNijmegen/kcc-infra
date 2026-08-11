@@ -1,10 +1,264 @@
-body {
-  background-color: gray;
+/* =====================================================================
+ * ITA THEME - Gemeente Nijmegen huisstijl
+ *
+ * 1. Organizational colors  - the Nijmegen design system base palette.
+ * 2. ITA configurable vars  - mirrors every var ITA itself declares in
+ *    design-tokens.scss / _mixin-theme.scss (InterneTaakAfhandeling.Web.Client),
+ *    wired to the palette in (1) wherever the original value was a color.
+ *    Non-color vars (spacing, sizing, borders styles) are carried over
+ *    with ITA's own default values unchanged.
+ *
+ * Scoped to body.ita-theme, not :root: ITA declares these same vars
+ * directly on <body class="ita-theme ...important"> (see index.html), and a
+ * property declared on that element always wins over one inherited from
+ * :root/html, regardless of stylesheet load order. Overriding them has
+ * to target body.ita-theme itself.
+ * ===================================================================== */
+
+/* ---- 1. Organizational colors (nijmegen.color.* design tokens) ---- */
+:root {
+  --nijmegen-color-wit: #ffffff;
+  --nijmegen-color-zwart: #000000;
+  --nijmegen-color-none: #ffffff00;
+
+  --nijmegen-color-oranje-100: #fef1e5;
+  --nijmegen-color-oranje-200: #fee2c8;
+  --nijmegen-color-oranje-300: #feca9d;
+  --nijmegen-color-oranje-400: #fd8022;
+  --nijmegen-color-oranje-500: #d96416;
+  --nijmegen-color-oranje-600: #b25012;
+  --nijmegen-color-oranje-700: #8f400d;
+  --nijmegen-color-oranje-800: #6a2e09;
+  --nijmegen-color-oranje-900: #431d07;
+
+  --nijmegen-color-geel-100: #faf4d7;
+  --nijmegen-color-geel-200: #f4e8aa;
+  --nijmegen-color-geel-300: #ead565;
+  --nijmegen-color-geel-400: #c0a100;
+  --nijmegen-color-geel-500: #9e8400;
+  --nijmegen-color-geel-600: #816c00;
+  --nijmegen-color-geel-700: #675600;
+  --nijmegen-color-geel-800: #4c3f00;
+  --nijmegen-color-geel-900: #2f2800;
+
+  --nijmegen-color-blauw-100: #ecf5fd;
+  --nijmegen-color-blauw-200: #d7e9fb;
+  --nijmegen-color-blauw-300: #b8d8f8;
+  --nijmegen-color-blauw-400: #5fa8ef;
+  --nijmegen-color-blauw-500: #2588e9;
+  --nijmegen-color-blauw-600: #006bd4;
+  --nijmegen-color-blauw-700: #0056aa;
+  --nijmegen-color-blauw-800: #003f7d;
+  --nijmegen-color-blauw-900: #00284f;
+
+  --nijmegen-color-rood-100: #faf1f3;
+  --nijmegen-color-rood-200: #f5e2e6;
+  --nijmegen-color-rood-300: #edccd3;
+  --nijmegen-color-rood-400: #d78f9f;
+  --nijmegen-color-rood-500: #c9687e;
+  --nijmegen-color-rood-600: #bc415d;
+  --nijmegen-color-rood-700: #a80a2d;
+  --nijmegen-color-rood-800: #830823;
+  --nijmegen-color-rood-900: #550517;
+
+  --nijmegen-color-groen-100: #edf6f0;
+  --nijmegen-color-groen-200: #daebdf;
+  --nijmegen-color-groen-300: #bddcc6;
+  --nijmegen-color-groen-400: #6eb281;
+  --nijmegen-color-groen-500: #3c9756;
+  --nijmegen-color-groen-600: #1d7d38;
+  --nijmegen-color-groen-700: #17642d;
+  --nijmegen-color-groen-800: #114a21;
+  --nijmegen-color-groen-900: #0b2e15;
+
+  --nijmegen-color-grijs-100: #f3f3f3;
+  --nijmegen-color-grijs-200: #e7e7e7;
+  --nijmegen-color-grijs-300: #d4d4d4;
+  --nijmegen-color-grijs-400: #a3a3a3;
+  --nijmegen-color-grijs-500: #868686;
+  --nijmegen-color-grijs-600: #6d6d6d;
+  --nijmegen-color-grijs-700: #575757;
+  --nijmegen-color-grijs-800: #404040;
+  --nijmegen-color-grijs-900: #282828;
+
+  --nijmegen-color-zeegroen-100: #edf5f4;
+  --nijmegen-color-zeegroen-200: #daeae7;
+  --nijmegen-color-zeegroen-300: #bedad5;
+  --nijmegen-color-zeegroen-400: #70afa3;
+  --nijmegen-color-zeegroen-500: #409484;
+  --nijmegen-color-zeegroen-600: #157c68;
+  --nijmegen-color-zeegroen-700: #116253;
+  --nijmegen-color-zeegroen-800: #0c483d;
+  --nijmegen-color-zeegroen-900: #082d26;
+
+  /* Huisstijl primary/secondary, per design-system docs (Colors > Hoofdkleuren) */
+  --nijmegen-color-primary: var(--nijmegen-color-rood-700);
+  --nijmegen-color-secondary: var(--nijmegen-color-zeegroen-600);
+
+  /* Translucent tint of primary, for accents that need a soft fill (e.g. detail-section headers) */
+  --nijmegen-color-primary-tint: #a80a2d33;
 }
 
+/* ---- 2. ITA configurable vars, wired to the palette above ---- */
+body.ita-theme {
+  /* Page / surface */
+  --utrecht-space-around: 1.5;
+  --utrecht-surface-background-color: var(--nijmegen-color-wit);
+  --utrecht-page-max-inline-size: 94rem;
 
+  /* Page header */
+  --utrecht-page-header-padding-block-start: 0.675rem;
+  --utrecht-page-header-padding-block-end: 0.675rem;
+  --utrecht-page-header-background-color: var(--nijmegen-color-primary);
+  --utrecht-page-header-color: var(--nijmegen-color-wit);
 
+  /* Nav bar */
+  --utrecht-nav-bar-background-color: transparent;
+  --utrecht-nav-bar-color: var(--nijmegen-color-wit);
+  --utrecht-nav-bar-link-padding-inline-start: 0px;
 
+  /* Logo - shrunk from ITA's defaults (18rem-24rem wide, ~96-128px tall) to a normal header size */
+  --utrecht-logo-max-block-size: auto;
+  --utrecht-logo-max-inline-size: 12rem;
+  --utrecht-logo-min-block-size: 2rem;
+  --utrecht-logo-min-inline-size: 8rem;
+
+  /* Links */
+  --utrecht-link-color: var(--nijmegen-color-secondary);
+  --utrecht-link-hover-color: var(--nijmegen-color-zeegroen-700);
+  --utrecht-link-focus-color: var(--nijmegen-color-zeegroen-700);
+
+  /* Lists & tables */
+  --utrecht-table-header-background-color: var(--nijmegen-color-grijs-200);
+  --utrecht-unordered-list-marker-color: var(--nijmegen-color-secondary);
+  --utrecht-unordered-list-margin-block-start: 0px;
+  --utrecht-unordered-list-margin-block-end: calc(var(--utrecht-space-around) * 1rem);
+  --utrecht-unordered-list-padding-inline-start: 0px;
+  --utrecht-paragraph-margin-block-start: 0px;
+
+  /* Footer */
+  --utrecht-page-footer-background-color: var(--nijmegen-color-secondary);
+  --utrecht-page-footer-background-image: none;
+
+  /* Alert */
+  --utrecht-alert-margin-block-end: var(--utrecht-space-block-xs);
+
+  /* Spotlight section (informational callout - mapped to the design system's feedback/info blue) */
+  --utrecht-spotlight-section-background-color: var(--nijmegen-color-grijs-100);
+  --utrecht-spotlight-section-border-color: var(--nijmegen-color-blauw-600);
+  --utrecht-spotlight-section-padding-block-start: var(--utrecht-space-block-xs);
+  --utrecht-spotlight-section-padding-block-end: var(--utrecht-space-block-xs);
+
+  /* Den Haag - contact timeline (sizing/spacing, unchanged from ITA defaults) */
+  --denhaag-contact-timeline-step-header-line-height: 27px;
+  --denhaag-contact-timeline-step-header-date-width: 15ch;
+  --denhaag-contact-timeline-step-header-channel-width: 80px;
+  --denhaag-contact-timeline-step-header-toggle-gap: 4px;
+  --denhaag-contact-timeline-step-marker-connector-desktop-margin-inline-start: calc(var(--denhaag-contact-timeline-step-header-date-width) + 16px);
+  --denhaag-contact-timeline-step-details-desktop-margin-inline-start: 295px;
+  --denhaag-contact-timeline-step-details-mobile-margin-inline-start: 32px;
+  --denhaag-contact-timeline-step-details-sender-margin-block-start: 16px;
+  --denhaag-contact-timeline-step-details-file-margin-block-start: 24px;
+  --denhaag-contact-timeline-step-details-file-margin-block-end: 24px;
+  --denhaag-contact-timeline-step-details-file-mobile-margin-block-end: 32px;
+  --denhaag-contact-timeline-step-meta-gap: 6px;
+  --denhaag-contact-timeline-step-meta-marker-size: 4px;
+  --denhaag-contact-timeline-step-padding-block-end: 32px;
+
+  /* Den Haag - step marker / process steps */
+  --denhaag-step-marker-size: 32px;
+  --denhaag-step-marker-nested-size: 16px;
+  --denhaag-step-marker-default-background-color: var(--nijmegen-color-grijs-200);
+  --denhaag-step-marker-connector-outline-color: var(--nijmegen-color-grijs-200);
+  --denhaag-step-marker-default-color: var(--nijmegen-color-grijs-200);
+  --denhaag-process-steps-step-heading-not-checked-color: var(--nijmegen-color-primary);
+  --denhaag-process-steps-step-heading-checked-color: var(--nijmegen-color-primary);
+  --denhaag-process-steps-step-meta-color: rgba(0, 0, 0, 0.6);
+  --denhaag-process-steps-step-meta-font-size: 0.875rem;
+
+  /* ITA - general */
+  --ita-border-color: var(--nijmegen-color-grijs-400);
+  --ita-color-primary: var(--nijmegen-color-primary);
+  --ita-color-secondary: var(--nijmegen-color-primary-tint);
+  --ita-header-heading-margin-inline: var(--utrecht-space-inline-md);
+
+  /* ITA - dashboard / footer / cv layout gaps (sizing, unchanged from ITA defaults) */
+  --ita-footer-link-list-column-gap: 4vw;
+  --ita-dashboard-tables-column-gap: 4vw;
+  --ita-cv-details-sections-column-gap: 1rem;
+  --ita-cv-details-sections-row-gap: 1rem;
+
+  /* ITA - detail section */
+  --ita-detail-section-border-width: 1px;
+  --ita-detail-section-border-color: var(--ita-border-color);
+  --ita-detail-section-body-padding-inline-start: 1rem;
+  --ita-detail-section-body-padding-inline-end: 1rem;
+  --ita-detail-section-header-padding-inline-start: 1rem;
+  --ita-detail-section-header-padding-inline-end: 1rem;
+  --ita-detail-section-header-padding-block-start: 0.5rem;
+  --ita-detail-section-header-padding-block-end: 0.5rem;
+  --ita-detail-section-header-background-color: var(--ita-color-secondary);
+
+  /* ITA - step */
+  --ita-step-padding-block-end: 0.8rem;
+  --ita-step-border-bottom-width: 1px;
+  --ita-step-border-bottom-color: rgba(0, 0, 0, 0.6);
+  --ita-step-body-row-gap: 0.75rem;
+  --ita-step-meta-list-column-gap: 0.8rem;
+  --ita-step-meta-list-row-gap: 1rem;
+  --ita-step-distance: 1rem;
+
+  /* ITA - interne toelichting */
+  --ita-interne-toelichting-section-border-inline-width: 4px;
+  --ita-interne-toelichting-section-border-inline-style: solid;
+  --ita-interne-toelichting-section-border-inline-color: var(--nijmegen-color-primary);
+
+  /* ITA - radio tabs */
+  --ita-radio-tabs-border-block-end: 1px solid var(--ita-border-color);
+  --ita-radio-tabs-label-padding-block: 1rem;
+  --ita-radio-tabs-label-padding-inline: 1rem;
+  --ita-radio-tabs-label-border-block-width: 4px;
+  --ita-radio-tabs-label-border-block-style: solid;
+  --ita-radio-tabs-label-border-block-color: transparent;
+  --ita-radio-tabs-label-checked-border-color: var(--nijmegen-color-primary);
+  --ita-radio-tabs-label-checked-color: var(--ita-radio-tabs-label-checked-border-color);
+  --ita-radio-tabs-label-checked-background-color: var(--nijmegen-color-primary-tint);
+}
+
+/*
+ * The <svg> inside .utrecht-logo (see header.tmp.html) carries its own
+ * width="425.1" height="141.7" attributes - its native pixel size. The
+ * --utrecht-logo-* vars above only constrain the .utrecht-logo figure,
+ * not the svg itself, so without this rule the svg ignores the figure's
+ * box and renders at full native size regardless. A CSS width/height
+ * always outranks a presentation attribute, so this is what actually
+ * shrinks the rendered logo.
+ */
+.utrecht-logo svg {
+  width: var(--utrecht-logo-max-inline-size);
+  height: auto;
+  max-width: 100%;
+}
+
+/* ---- 3. Links - plain element styling, no var indirection ---- */
+a {
+  color: var(--nijmegen-color-secondary);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--nijmegen-color-zeegroen-700);
+  text-decoration: none;
+}
+
+a:focus {
+  color: var(--nijmegen-color-zeegroen-700);
+  background-color: var(--nijmegen-color-zeegroen-200);
+}
+
+a:visited {
+  color: var(--nijmegen-color-zeegroen-800);
+}
 
 /* source-sans-pro-cyrillic-ext-400-normal */
 @font-face {
