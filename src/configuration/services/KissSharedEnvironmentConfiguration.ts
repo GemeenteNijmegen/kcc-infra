@@ -233,4 +233,13 @@ export const KissSharedEnvironmentConfiguration = {
     description: 'KISS config: API KEY for objecten API vac',
     path: `/${Statics.projectName}/kiss/vac/objecten-api-key`,
   }),
+
+  // Managementinformatie / Rapportages
+  MANAGEMENTINFORMATIE_API_KEY: new AppParameter({
+    type: 'secret',
+    id: 'kiss-kcc-managementinformatie-api-key',
+    description: 'KISS config: Gedeeld secret voor de managementinformatie API (JWT signing key)',
+    path: `/${Statics.projectName}/kiss/managementinformatie/api-key`,
+    generateSecret: true,
+  }),
 };

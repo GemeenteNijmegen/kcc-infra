@@ -23,6 +23,12 @@ export interface AppParameterProps {
    * Default value for the parameter
    */
   readonly defaultValue?: string;
+  /**
+   * Automatically generate a random secret value on creation.
+   * Only applicable when type is 'secret'.
+   * @default false
+   */
+  readonly generateSecret?: boolean;
 }
 
 export class AppParameter {
@@ -53,6 +59,12 @@ export class AppParameter {
       this.createdSecret = new Secret(scope, id, {
         secretName: this.props.path,
         description: this.props.description,
+        ...(this.props.generateSecret && {
+          generateSecretString: {
+            excludePunctuation: true,
+            passwordLength: 32,
+          },
+        }),
       });
       return this.createdSecret;
     }
