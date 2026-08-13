@@ -1,0 +1,56 @@
+info:
+  name: contactmomentendetails
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{kissBaseUrl}}/api/contactmomentendetails"
+  params:
+    - name: from
+      value: "2024-01-01T00:00:00Z"
+      type: query
+    - name: to
+      value: "2024-12-31T23:59:59Z"
+      type: query
+    - name: pageSize
+      value: "100"
+      type: query
+    - name: page
+      value: "1"
+      type: query
+  auth: inherit
+
+script:
+  pre-request: |
+    const jwt = require('jsonwebtoken');
+
+    const secret = bru.getEnvVar('managementinformatieApiKey');
+
+    const now = Math.floor(Date.now() / 1000);
+    const payload = {
+      iat: now,
+      exp: now + 86400 // 24 uur geldig
+    };
+
+    const token = jwt.sign(payload, secret, { algorithm: 'HS256' });
+
+    bru.setVar('managementinformatieToken', token);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  KISS Managementinformatie API - Contactmomentendetails
+
+  Dit endpoint retourneert contactmomentdetails voor rapportagedoeleinden.
+  Pas de 'from' en 'to' parameters aan naar het gewenste datumbereik.
+
+  Authenticatie: Het pre-request script genereert automatisch een JWT token
+  op basis van het 'managementinformatieApiKey' secret uit de environment.
+  Na de volgende deploy wordt dit secret automatisch aangemaakt in AWS Secrets Manager met een gegenereerde waarde (32 tekens, alfanumeriek). Je hoeft de waarde alleen op te halen uit Secrets Manager voor gebruik in Bruno.
+
+  Zie docs/rapportages/kiss-managementinformatie-api.md voor de volledige veldomschrijving.

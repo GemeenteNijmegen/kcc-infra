@@ -6,3 +6,7 @@ variables:
     name: open-klant-apikey
   - name: open-klant-baseurl
     value: https://mijn-services.accp.nijmegen.nl//open-klant/klantinteracties
+  - name: kissBaseUrl
+    value: https://kiss.kcc-dev.csp-nijmegen.nl
+  - secret: true
+    name: managementinformatieApiKey
