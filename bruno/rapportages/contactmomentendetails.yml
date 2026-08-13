@@ -5,13 +5,13 @@ info:
 
 http:
   method: GET
-  url: "{{kissBaseUrl}}/api/contactmomentendetails"
+  url: "{{kissBaseUrl}}/api/contactmomentendetails?from=2024-01-01T00:00:00Z&to=2026-12-31T23:59:59Z&pageSize=100&page=1"
   params:
     - name: from
-      value: "2024-01-01T00:00:00Z"
+      value: 2024-01-01T00:00:00Z
       type: query
     - name: to
-      value: "2024-12-31T23:59:59Z"
+      value: 2026-12-31T23:59:59Z
       type: query
     - name: pageSize
       value: "100"
@@ -21,24 +21,26 @@ http:
       type: query
   auth: inherit
 
-script:
-  pre-request: |
-    const jwt = require('jsonwebtoken');
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const jwt = require('jsonwebtoken');
 
-    const secret = bru.getEnvVar('managementinformatieApiKey');
+              const secret = bru.getEnvVar('managementinformatieApiKey');
 
-    const now = Math.floor(Date.now() / 1000);
-    const payload = {
-      iat: now,
-      exp: now + 86400 // 24 uur geldig
-    };
+              const now = Math.floor(Date.now() / 1000);
+              const payload = {
+                iat: now,
+                exp: now + 86400 // 24 uur geldig
+              };
 
-    const token = jwt.sign(payload, secret, { algorithm: 'HS256' });
+              const token = jwt.sign(payload, secret, { algorithm: 'HS256' });
 
-    bru.setVar('managementinformatieToken', token);
+              bru.setVar('managementinformatieToken', token);
 
 settings:
-  encodeUrl: true
+  encodeUrl: false
   timeout: 0
   followRedirects: true
   maxRedirects: 5
