@@ -179,7 +179,7 @@ body.ita-theme {
   /* ITA - general */
   --ita-border-color: var(--nijmegen-color-grijs-400);
   --ita-color-primary: var(--nijmegen-color-primary);
-  --ita-color-secondary: var(--nijmegen-color-primary-tint);
+  --ita-color-secondary: var(--utrecht-table-header-background-color);
   --ita-header-heading-margin-inline: var(--utrecht-space-inline-md);
 
   /* ITA - dashboard / footer / cv layout gaps (sizing, unchanged from ITA defaults) */
@@ -197,7 +197,7 @@ body.ita-theme {
   --ita-detail-section-header-padding-inline-end: 1rem;
   --ita-detail-section-header-padding-block-start: 0.5rem;
   --ita-detail-section-header-padding-block-end: 0.5rem;
-  --ita-detail-section-header-background-color: var(--ita-color-secondary);
+  --ita-detail-section-header-background-color: var(--nijmegen-color-grijs-200);
 
   /* ITA - step */
   --ita-step-padding-block-end: 0.8rem;
@@ -223,6 +223,26 @@ body.ita-theme {
   --ita-radio-tabs-label-checked-border-color: var(--nijmegen-color-primary);
   --ita-radio-tabs-label-checked-color: var(--ita-radio-tabs-label-checked-border-color);
   --ita-radio-tabs-label-checked-background-color: var(--nijmegen-color-primary-tint);
+
+  /* Button - huisstijl accent (zeegroen) is the design system's "green", per design-tokens button.tokens.json */
+  --utrecht-button-border-radius: 4px;
+  --utrecht-button-primary-action-background-color: var(--nijmegen-color-secondary);
+  --utrecht-button-primary-action-color: var(--nijmegen-color-wit);
+  --utrecht-button-primary-action-hover-background-color: var(--nijmegen-color-zeegroen-700);
+  --utrecht-button-primary-action-active-background-color: var(--nijmegen-color-zeegroen-800);
+  --utrecht-button-secondary-action-border-color: var(--nijmegen-color-secondary);
+  --utrecht-button-secondary-action-color: var(--nijmegen-color-secondary);
+  --utrecht-button-secondary-action-hover-background-color: var(--nijmegen-color-zeegroen-100);
+  --utrecht-button-secondary-action-hover-border-color: var(--nijmegen-color-zeegroen-700);
+  --utrecht-button-secondary-action-hover-color: var(--nijmegen-color-zeegroen-700);
+
+  /* Radio button / checkbox - checked state uses the same accent as buttons */
+  --utrecht-radio-button-checked-background-color: var(--nijmegen-color-secondary);
+  --utrecht-radio-button-checked-hover-background-color: var(--nijmegen-color-zeegroen-700);
+  --utrecht-radio-button-checked-active-background-color: var(--nijmegen-color-zeegroen-800);
+  --utrecht-checkbox-checked-background-color: var(--nijmegen-color-secondary);
+  --utrecht-checkbox-checked-hover-background-color: var(--nijmegen-color-zeegroen-700);
+  --utrecht-checkbox-checked-active-background-color: var(--nijmegen-color-zeegroen-800);
 }
 
 /*
@@ -253,11 +273,24 @@ a:hover {
 
 a:focus {
   color: var(--nijmegen-color-zeegroen-700);
-  background-color: var(--nijmegen-color-zeegroen-200);
 }
 
 a:visited {
   color: var(--nijmegen-color-zeegroen-800);
+}
+
+/* Native accent-color fallback for the checked state of radio/checkbox inputs */
+.utrecht-radio-button:checked,
+.utrecht-checkbox:checked {
+  accent-color: var(--nijmegen-color-secondary);
+}
+
+.utrecht-alert-dialog__message {
+  background-color: var(--ita-detail-section-header-background-color);
+}
+
+.utrecht-button--primary-action .utrecht-icon {
+  color: var(--nijmegen-color-wit);
 }
 
 /* source-sans-pro-cyrillic-ext-400-normal */
