@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { Duration, RemovalPolicy, Token } from 'aws-cdk-lib';
 import { CachePolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -15,6 +14,7 @@ import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
+import { join } from 'path';
 import { ItaServiceConfiguration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { ContainerServiceProps, IContainerService } from '../constructs/ContainerPlatform';
@@ -157,7 +157,7 @@ export class ItaService extends Construct implements IContainerService {
       compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
     });
 
-    task.addContainer('ita', {
+    task.addContainer('ita-poller', {
       image: ContainerImage.fromRegistry(this.props.serviceConfiguration.imagePoller),
       logging: new AwsLogDriver({
         streamPrefix: 'logs',
