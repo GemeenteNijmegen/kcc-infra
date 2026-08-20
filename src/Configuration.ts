@@ -1,11 +1,9 @@
 import { Criticality } from '@gemeentenijmegen/aws-constructs';
 import { developmentConfiguration } from './configuration/developmentConfiguration';
-import { sandBoxConfiguration } from './configuration/sandBoxConfiguration';
 import { Configuration } from './ConfigurationInterfaces';
 import { Statics } from './Statics';
 
 const EnvironmentConfigurations: { [key: string]: Configuration } = {
-  sandbox: sandBoxConfiguration,
   development: developmentConfiguration,
   acceptance: {
     branch: 'acceptance',

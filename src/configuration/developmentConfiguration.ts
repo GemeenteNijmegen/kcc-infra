@@ -53,8 +53,8 @@ export const developmentConfiguration = {
     subdomain: 'taken',
     loadbalancerRulePriority: 50,
     taskSize: { cpu: '512', memory: '1024' },
-    imageWebserver: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.web:3.1',
-    imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.1',
+    imageWebserver: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.web:3.3',
+    imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.3',
     pollerSchedule: Schedule.rate(Duration.minutes(5)),
     environment: {
       ...ItaSharedEnvironmentConfiguration,
