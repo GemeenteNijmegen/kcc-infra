@@ -285,7 +285,7 @@ a:visited {
   accent-color: var(--nijmegen-color-secondary);
 }
 
-.utrecht-alert-dialog__message {
+.utrecht-alert-dialog {
   background-color: var(--ita-detail-section-header-background-color);
 }
 
