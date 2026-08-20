@@ -181,6 +181,14 @@ export const ItaSharedEnvironmentConfiguration =
   }),
 
 
+  MedewerkerOptions__Type: new AppParameter({
+    type: 'ssm',
+    id: 'ita-medewerker-objecttype-url',
+    path: `/${Statics.projectName}/ita/objecttypen/medewerker/type-url`,
+    description: 'ITA: Medewerker objecttype URL',
+  }),
+
+
   // Styling in Gemeente Nijmegen theme (no NLDS used as this is currently not sufficient)
   RESOURCES__THEME_NAAM: 'nijmegen-theme',
   RESOURCES__LOGO_URL: new AppParameter({

@@ -63,6 +63,7 @@ export const developmentConfiguration = {
       LogBoekOptions__TypeVersion: '1',
       AfdelingOptions__TypeVersion: '1',
       GroepOptions__TypeVersion: '1',
+      MedewerkerOptions__TypeVersion: '1',
     },
   }],
   kibanaServices: [{
