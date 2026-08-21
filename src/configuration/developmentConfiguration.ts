@@ -57,9 +57,9 @@ export const developmentConfiguration = {
     imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.3',
     taskNotificationsSchedule: Schedule.rate(Duration.minutes(5)),
     reminderNotificationsSchedule: Schedule.cron({
-      "day": "8",
-      month: '*',
-      weekDay: '1-5',
+      minute: '0',
+      hour: '8',
+      weekDay: '1-5', // working days
     }),
     environment: {
       ...ItaSharedEnvironmentConfiguration,
