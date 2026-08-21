@@ -55,7 +55,8 @@ export const developmentConfiguration = {
     taskSize: { cpu: '512', memory: '1024' },
     imageWebserver: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.web:3.3',
     imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.3',
-    pollerSchedule: Schedule.rate(Duration.minutes(5)),
+    taskNotificationsSchedule: Schedule.rate(Duration.minutes(5)),
+    reminderNotificationsSchedule: Schedule.rate(Duration.minutes(5)),
     environment: {
       ...ItaSharedEnvironmentConfiguration,
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: 'true',

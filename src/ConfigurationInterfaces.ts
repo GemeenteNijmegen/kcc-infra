@@ -140,7 +140,8 @@ export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, Serv
   environment: Record<string, string | AppParameter>;
   imageWebserver: string;
   imagePoller: string;
-  pollerSchedule: Schedule;
+  taskNotificationsSchedule: Schedule;
+  reminderNotificationsSchedule: Schedule;
 }
 
 export interface OpenObjectServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {

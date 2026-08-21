@@ -1,10 +1,11 @@
+import { join } from 'path';
 import { Duration, RemovalPolicy, Token } from 'aws-cdk-lib';
 import { CachePolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ISecurityGroup, Port, SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, Secret, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { Rule } from 'aws-cdk-lib/aws-events';
+import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DatabaseInstance } from 'aws-cdk-lib/aws-rds';
@@ -14,7 +15,6 @@ import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
-import { join } from 'path';
 import { ItaServiceConfiguration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { ContainerServiceProps, IContainerService } from '../constructs/ContainerPlatform';
@@ -27,15 +27,28 @@ export interface ItaServiceProps {
   readonly serviceConfiguration: ItaServiceConfiguration;
 }
 
+interface PollerConfiguration {
+  id: string;
+  schedule: Schedule;
+  mode: string;
+}
+
 export class ItaService extends Construct implements IContainerService {
 
   static readonly WEB_CONTAINER_PORT = 8080;
 
   readonly id: string;
 
+  readonly logs: LogGroup;
+
   constructor(scope: Construct, id: string, private props: ItaServiceProps) {
     super(scope, id);
     this.id = props.serviceConfiguration.id;
+
+    this.logs = new LogGroup(this, 'logs', {
+      retention: RetentionDays.ONE_MONTH,
+    });
+
   }
 
   bind(platform: ContainerServiceProps): void {
@@ -44,19 +57,25 @@ export class ItaService extends Construct implements IContainerService {
     const subdomain = this.props.serviceConfiguration.subdomain;
     const priority = this.props.serviceConfiguration.loadbalancerRulePriority;
 
-    const logs = new LogGroup(this, 'logs', {
-      retention: RetentionDays.ONE_MONTH,
-    });
-
     const db = this.dbCreate(this.props.serviceConfiguration.id, platform);
     const secrets = this.getSecretConfig(db);
     const environment = this.getEnvironmentConfig();
 
-    const webService = this.setupWebService(logs, platform, environment, secrets);
-    const pollerService = this.setupPollerService(logs, platform, environment, secrets);
+    const webService = this.setupWebService(platform, environment, secrets);
+    const takenNotificationsService = this.setupPollerService(platform, environment, secrets, {
+      mode: 'nieuwe-internetaak-notificatie',
+      id: 'taken',
+      schedule: this.props.serviceConfiguration.taskNotificationsSchedule,
+    });
+    const reminderNotificationsService = this.setupPollerService(platform, environment, secrets, {
+      mode: 'verlopen-contactverzoek-herinnering-notificatie',
+      id: 'reminders',
+      schedule: this.props.serviceConfiguration.reminderNotificationsSchedule,
+    });
 
     this.allowDbConnectivity(webService.connections.securityGroups, db.securityGroup, db.port);
-    this.allowDbConnectivity(pollerService.securityGroups ?? [], db.securityGroup, db.port);
+    this.allowDbConnectivity(takenNotificationsService.securityGroups ?? [], db.securityGroup, db.port);
+    this.allowDbConnectivity(reminderNotificationsService.securityGroups ?? [], db.securityGroup, db.port);
 
     const staticAssetsBucket = this.setupStaticAssets();
 
@@ -91,7 +110,7 @@ export class ItaService extends Construct implements IContainerService {
   }
 
 
-  private setupWebService(logs: LogGroup, platform: ContainerServiceProps, environment: Record<string, string>, secrets: Record<string, Secret>) {
+  private setupWebService(platform: ContainerServiceProps, environment: Record<string, string>, secrets: Record<string, Secret>) {
     const isEc2 = platform.computeProvider === 'EC2';
     const config = this.props.serviceConfiguration;
 
@@ -105,7 +124,7 @@ export class ItaService extends Construct implements IContainerService {
       image: ContainerImage.fromRegistry(this.props.serviceConfiguration.imageWebserver),
       logging: new AwsLogDriver({
         streamPrefix: 'logs',
-        logGroup: logs,
+        logGroup: this.logs,
       }),
       portMappings: [{
         containerPort: ItaService.WEB_CONTAINER_PORT,
@@ -147,23 +166,31 @@ export class ItaService extends Construct implements IContainerService {
     return service;
   }
 
-  private setupPollerService(logs: LogGroup, platform: ContainerServiceProps, environment: Record<string, string>, secrets: Record<string, Secret>) {
+  private setupPollerService(
+    platform: ContainerServiceProps,
+    environment: Record<string, string>,
+    secrets: Record<string, Secret>,
+    pollerConfig: PollerConfiguration,
+  ) {
     const isEc2 = platform.computeProvider === 'EC2';
     const config = this.props.serviceConfiguration;
 
-    const task = new TaskDefinition(this, 'poller-task', {
+    const task = new TaskDefinition(this, `${pollerConfig.id}-task`, {
       cpu: config.taskSize?.cpu ?? '512',
       memoryMiB: config.taskSize?.memory ?? '1024',
       compatibility: isEc2 ? Compatibility.EC2 : Compatibility.FARGATE,
     });
 
-    task.addContainer('ita-poller', {
+    task.addContainer(`${pollerConfig.id}-notifications`, {
       image: ContainerImage.fromRegistry(this.props.serviceConfiguration.imagePoller),
       logging: new AwsLogDriver({
         streamPrefix: 'logs',
-        logGroup: logs,
+        logGroup: this.logs,
       }),
-      environment: environment,
+      environment: {
+        POLLER_MODE: pollerConfig.mode,
+        ...environment,
+      },
       secrets: secrets,
       memoryReservationMiB: isEc2 ? 512 : undefined,
     });
@@ -177,9 +204,9 @@ export class ItaService extends Construct implements IContainerService {
     });
 
     // Run on schedule
-    const rule = new Rule(this, 'poller-schedule', {
-      schedule: this.props.serviceConfiguration.pollerSchedule,
-      description: 'ElasticSync scheduled task for source: ita poller',
+    const rule = new Rule(this, `${pollerConfig.id}-schedule`, {
+      schedule: pollerConfig.schedule,
+      description: `ElasticSync scheduled task for source: ${pollerConfig.id} notifications poller`,
     });
     rule.addTarget(ecsTask);
 
