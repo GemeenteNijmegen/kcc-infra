@@ -56,7 +56,11 @@ export const developmentConfiguration = {
     imageWebserver: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.web:3.3',
     imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.3',
     taskNotificationsSchedule: Schedule.rate(Duration.minutes(5)),
-    reminderNotificationsSchedule: Schedule.rate(Duration.minutes(5)),
+    reminderNotificationsSchedule: Schedule.cron({
+      "day": "8",
+      month: '*',
+      weekDay: '1-5',
+    }),
     environment: {
       ...ItaSharedEnvironmentConfiguration,
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: 'true',
