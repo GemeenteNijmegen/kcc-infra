@@ -5,12 +5,12 @@ import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ISecurityGroup, Port, SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { AwsLogDriver, BaseService, Compatibility, ContainerImage, Ec2Service, FargateService, Protocol, Secret, TaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
-import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DatabaseInstance } from 'aws-cdk-lib/aws-rds';
 import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import { Schedule, ScheduleExpression } from 'aws-cdk-lib/aws-scheduler';
+import { EcsRunEc2Task, EcsRunFargateTask } from 'aws-cdk-lib/aws-scheduler-targets';
 import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
@@ -29,7 +29,7 @@ export interface ItaServiceProps {
 
 interface PollerConfiguration {
   id: string;
-  schedule: Schedule;
+  schedule: ScheduleExpression;
   mode: string;
 }
 
@@ -195,22 +195,29 @@ export class ItaService extends Construct implements IContainerService {
       memoryReservationMiB: isEc2 ? 512 : undefined,
     });
 
-    // Create a ECS task
-    const ecsTask = new EcsTask({
-      cluster: platform.cluster,
+    // Security group for the scheduled task, used to allow DB connectivity below
+    const securityGroup = new SecurityGroup(this, `${pollerConfig.id}-sg`, {
+      vpc: platform.vpc,
+    });
+
+    const targetProps = {
       taskDefinition: task,
       subnetSelection: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
+      securityGroups: [securityGroup],
       taskCount: 1,
-    });
+    };
+    const ecsTarget = isEc2
+      ? new EcsRunEc2Task(platform.cluster, targetProps)
+      : new EcsRunFargateTask(platform.cluster, targetProps);
 
-    // Run on schedule
-    const rule = new Rule(this, `${pollerConfig.id}-schedule`, {
+    // Run on schedule (EventBridge Scheduler, so cron schedules can carry a time zone)
+    new Schedule(this, `${pollerConfig.id}-schedule`, {
       schedule: pollerConfig.schedule,
+      target: ecsTarget,
       description: `ElasticSync scheduled task for source: ${pollerConfig.id} notifications poller`,
     });
-    rule.addTarget(ecsTask);
 
-    return ecsTask;
+    return { securityGroups: [securityGroup] };
   }
 
   /**

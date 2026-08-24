@@ -1,6 +1,6 @@
 import { Criticality } from '@gemeentenijmegen/aws-constructs';
 import { Environment } from 'aws-cdk-lib';
-import { Schedule } from 'aws-cdk-lib/aws-events';
+import { ScheduleExpression } from 'aws-cdk-lib/aws-scheduler';
 import { AppParameter } from './constructs/AppParameter';
 
 /**
@@ -140,8 +140,8 @@ export interface ItaServiceConfiguration extends MainTaskSizeConfiguration, Serv
   environment: Record<string, string | AppParameter>;
   imageWebserver: string;
   imagePoller: string;
-  taskNotificationsSchedule: Schedule;
-  reminderNotificationsSchedule: Schedule;
+  taskNotificationsSchedule: ScheduleExpression;
+  reminderNotificationsSchedule: ScheduleExpression;
 }
 
 export interface OpenObjectServiceConfiguration extends MainTaskSizeConfiguration, ServiceConfiguration, ContainerImageConfiguration {
