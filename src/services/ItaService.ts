@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { Duration, RemovalPolicy, Token } from 'aws-cdk-lib';
 import { CachePolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -15,6 +14,7 @@ import { Secret as SecretParameter } from 'aws-cdk-lib/aws-secretsmanager';
 import { DnsRecordType } from 'aws-cdk-lib/aws-servicediscovery';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
+import { join } from 'path';
 import { ItaServiceConfiguration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { ContainerServiceProps, IContainerService } from '../constructs/ContainerPlatform';
@@ -211,7 +211,7 @@ export class ItaService extends Construct implements IContainerService {
       : new EcsRunFargateTask(platform.cluster, targetProps);
 
     // Run on schedule (EventBridge Scheduler, so cron schedules can carry a time zone)
-    new Schedule(this, `${pollerConfig.id}-schedule`, {
+    new Schedule(this, `${pollerConfig.id}-schedule-new`, {
       schedule: pollerConfig.schedule,
       target: ecsTarget,
       description: `ElasticSync scheduled task for source: ${pollerConfig.id} notifications poller`,
