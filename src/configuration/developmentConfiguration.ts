@@ -1,6 +1,6 @@
 import { Criticality } from '@gemeentenijmegen/aws-constructs';
-import { Duration } from 'aws-cdk-lib';
-import { Schedule } from 'aws-cdk-lib/aws-events';
+import { Duration, TimeZone } from 'aws-cdk-lib';
+import { ScheduleExpression } from 'aws-cdk-lib/aws-scheduler';
 import { Configuration } from '../ConfigurationInterfaces';
 import { AppParameter } from '../constructs/AppParameter';
 import { Statics } from '../Statics';
@@ -55,11 +55,12 @@ export const developmentConfiguration = {
     taskSize: { cpu: '512', memory: '1024' },
     imageWebserver: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.web:3.3',
     imagePoller: 'ghcr.io/interne-taak-afhandeling/internetaakafhandeling.poller:3.3',
-    taskNotificationsSchedule: Schedule.rate(Duration.minutes(5)),
-    reminderNotificationsSchedule: Schedule.cron({
+    taskNotificationsSchedule: ScheduleExpression.rate(Duration.minutes(5)),
+    reminderNotificationsSchedule: ScheduleExpression.cron({
       minute: '0',
       hour: '8',
-      weekDay: '1-5', // working days
+      weekDay: 'MON-FRI', // working days
+      timeZone: TimeZone.of('Europe/Amsterdam'),
     }),
     environment: {
       ...ItaSharedEnvironmentConfiguration,
